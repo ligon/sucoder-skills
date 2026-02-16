@@ -60,6 +60,18 @@ Skills live in a separate repository so that an agent working on tool code
 cannot simultaneously modify the prompts that influence agent behaviour.
 All skill changes should be human-reviewed before merging.
 
+## Why Org-mode?
+
+Many skill files and references use `.org` rather than Markdown.  Org-mode is
+a plain-text format that every LLM reads fluently, but it also has structured
+features — TODO states, properties, tags, executable source blocks — that
+Markdown lacks.  For skills that guide agent behaviour, those features let a
+single file carry metadata, runnable examples, and checklists rather than just
+prose.
+
+You don't need Emacs to read or edit `.org` files — any text editor works and
+GitHub renders them natively.
+
 ## License
 
 Apache-2.0.  See [LICENSE](LICENSE).
