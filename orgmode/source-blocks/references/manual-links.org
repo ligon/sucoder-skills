@@ -1,0 +1,9 @@
+#+TITLE: Org Manual Pointers — Source Blocks
+#+DESCRIPTION: Manual sections covering Babel source blocks and execution.
+
+- [[https://orgmode.org/manual/Working-with-Source-Code.html][Working with Source Code — Overview]]
+- [[https://orgmode.org/manual/Structure-of-Code-Blocks.html][Structure of Code Blocks]]
+- [[https://orgmode.org/manual/Using-Header-Arguments.html][Using Header Arguments]]
+- [[https://orgmode.org/manual/Evaluating-Code-Blocks.html][Evaluating Code Blocks]]
+- [[https://orgmode.org/manual/Results-of-Evaluation.html][Results of Evaluation]]
+- [[https://orgmode.org/manual/Tangle-Properties.html][Tangle and Header Arguments in Properties]]

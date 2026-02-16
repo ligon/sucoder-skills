@@ -1,0 +1,8 @@
+#+TITLE: Org Manual Pointers — Tags
+#+DESCRIPTION: Manual sections covering tag usage and inheritance.
+
+- [[https://orgmode.org/manual/Tags.html][Tags — Overview]]
+- [[https://orgmode.org/manual/Tag-Inheritance.html][Tag Inheritance]]
+- [[https://orgmode.org/manual/Setting-Tags.html][Setting Tags]]
+- [[https://orgmode.org/manual/Tag-Groups.html][Tag Groups]]
+- [[https://orgmode.org/manual/Tag-Searching.html][Tag Searching]]

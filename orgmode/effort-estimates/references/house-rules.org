@@ -1,0 +1,16 @@
+#+TITLE: Effort Estimate House Rules
+#+DESCRIPTION: Workspace defaults for estimating task effort.
+
+* Property Name
+- Use `EFFORT` properties with time strings (e.g., `0:30`, `2:00`). Insert via `C-c C-x e`.
+
+* Agenda Columns
+- Keep agenda column format `%80ITEM %5TODO %7EFFORT %PRIORITY 100%TAGS`. Ensure tasks with estimates populate the `EFFORT` column.
+
+* Defaults
+- Configure `org-global-properties` or file-level `#+PROPERTY: EFFORT_ALL` lists to offer common durations.
+
+* Clocking Alignment
+- When clocking work, use `org-clock-sum` to compare actual vs. estimated effort; include summary commands in handoffs.
+
+Append new policies as practices evolve.

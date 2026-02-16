@@ -1,0 +1,16 @@
+#+TITLE: Publishing House Rules
+#+DESCRIPTION: Workspace conventions for org-publish projects.
+
+* Project Alist
+- Store publishing configuration in the repository README or dedicated config file (e.g., `docs/publish.org`). If you define an `org-publish-project-alist`, document it here.
+
+* Output Paths
+- Publish into `docs/_site` or similar directories; keep build artifacts out of tracked pages unless explicitly required.
+
+* Linking
+- Ensure `org-publish` replaces Org links with published URLs; avoid hard-coded paths.
+
+* Scripts
+- Consider providing helper scripts (`org-publish-all`) similar to exporting if publishing becomes routine.
+
+Update as publishing pipelines evolve.

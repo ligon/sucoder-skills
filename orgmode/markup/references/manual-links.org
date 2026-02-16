@@ -1,0 +1,12 @@
+#+TITLE: Org Manual Pointers — Markup
+#+DESCRIPTION: Quick links to relevant sections in the upstream Org-mode manual.
+
+- [[https://orgmode.org/manual/Markup-for-Rich-Contents.html][Markup for Rich Contents — Overview]]
+- [[https://orgmode.org/manual/Emphasis-and-Monospace.html][Emphasis and Monospace]]
+- [[https://orgmode.org/manual/Subscripts-and-Superscripts.html][Subscripts and Superscripts]]
+- [[https://orgmode.org/manual/Special-Symbols.html][Special Symbols]]
+- [[https://orgmode.org/manual/Horizontal-Rules.html][Horizontal Rules]]
+- [[https://orgmode.org/manual/Table-of-Contents.html][Table of Contents]]
+- [[https://orgmode.org/manual/Links-in-Exported-Documents.html][Links in Exported Documents]]
+- [[https://orgmode.org/manual/Paragraphs.html][Paragraphs]]
+- [[https://orgmode.org/manual/Special-Blocks.html][Special Blocks]]

@@ -1,0 +1,16 @@
+#+TITLE: Hyperlink House Rules
+#+DESCRIPTION: Local preferences for managing links in Org documents.
+
+* Targets and Anchors
+- Prefer descriptive internal targets (`<<sec:command-reference>>`) over numeric IDs so diffs stay meaningful.
+- When linking to headings, use the `CUSTOM_ID` property (`:PROPERTIES: ... :CUSTOM_ID: docs-command`) instead of raw radio targets when the section may move.
+
+* Link Names
+- Use lowercase link keywords (e.g., `[[file:README.org::*Section][text]]`) to match our lowercase directive style.
+- For file links, drop redundant `./` prefixes and keep paths relative to the current document unless external.
+
+* Export Considerations
+- For external URLs, provide a human-readable description (`[[https://example.com][Example reference]]`) rather than exposing the bare link.
+- Add `#+ATTR_HTML:` / `#+ATTR_LATEX:` where needed instead of embedding styling hints directly in link text.
+
+Expand this list as new patterns crop up.

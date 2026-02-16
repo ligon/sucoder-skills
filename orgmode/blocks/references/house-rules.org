@@ -1,0 +1,13 @@
+#+TITLE: Block House Rules
+#+DESCRIPTION: Local preferences for Org structural blocks (non-source).
+
+* Lowercase Directives
+- Use lowercase block keywords: `#+begin_example`, `#+begin_quote`, `#+end_...`, `#+results:`. Maintain lowercase even if exporters accept uppercase.
+
+* Blank Lines
+- Leave a blank line before and after blocks unless they belong inside list/table contexts that forbid blanks.
+
+* Captions & Names
+- Use `#+name:` and `#+caption:` (lowercase) when blocks need referencing in exports.
+
+Add new guidelines as block usage evolves.

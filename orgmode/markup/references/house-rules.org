@@ -1,0 +1,21 @@
+#+TITLE: Markup House Rules
+#+DESCRIPTION: Workspace-specific preferences that augment the Org manual.
+
+* Math
+- Inline math must use `\( ... \)` instead of `$...$`.
+- Display math must use `\[ ... \]` instead of `$$...$$`.
+
+* Block Directives
+- Prefer lowercase keywords: `#+begin_src`, `#+end_src`, `#+results`, `#+name:` (Org treats them case-insensitive, but lowercase keeps diffs tidy).
+- Leave a blank line before `#+begin_*` blocks unless they are inside tables or list items that forbid blank lines.
+
+* Emphasis
+- Avoid using inline bold as pseudo-headings; promote to real headlines instead.
+
+* ASCII Discipline
+- Stick to ASCII. Use LaTeX entities/macros (`\alpha`, `\ndash`, etc.) for special symbols.
+
+* Templates
+- Annotate custom macros or exporters with `#+name:` (lowercase) so cross-file references stay consistent.
+
+Feel free to append new house rules here—this file is the single source of truth that skills reference.

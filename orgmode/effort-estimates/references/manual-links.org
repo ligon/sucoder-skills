@@ -1,0 +1,6 @@
+#+TITLE: Org Manual Pointers — Effort Estimates
+#+DESCRIPTION: Manual sections about estimating and displaying effort.
+
+- [[https://orgmode.org/manual/Effort-Estimates.html][Effort Estimates — Overview]]
+- [[https://orgmode.org/manual/Clocking-Work-Time.html][Clocking Work Time]] (for context)
+- [[https://orgmode.org/manual/Column-View.html][Column View]] (for displaying effort)

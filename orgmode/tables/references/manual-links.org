@@ -1,0 +1,10 @@
+#+TITLE: Org Manual Pointers — Tables
+#+DESCRIPTION: Quick links into the upstream Org manual for table-related tasks.
+
+- [[https://orgmode.org/manual/Tables.html][Tables — Overview]]
+- [[https://orgmode.org/manual/Column-Width-and-Alignment.html][Column Width and Alignment]]
+- [[https://orgmode.org/manual/Built_002din-Table-Editor.html][Built-in Table Editor]]
+- [[https://orgmode.org/manual/Tables-in-Easy-Customization.html][Tables in Easy Customization]]
+- [[https://orgmode.org/manual/Org-Table-Spreadsheet.html][Org Table Spreadsheet]]
+- [[https://orgmode.org/manual/References.html][References (formula references in tables)]]
+- [[https://orgmode.org/manual/Named-Tables.html][Named Tables and Ranges]]

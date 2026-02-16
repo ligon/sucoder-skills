@@ -1,0 +1,13 @@
+#+TITLE: Properties and Columns House Rules
+#+DESCRIPTION: Local defaults for property drawers and column view.
+
+* Logging Drawer
+- Keep `LOGBOOK` drawers for state-change notes and clocks (`org-log-into-drawer t`).
+
+* Effort Column
+- Agenda columns default to `%80ITEM %5TODO  %7EFFORT %PRIORITY 100%TAGS`. Ensure tasks have `EFFORT` properties when they need estimates.
+
+* Inheritance
+- Exclude sensitive properties from inheritance as needed (e.g., configure `org-tags-exclude-from-inheritance` for `crypt` and similar tags).
+
+Append it as new property policies emerge.

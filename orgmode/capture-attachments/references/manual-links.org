@@ -1,0 +1,6 @@
+#+TITLE: Org Manual Pointers — Capture and Attachments
+#+DESCRIPTION: Manual sections covering capture templates and file attachments.
+
+- [[https://orgmode.org/manual/Capture-and-Attachments.html][Capture and Attachments — Overview]]
+- [[https://orgmode.org/manual/Capture-templates.html][Capture templates]]
+- [[https://orgmode.org/manual/Attachments.html][Attachments]]

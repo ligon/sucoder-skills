@@ -1,0 +1,9 @@
+#+TITLE: Org Manual Pointers — Document Structure
+#+DESCRIPTION: Quick links to the upstream Org-mode manual sections that back this skill.
+
+- [[https://orgmode.org/manual/Document-Structure.html][Document Structure — Overview]]
+- [[https://orgmode.org/manual/Visibility-Cycling.html][Visibility Cycling]]
+- [[https://orgmode.org/manual/Initial-Visibility.html][Initial Visibility]]
+- [[https://orgmode.org/manual/Motion.html][Motion]]
+- [[https://orgmode.org/manual/Structure-Editing.html][Structure Editing]]
+- [[https://orgmode.org/manual/Sparse-Trees.html][Sparse Trees]]

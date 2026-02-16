@@ -1,0 +1,16 @@
+#+TITLE: Agenda House Rules
+#+DESCRIPTION: Workspace conventions for agenda configuration.
+
+* Diary Integration
+- Enable diary entries in the agenda (`org-agenda-include-diary t`).
+
+* Skip Scheduled
+- Hide scheduled TODOs from the global list when they are already scheduled (`org-agenda-skip-scheduled-if-done t`).
+
+* Columns
+- Use `org-columns-default-format-for-agenda "%80ITEM %5TODO %7EFFORT %PRIORITY 100%TAGS"` to keep agenda columns informative.
+
+* Custom Views
+- Store custom agenda commands in Doom config (`~/.Misc/doom.org`). Update this file if new persistent views are added.
+
+Append new settings as agenda workflows evolve.

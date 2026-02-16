@@ -1,0 +1,52 @@
+#+TITLE: Citation House Rules
+#+DESCRIPTION: Workspace conventions for org-cite and bibliography management.
+
+* Bibliography
+- Default to `~/bibtex/main.bib`. Other common databases live in `~/bibtex/ligon.bib`, `~/bibtex/ligon_published.bib`, and `~/bibtex/selected_working_papers.bib`. Add extra `#+bibliography:` lines when a project needs those files.
+
+* Processors
+- Use `org-cite-export-processors` to route markdown/HTML to `chicago-fullnote-bibliography.csl`, LaTeX to `biblatex` with APA settings, and all others to the Chicago full-note CSL—mirroring Doom config.
+
+* Styles
+- Support the custom `full` style (mapped to biblatex’s `fullcite`) for long-form footnote references.
+
+* Syntax
+- Insert citations with square-bracket commands: `[cite:@key]`, `[cite/t:@key]`, `[cite/u:@key]`, etc. Avoid raw LaTeX `\cite`.
+- Use qualifying prefixes (`cite/t`, `cite/n`, etc.) for textual vs. parenthetical citations consistent with org-cite defaults.
+
+* Export
+- When exporting to LaTeX/PDF, rely on biblatex backend configured in Doom; include `# +print_bibliography:` to emit the bibliography and ensure `\addbibresource{main.bib}` is set when using LaTeX headers.
+
+* Citation Keys
+Rules for constructing BibTeX citation keys in =~/bibtex/main.bib=.
+
+** Core Pattern
+- Single author :: =lastname= + two-digit year. Example: =deaton90=, =abadie21=.
+- Two authors :: =lastname1-lastname2= + two-digit year. Example: =abadie-imbens16=, =dejanvry-sadoulet06=.
+- Three or more authors :: =lastname1-etal= + two-digit year. Example: =abadie-etal17=, =dejanvry-etal91=.
+
+** Formatting
+- Lowercase only :: Never use capital letters in keys.
+- Two-digit years :: Use =90= not =1990=. Exception: historical works (pre-1900) may use four digits, e.g., =smith1776=.
+- Hyphens :: Separate author names with hyphens, not underscores.
+
+** Compound Surnames
+Remove spaces and particles; concatenate into a single lowercase token.
+- "de Janvry" becomes =dejanvry=
+- "van der Weide" becomes =vanderweide=
+- Hyphenated names preserve internal hyphens: "Al-Najjar" becomes =al-najjar=
+
+** Disambiguation
+When the same author(s) publish multiple works in the same year:
+- Letter suffix (preferred) :: Append =a=, =b=, =c=, etc. Example: =deaton90a=, =deaton90b=.
+- Descriptive suffix :: Append a colon and short descriptor for topical clarity. Example: =heckman74:aer=, =heckman74:econometrica=, =attanasio-etal15:family=.
+
+** Organizational Authors
+Concatenate the organization name (lowercased, no spaces) with the year. Example: =worldbank16=, =worldbank89=.
+
+** Avoid
+- Underscores in new keys (legacy only).
+- Three explicit author names when three or more authors exist; use =-etal= instead.
+- Omitting the year except for genuinely undated manuscripts.
+
+Update or expand this file as citation workflows evolve.

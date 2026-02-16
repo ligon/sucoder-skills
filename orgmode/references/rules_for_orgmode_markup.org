@@ -1,0 +1,30 @@
+#+TITLE: Orgmode Authoring Skill
+#+DESCRIPTION: Stylistic rules to apply whenever writing or editing org-mode documents for this workspace.
+
+This skill captures formatting conventions that keep our org-mode sources compatible with downstream LaTeX export and linting checks. When working on an org document, scan the sections below and refer back as needed.
+
+* Sectioning
+Orgmode is outline-focused, and organized under headlines.
+- A headline starts with some number of "*" followed by a space, then a heading.
+
+* Mathematical content
+- Always wrap inline math with =\( … \)=, not dollar signs. Example: write =\(f(x)\)= instead of =$f(x)$=.
+- Use display math with =\[ … \]= rather than double dollar signs.
+
+* Description-style lists
+- Prefer description lists: =-Label :: Details=.
+     Example:
+  - Descriptive tag :: Something about the tag
+- Avoid bold headings followed by a colon (e.g., =*Label*: text=); those do not translate cleanly to LaTeX.
+
+* TODO workflow
+- Each TODO item should become its own heading, e.g., ~=* TODO Review appendix=~.
+- Do not emulate TODO markers with inline bold text.
+- TODO items can show up at any  headline level.
+- Other tags can also function syntactically as TODO tags, E.g., DONE, WAITING, NEXT.
+
+* Character set discipline
+- Stick to ASCII. The build pipeline depends on =pdflatex=, which rejects arbitrary Unicode glyphs.
+- Use LaTeX macros instead of literal symbols: e.g., write =\alpha= instead of the unicode character =α=.
+
+Stay consistent with these patterns whenever you create or update org-mode files. If a document requires an exception, call it out explicitly in a nearby comment so future edits stay intentional.

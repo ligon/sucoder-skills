@@ -1,0 +1,19 @@
+#+TITLE: Export House Rules
+#+DESCRIPTION: Workspace expectations for exporting Org documents.
+
+* Batch Commands
+- Use Emacs in batch mode for reproducible exports: `emacs --batch file.org -l ~/.emacs.d/init.el -f org-latex-export-to-pdf`.
+- When using project-specific init files, point `-l` at the repo’s `init.el` or export harness.
+
+* Targets
+- Default PDF exports should land in the same directory as the `.org` source; clean up auxiliary LaTeX files unless they aid review.
+- For HTML or Markdown, ensure assets (images, CSS) reside in predictable subdirectories (`./Figures/`, `./assets/`).
+
+* Options
+- Set `#+OPTIONS:` flags in the document instead of passing flags via command-line arguments whenever possible.
+- Include `#+cite_export:` when citations require a particular processor.
+
+* Scripts
+- Store helper scripts under `skills/orgmode/exporting/scripts/` and note assumptions (e.g., Emacs installed).
+
+Update this file if export tooling or conventions change.

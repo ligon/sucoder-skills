@@ -1,0 +1,16 @@
+#+TITLE: Table House Rules
+#+DESCRIPTION: Workspace-specific defaults for Org tables.
+
+* Naming
+- Every table must be introduced by a lowercase directive in the form `#+name: tab:<slug>`.
+- Use a descriptive slug that hints at content or purpose (e.g., `tab:file-matrix`, `tab:release-schedule`).
+
+* Width Management
+- Keep tables readable at ~120 characters. Add column width cookies (e.g., `<10>` or `<15>` after the column separator row) to shrink wide tables whenever possible.
+- If a cell absolutely needs more space, consider splitting the table or moving verbose content to a separate block.
+
+* Exports
+- When exporting, include a caption where appropriate: `#+caption: Title` directly above the table.
+- Keep formatting plain ASCII; avoid emoji or non-ASCII glyphs inside cells.
+
+Append more house rules here as patterns emerge.

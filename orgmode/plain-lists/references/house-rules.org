@@ -1,0 +1,17 @@
+#+TITLE: Plain List House Rules
+#+DESCRIPTION: Local preferences for bullets, description lists, and checkboxes.
+
+* Description Lists First
+- Prefer `- Label :: Details` instead of bold pseudo headings (`*Label*: text`).
+- Use description lists for parameter/value listings or short definitions.
+
+* Bullets
+- Default bullet is `-`. Avoid mixing `+` and `*` within the same list unless matching upstream style.
+- Keep list indentation consistent: two spaces for nested bullets, four for code blocks under list items.
+
+* Checkboxes
+- Write them as list items where the bullet is immediately followed by the marker (`- [ ] Task`, `- [X] Done`).
+- Use `[ ]`, `[-]`, `[X]` markers only when the parent headline tracks progress.
+- Promote long-running checklists to real subheadings + TODO items.
+
+Append new list rules here whenever formatting conventions change.

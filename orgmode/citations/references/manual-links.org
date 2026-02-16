@@ -1,0 +1,7 @@
+#+TITLE: Org Manual Pointers — Citation Handling
+#+DESCRIPTION: Key Org manual sections for org-cite configuration and export.
+
+- [[https://orgmode.org/manual/Citation-handling.html][Citation Handling — Overview]]
+- [[https://orgmode.org/manual/Inserting-Citations.html][Inserting Citations]]
+- [[https://orgmode.org/manual/Citation-Export-Processors.html][Citation Export Processors]]
+- [[https://orgmode.org/manual/Bibliography-Printing.html][Bibliography Printing]]

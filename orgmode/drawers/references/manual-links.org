@@ -1,0 +1,6 @@
+#+TITLE: Org Manual Pointers — Drawers
+#+DESCRIPTION: Manual sections covering drawers and their uses.
+
+- [[https://orgmode.org/manual/Drawers.html][Drawers — Overview]]
+- [[https://orgmode.org/manual/Special-Properties.html][Special Properties (LOGBOOK, etc.)]]
+- [[https://orgmode.org/manual/TODO-Extensions.html#TODO-Extensions][TODO Extensions (LOGBOOK usage)]]

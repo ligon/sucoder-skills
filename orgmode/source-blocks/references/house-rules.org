@@ -1,0 +1,23 @@
+#+TITLE: Source Block House Rules
+#+DESCRIPTION: Local preferences for Org Babel source blocks.
+
+* Directive Style
+- Keep `#+name:`, `#+header:`, `#+begin_src`, `#+end_src`, and `#+results:` lowercase.
+- Place `#+name:` (if needed) immediately above the block.
+
+* Spacing
+- Leave a blank line before and after blocks unless nested inside a list/table context.
+
+* Header Arguments
+- Declare execution policies explicitly (`:results`, `:exports`, `:tangle`, `:session`, `:noweb`).
+- Favor `:results output` or `:results value` instead of the default `replace` to make intent clear.
+
+* Tangling
+- Provide explicit targets for tangling (`:tangle path/to/file.py`) or set `:tangle no` to prevent accidental writes.
+- Use temporary paths (`/tmp/...`) when blocks are for scratch work.
+
+* Safety
+- Do not enable execution for unknown languages without maintainer approval.
+- Avoid `:eval yes` in files destined for publication; use `:eval never-export` when appropriate.
+
+Record additional preferences here as they emerge.

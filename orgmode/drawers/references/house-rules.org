@@ -1,0 +1,13 @@
+#+TITLE: Drawer House Rules
+#+DESCRIPTION: Local expectations for Org drawers.
+
+* LOGBOOK
+- Store state-change notes and clocks in `LOGBOOK` drawers (`org-log-into-drawer t`, persistent clocking).
+
+* PROPERTIES
+- Keep property drawers immediately below the heading (after planning lines). Use lowercase directives elsewhere.
+
+* Notes Drawer
+- Consider `:NOTE:` drawers for scratch content rather than leaving long inline comments.
+
+Append new conventions as workflows evolve.

@@ -1,0 +1,20 @@
+#+TITLE: TODO House Rules
+#+DESCRIPTION: Workspace conventions for TODO keywords, logging, and agenda behavior.
+
+* Keyword Sequence
+- Default sequence:
+  - Active: `TODO`, `NEXT`, `DELEGATE`, `WAITING`, `PLAN`
+  - Terminal: `DONE`, `MOOT`, `SOMEDAY`
+- Use the provided shortcuts (`t`, `n`, `l`, `w`, `p`, `d`, `m`, `s`) when changing state.
+
+* Logging
+- Keep `org-log-done` enabled so closing a task adds a timestamp.
+- Store state changes inside a `LOGBOOK` drawer via `org-log-into-drawer`.
+- For delegated tasks (`DELEGATE`), prompt for a note (`@!`) so we record who owns the follow-up.
+- For waiting tasks (`WAITING`), log both on entry and exit (`@/!`) so there’s an audit trail.
+
+* Agenda Behavior
+- Skip scheduled tasks when viewing the global TODO list (`org-agenda-skip-scheduled-if-done t`).
+- Use effort estimates (`EFFORT` property) so agenda columns stay informative; default agenda columns include `%7EFFORT`.
+
+Append additional rules here whenever the workflow changes.

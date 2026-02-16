@@ -1,0 +1,6 @@
+#+TITLE: Org Manual Pointers — Blocks
+#+DESCRIPTION: Manual sections about structural blocks (non-source).
+
+- [[https://orgmode.org/manual/Blocks.html][Blocks — Overview]]
+- [[https://orgmode.org/manual/Structure-Templates.html][Structure Templates]]
+- [[https://orgmode.org/manual/Paragraphs.html][Paragraphs (block placement)]]

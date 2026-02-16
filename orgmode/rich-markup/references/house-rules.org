@@ -1,0 +1,17 @@
+#+TITLE: Rich Markup House Rules
+#+DESCRIPTION: Local conventions for emphasis, math, and special symbols.
+
+* Math Delimiters
+- Use `\( ... \)` for inline math and `\[ ... \]` for display math. Avoid dollar-sign delimiters.
+
+* ASCII-Only Math
+- Express symbols using LaTeX commands (`\mu`, `\Sigma`, `\mathbb{S}`) instead of Unicode glyphs.
+- Keep commands ASCII-safe to satisfy pdflatex.
+
+* Special Blocks
+- Prefer `verse`, `quote`, `center` blocks (with lowercase directives) when formatting poetry, quotations, or centered text.
+
+* Manual Entities
+- Use Org’s entity completion (`\alpha`, `\to`, etc.) when inserting symbols; do not copy Unicode arrows or Greek letters.
+
+Update this file if new markup preferences emerge.

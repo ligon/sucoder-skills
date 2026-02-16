@@ -1,0 +1,14 @@
+#+TITLE: Capture and Attachment House Rules
+#+DESCRIPTION: Workspace conventions for capture templates and attachments.
+
+* Capture Defaults
+- Use system-specific refile files (e.g., `~/Assistant/in.org`) and timestamp entries using the current date (`date` command). See Doom config for templates.
+
+* Templates
+- Keep capture templates in `~/.Misc/doom.org`; reference them in skills when adding new scripts.
+
+* Attachments
+- Store large artifacts under a dedicated directory (e.g., `docs/assets/` or project-specific folders). Avoid committing binary blobs unless necessary.
+- Use org-attach (Emacs) or manual file moves; record the command used in handoffs.
+
+Update as capture workflows evolve.

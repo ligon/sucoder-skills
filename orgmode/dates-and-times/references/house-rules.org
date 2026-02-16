@@ -1,0 +1,15 @@
+#+TITLE: Dates and Times House Rules
+#+DESCRIPTION: Local defaults for scheduling and agenda behavior.
+
+* Scheduling & Agenda
+- Skip scheduled tasks in the global TODO list: `(setq org-agenda-skip-scheduled-if-done t)`.
+- Enable diary integration for agenda views: `(setq org-agenda-include-diary t)`.
+
+* Capture Templates
+- Default capture to the system‐specific refile file: `~/Assistant/in.org`.
+- Habits template uses `SCHEDULED: %t .+1d/3d` and sets `:STYLE:` and `:REPEAT_TO_STATE:` properties.
+
+* Clocking
+- Persist clocks between sessions: `(setq org-clock-persist t)` and `(org-clock-persistence-insinuate)`.
+
+Append new scheduling or timing conventions as they evolve.

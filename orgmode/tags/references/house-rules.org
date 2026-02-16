@@ -1,0 +1,14 @@
+#+TITLE: Tag House Rules
+#+DESCRIPTION: Local conventions for Org tags.
+
+* Inheritance
+- Keep sensitive tags (e.g., `crypt`) out of inheritance. Configure `org-tags-exclude-from-inheritance` accordingly for each file.
+
+* Naming
+- Prefer lowercase tags and prefix context tags with `@` (e.g., `:work:@remote:`) to align with search habits.
+- If a tag only matters within a file, declare it in `#+TAGS:` at the top so completion stays relevant.
+
+* Agenda
+- Consider disabling tag inheritance in agenda searches when performance matters (tune `org-agenda-use-tag-inheritance` per file or agenda view).
+
+Extend this list as additional patterns emerge.

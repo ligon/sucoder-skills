@@ -1,0 +1,7 @@
+#+TITLE: Org Manual Pointers — Publishing
+#+DESCRIPTION: Manual sections about publishing projects and cross-file exports.
+
+- [[https://orgmode.org/manual/Publishing.html][Publishing — Overview]]
+- [[https://orgmode.org/manual/Configuration.html#Configuration][Publishing Configuration (org-publish-project-alist)]]
+- [[https://orgmode.org/manual/Publishing-links.html][Publishing Links]]
+- [[https://orgmode.org/manual/Triggering-Publication.html][Triggering Publication]]

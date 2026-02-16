@@ -1,0 +1,7 @@
+#+TITLE: Org Manual Pointers — Plain Lists
+#+DESCRIPTION: Manual sections for lists and checkboxes.
+
+- [[https://orgmode.org/manual/Plain-Lists.html][Plain Lists — Overview]]
+- [[https://orgmode.org/manual/Plain-List-Items.html][Plain List Items]]
+- [[https://orgmode.org/manual/Check-boxes.html][Check Boxes]]
+- [[https://orgmode.org/manual/Structure-Templates.html][Structure Templates]]

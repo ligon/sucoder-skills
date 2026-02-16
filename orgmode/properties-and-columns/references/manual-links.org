@@ -1,0 +1,9 @@
+#+TITLE: Org Manual Pointers — Properties and Columns
+#+DESCRIPTION: Manual sections covering properties, inheritance, and column view.
+
+- [[https://orgmode.org/manual/Properties-and-Columns.html][Properties and Columns — Overview]]
+- [[https://orgmode.org/manual/Property-Syntax.html][Property Syntax]]
+- [[https://orgmode.org/manual/Property-Inheritance.html][Property Inheritance]]
+- [[https://orgmode.org/manual/Property-API.html][Property API]]
+- [[https://orgmode.org/manual/Special-Properties.html][Special Properties]]
+- [[https://orgmode.org/manual/Column-View.html][Column View]]

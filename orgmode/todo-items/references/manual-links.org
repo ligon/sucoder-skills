@@ -1,0 +1,9 @@
+#+TITLE: Org Manual Pointers — TODO Items
+#+DESCRIPTION: Core manual sections about TODO states and workflow.
+
+- [[https://orgmode.org/manual/TODO-Items.html][TODO Items — Overview]]
+- [[https://orgmode.org/manual/Progress-Logging.html][Progress Logging]]
+- [[https://orgmode.org/manual/TODO-Extensions.html][TODO Extensions]]
+- [[https://orgmode.org/manual/Tracking-TODO-state-changes.html][Tracking TODO State Changes]]
+- [[https://orgmode.org/manual/Workflow-States.html][Workflow States]]
+- [[https://orgmode.org/manual/Repeated-tasks.html][Repeated tasks]]
