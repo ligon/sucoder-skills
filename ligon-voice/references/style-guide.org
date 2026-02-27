@@ -1,0 +1,525 @@
+#+TITLE: Style Guide: Replicating the Ligon Voice
+#+AUTHOR: Synthesized from 18 .org research documents
+#+DATE: 2026-02-27
+
+* Overview
+
+  This guide distills the prose habits found across 18 research
+  documents spanning development economics, microeconomic theory,
+  demand estimation, risk-sharing, and editorial correspondence.  The
+  voice belongs to a senior academic economist who writes with unusual
+  clarity and personality for the genre---technically rigorous yet
+  approachable, authoritative yet self-aware.
+
+* 1. Syntax and Sentence Architecture
+
+** 1.1 Sentence Length: High Variance as Strategy
+
+   Average sentence length falls in the 25--35 word range, but the
+   /variance/ is the defining feature.  Long, heavily subordinated
+   sentences (40--80+ words) alternate with short, punchy ones (4--15
+   words).  The short sentences are never filler; they serve as
+   rhetorical resets after complex passages.
+
+   - *Long build-up, short landing:*  A paragraph might spend three
+     sentences laying out qualifications and conditions, then close
+     with a direct, even blunt declaration.
+
+   *Examples:*
+   - Short: "How can one make sense of this?"
+   - Short: "That is the task we undertake here."
+   - Long: "Precisely /because/ weather is important, farmers are
+     likely to have found other ways to at least partially address the
+     risks they face with respect to variation in crop income."
+
+   *Rule:* After any passage exceeding ~50 words of continuous
+   qualification, follow with a sentence under 15 words that
+   reorients the reader.
+
+** 1.2 Clause Stacking and Qualification
+
+   The primary syntactic pattern is a main declarative clause followed
+   by one or more subordinate clauses that qualify, condition, or
+   extend it.  Common structures:
+
+   - "We find X, but only Y."
+   - "This is [positive assessment], but it comes at [cost]."
+   - "[Standard claim]. However, [complication that motivates the paper]."
+
+   Qualifying phrases accumulate through relative clauses,
+   participial phrases, and parenthetical asides (using em-dashes,
+   parentheses, or semicolons).  Each subordinate clause adds exactly
+   one new condition or piece of information.
+
+   *Rule:* Never let a subordinate clause introduce more than one new
+   idea.  If it does, split the sentence.
+
+** 1.3 Semicolon-Heavy List Constructions
+
+   When presenting multiple related points, the preferred structure
+   is a single sentence with items joined by semicolons:
+
+   #+begin_quote
+   "The approach imposes fewer restrictions on the demand system than
+   is usual; avoids the usual sausage factory from which consumption
+   aggregates are extruded; should allow for much less expensive data
+   collection; and directly yields measures of both household marginal
+   utility and functions of shadow prices which can be used in
+   subsequent analysis and model testing."
+   #+end_quote
+
+   *Rule:* For lists of 3--5 conceptually parallel claims, use a
+   single semicolon-joined sentence rather than bullet points or
+   separate sentences.
+
+** 1.4 Passive Voice: Moderate and Purposeful
+
+   Passive voice appears mainly for procedural descriptions
+   ("Randomization was done stratifying on four binary household
+   characteristics") and when the agent is irrelevant.  Active voice
+   dominates everywhere else.  The author never hides behind passives
+   to avoid ownership of claims.
+
+* 2. Lexicon
+
+** 2.1 Three Registers, Freely Mixed
+
+   The vocabulary draws simultaneously from three registers:
+
+   1. *Technical economics:*  "marginal utility of expenditures,"
+      "Engel curves," "Euler equation," "Frischian demands,"
+      "complementary slackness," "arbitrage," "CRRA," "Pareto
+      efficient."
+
+   2. *Development policy:* "ultra-poor," "graduation model,"
+      "unconditional cash transfers," "targeting effectiveness,"
+      "food security," "lean season," "enumerators."
+
+   3. *Plain conversational English:* "think about" (not "consider"),
+      "look at" (not "examine"), "pin down" (not "determine"),
+      "a bunch of," "finicky," "awesome," "old chestnut."
+
+   *Rule:* Use technical vocabulary without apology when it is
+   precise.  But surround it with plain, conversational connecting
+   prose.  Never stack jargon terms without bridging them with
+   everyday language.
+
+** 2.2 Contractions: A Signature Feature
+
+   Contractions appear freely throughout---even in formal journal
+   prose.  This is perhaps the single most distinctive lexical
+   feature.  "it's," "doesn't," "can't," "we've," "needn't,"
+   "won't" all appear in published or submission-ready work.
+
+   *Rule:* Use contractions wherever the uncontracted form would
+   sound stilted.  Avoid them only in the most formal summary
+   statements (e.g., the final sentence of an abstract).
+
+** 2.3 Hedging: Measured, Not Timid
+
+   Claims are bounded but not weakened.  Preferred hedges:
+
+   - "it seems difficult to justify"
+   - "perhaps surprisingly"
+   - "at least sometimes"
+   - "is thought to be"
+   - "it's been surprising to discover"
+   - "we cannot rule out the possibility"
+   - "it seems reasonable to suppose"
+
+   *Rule:* Hedge empirical generalizations.  Do not hedge deductive
+   results or well-established facts.  The theoretical voice is
+   markedly more assertive than the empirical voice.
+
+** 2.4 Transitions
+
+   Standard academic transitions are used, but sparingly:
+   "However," "In particular," "Moreover," "Accordingly," "In other
+   words."  The author also favors "Now consider..." and "To see
+   this..." as mathematical-expository transitions borrowed from
+   proof-writing.
+
+   *Rule:* No more than one explicit transition word per paragraph.
+   Let the logic do most of the connecting.
+
+* 3. Tone
+
+** 3.1 The Dominant Tone: Authoritative Teacher
+
+   The voice is that of a senior professor explaining to a smart
+   colleague or advanced student.  It is authoritative without being
+   pompous.  The author frequently pauses to build intuition before
+   presenting formalism:
+
+   - "The intuition is simple:"
+   - "Some discussion of the different elements of this expression is
+     called for."
+   - "To build intuition, we first present a simplified model."
+
+   *Rule:* Before any substantial equation or formal result, provide
+   at least one sentence of plain-English motivation.  After it,
+   provide at least one sentence explaining what was just shown and
+   why it matters.
+
+** 3.2 Constructive Skepticism
+
+   The characteristic rhetorical posture is gentle correction.  The
+   structure is:
+
+   1. Acknowledge the prior literature or conventional approach with
+      genuine respect.
+   2. Describe it carefully.
+   3. Reveal its problems through concrete consequences, often by
+      showing the approach leads to an absurd result.
+   4. Present the alternative.
+
+   #+begin_quote
+   "This is an admirable reduction in complexity, but it comes at a
+   high price."
+   #+end_quote
+
+   #+begin_quote
+   "The standard approach suggests that droughts, floods, and pests
+   are beneficial."
+   #+end_quote
+
+   *Rule:* Never dismiss prior work.  Instead, show what it implies
+   and let the reader see the problem.  Let absurdity speak for
+   itself.
+
+** 3.3 First-Person Usage
+
+   - "We" is the default for co-authored work and for the
+     pedagogical "we" that includes the reader ("we need to think
+     about...").
+   - "I" appears in single-author work and in editorial
+     correspondence.
+   - Working notes and internal documents use "I" freely and shift
+     to a noticeably more informal register.
+
+   *Rule:* Use "we" in formal prose even when sole-authored, except
+   when expressing a genuinely personal judgment or in editorial
+   letters.
+
+** 3.4 Intellectual Generosity
+
+   The author engages with interlocutors---referees, co-authors,
+   the literature---with evident respect and even warmth: "I mainly
+   want to say how very much I appreciate the careful work of the
+   technical referee."  Disagreement is framed as complementary
+   rather than adversarial.
+
+   *Rule:* When disagreeing with prior work, frame it as "X is
+   excellent, and by extending it we find Y," not "X is wrong."
+
+* 4. Metaphor and Figurative Language
+
+** 4.1 Sparing but Vivid
+
+   Figurative language is rare---perhaps 2--3 metaphors per
+   paper---but when deployed it is memorable and slightly wry:
+
+   - *The sausage factory:* "constructing such aggregates may be
+     rather like making sausage" / "the usual sausage factory from
+     which consumption aggregates are extruded."  (A sustained
+     metaphor for messy data aggregation.)
+   - *Heroic assumptions / Additional heroics:* Extending the stock
+     phrase with irony---the "heroism" is absurd rather than
+     admirable.
+   - *"Waded through":*  A physical metaphor for laborious reading
+     of a proof.
+   - *"A litany of shocks":*  Quasi-religious connotation of
+     relentless repetition.
+   - *"Leveraged bets":*  Reframing farmers' storage decisions in
+     capital-markets language.
+   - *"Sell low and buy high":*  Inverting the familiar investing
+     maxim.
+   - *"Low bar":*  A colloquial metaphor embedded in formal prose.
+   - *"Viewed through this lens":*  A conventional academic
+     metaphor, used without irony.
+
+   *Rule:* Deploy at most one or two vivid metaphors per paper.
+   Prefer metaphors borrowed from adjacent domains (finance,
+   manufacturing, physical effort).  Never use extended similes or
+   literary conceits.  Let the metaphor do its work in a single
+   clause, then return to precision.
+
+** 4.2 Dead Metaphors Used Naturally
+
+   Standard economics metaphors ("smooth consumption," "hedge
+   against risk," "span the state space") are used as natural
+   vocabulary rather than as conscious figures of speech.  No need to
+   call attention to them.
+
+** 4.3 Occasional Wordplay
+
+   Light puns and double meanings appear when they arise naturally:
+
+   #+begin_quote
+   "This is an admirable reduction in complexity, but it comes at a
+   high price.  In this case the price is paid when one assumes the
+   indirect utility function and index allow the equivalence."
+   #+end_quote
+
+   Here "price" does double duty---ordinary English and technical
+   economics.
+
+   *Rule:* If a word naturally has both a technical and ordinary
+   meaning in context, let the ambiguity stand without drawing
+   attention to it.  Never force a pun.
+
+* 5. Rhetorical Devices
+
+** 5.1 Rhetorical Questions as Section Openers
+
+   Papers and sections frequently open with a question:
+   - "What intervention(s) effectively alleviate poverty?"
+   - "What happens when you give an 'ultra-poor' household a
+     productive asset?"
+   - "What's an asset?"
+   - "Is it realistic to think of farmers taking short asset
+     positions?"
+   - "How can one make sense of this?"
+
+   *Rule:* Use one rhetorical question to open a paper or major
+   section.  Follow it immediately with the beginning of an answer.
+   Do not use rhetorical questions mid-paragraph or in clusters.
+
+** 5.2 Anticipation of Objections
+
+   The author regularly surfaces the reader's likely objection,
+   then disarms it:
+
+   #+begin_quote
+   "It may seem somewhat unrealistic to think of the farmer taking
+   short positions in some assets.  [...] But taking a short credit
+   position is simply the act of borrowing; taking a short land
+   position can be accomplished by simply leasing out one's land;
+   and both of these are financial behaviors very commonly observed."
+   #+end_quote
+
+   *Rule:* When presenting a counterintuitive claim, voice the
+   objection in the reader's likely words, then answer it concretely.
+
+** 5.3 Parenthetical Asides for Thoroughness
+
+   Heavy use of parenthetical commentary to anticipate reader
+   questions and demonstrate thoroughness:
+   - "(and most in the region)"
+   - "(whether of vegetables or maize)"
+   - "(a fedan is 4200 m^2, slightly more than an acre)"
+   - "(mathematically accurate, but devoid of intuition)"
+
+   *Rule:* Use parentheticals to add a quick factual gloss or
+   qualification.  Do not use them for entire arguments---that
+   belongs in the main text or a footnote.
+
+** 5.4 Footnotes for Nuance
+
+   Substantive qualifications, secondary arguments, and caveats are
+   systematically placed in footnotes, keeping the primary argument
+   stream clean.
+
+   *Rule:* If a qualification runs longer than one clause, move it to
+   a footnote.
+
+* 6. Structural Patterns
+
+** 6.1 Opening Pattern
+
+   Papers typically begin with:
+   1. A broad declarative statement about the world.
+   2. Immediately followed by "but" / "however" / a question that
+      introduces the paper's distinctive contribution.
+
+   #+begin_quote
+   "Consumption is thought to be highly seasonal for poor farmers
+   in developing countries... It is also well documented that
+   farmers sell their harvests during peak seasons and at least
+   sometimes buy back those crops at higher prices... [But] a
+   simple model of intertemporal consumption smoothing raises
+   important questions about these results."
+   #+end_quote
+
+   *Rule:* Open with what is known, then pivot to what is missing.
+   The pivot should arrive within the first paragraph.
+
+** 6.2 Temporal Precision
+
+   The writing is meticulous about establishing when events occurred
+   relative to each other: "6-8 months after the asset transfers,"
+   "15-18 months after the asset transfers," "about 6 months after
+   transfer."
+
+   *Rule:* Always specify temporal relationships with concrete
+   intervals.  "Later" and "subsequently" are insufficient.
+
+** 6.3 Serial Qualification of Results
+
+   Results are presented with cascading specificity: direction of
+   effect, magnitude, statistical significance, then comparison to
+   other treatments---often within a single sentence.
+
+   *Rule:* When reporting an empirical result, state the direction
+   first, then the magnitude, then the significance, then the
+   context.
+
+* 7. Dry Humor
+
+  A thread of understated, wry humor runs through even the most
+  formal passages.  It is never broad, always in service of the
+  argument, and arrives without warning:
+
+  - "Since CRRA is a special case of CFE one can't really do worse!"
+  - "Heroic assumptions are typically required to value flows of
+    services.  Additional heroics are required to construct price
+    indices."
+  - "What would be awesome would be to be able to do this all via
+    simple linear regression."
+  - Fisher "offers the coinage 'wantab.'"
+
+  *Rule:* Humor should be dry and arise from the material itself.
+  Never signal that you are being funny.  The exclamation mark is
+  permitted once per paper, at most.
+
+* 8. Quick-Reference Checklist
+
+  | Feature                | Do                                                              | Don't                                                        |
+  |------------------------+-----------------------------------------------------------------+--------------------------------------------------------------|
+  | Sentence length        | Vary widely (15--60+ words); follow complex with simple         | Write uniformly long or uniformly short sentences            |
+  | Sentence ceiling       | Soft cap at ~50 words; break semicolon-lists beyond 4 items     | Let clause-stacking obscure the main verb                    |
+  | Contractions           | Use freely ("it's," "can't," "doesn't")                        | Avoid entirely, or overuse to the point of slang             |
+  | Technical vocabulary   | Use precisely; surround with plain-English bridging prose       | Stack jargon without explanation, or avoid it out of timidity |
+  | Hedging                | One hedge per claim; be direct about theory                     | Accumulate hedges ("at least sometimes," "at least partially," "we cannot rule out") |
+  | Metaphor               | 1--2 per paper; vivid, slightly wry, from adjacent domains      | Extended literary conceits; similes; mixed metaphors         |
+  | Humor                  | Understated, arising from the material; never flagged           | Broad jokes; forced cleverness; sarcasm                      |
+  | Rhetorical questions   | One per section opening, max                                    | Mid-paragraph; in clusters; without an immediate answer      |
+  | Prior literature       | Acknowledge respectfully, then show its limits through results  | Dismiss; strawman; ignore                                    |
+  | First person           | "We" for formal; "I" for editorial/personal judgment            | "One" as a systematic substitute; passive voice as default   |
+  | Openings               | State the punchline in paragraph 1, then build the case         | Delay the contribution behind a full page of setup           |
+  | Parentheticals         | At most one per sentence; quick factual glosses                 | Multiple nested parentheticals; entire arguments in parens   |
+  | Signposting            | Orienting sentence at the top of long derivations               | Multi-page arguments with no sub-signposts                   |
+  | Register in revision   | Preserve the notes-voice directness in the final draft          | Formalize away clarity that was present in the working draft |
+  | Exclamation marks      | At most once per paper, for genuine emphasis                    | As decoration or enthusiasm                                  |
+
+* 9. Opportunities for Improvement
+
+  The strengths described above occasionally work against clarity.
+  The following are areas where discipline would sharpen the prose.
+
+** 9.1 Front-Load the Contribution
+
+   The constructive-skepticism pattern (respectfully set up the
+   conventional approach, describe it, /then/ reveal its problems)
+   is intellectually honest but can delay the paper's contribution
+   by a full page.  A reader skimming the introduction may never
+   reach the pivot.
+
+   *Revision strategy:* State the punchline in the first
+   paragraph---"We show X; this matters because the standard
+   approach implies Y"---and /then/ walk through the conventional
+   approach to show why.  The skepticism still lands, but the reader
+   knows where you are headed.
+
+** 9.2 Impose a Soft Ceiling on Sentence Length
+
+   The long tail of sentence length sometimes defeats itself.  When
+   a sentence embeds three or more subordinate clauses, the main
+   verb's relationship to its subject becomes hard to reconstruct.
+
+   #+begin_quote
+   "The approach imposes fewer restrictions on the demand system than
+   is usual; avoids the usual sausage factory from which consumption
+   aggregates are extruded; should allow for much less expensive data
+   collection; and directly yields measures of both household marginal
+   utility and functions of shadow prices which can be used in
+   subsequent analysis and model testing."
+   #+end_quote
+
+   By the fourth semicolon-clause the reader must re-parse what "the
+   approach" is doing.
+
+   *Revision strategy:* Apply a soft ceiling of ~50 words per
+   sentence, violated only when the structure is genuinely parallel
+   and each clause is short.  When a semicolon-list exceeds four
+   items, break it into two sentences or use an actual list.
+
+** 9.3 Limit Parenthetical Interruptions
+
+   Parenthetical asides demonstrate thoroughness but fracture the
+   main clause.  Compare:
+
+   #+begin_quote
+   "It is common in this community (and most in the region) to store
+   non-perishable food like maize, cassava, or millet (whether dried
+   or fresh) as a form of savings."
+   #+end_quote
+
+   vs.
+
+   #+begin_quote
+   "It is common in this community to store non-perishable food as a
+   form of savings---maize, cassava, or millet, dried or fresh.
+   Most communities in the region do the same."
+   #+end_quote
+
+   The second version delivers the same information without forcing
+   the reader to maintain a stack of open parentheses.
+
+   *Revision strategy:* At most one parenthetical per sentence.
+   When a second is needed, promote one to its own clause, an
+   em-dash aside, or a footnote.
+
+** 9.4 Guard Against Hedge Accumulation
+
+   Individual hedges are well-calibrated, but they sometimes pile up
+   across a paragraph until the net claim is unclear.  A passage
+   might contain "is thought to be," "at least sometimes," "at least
+   partially," and "we cannot rule out" within a few lines.  Each is
+   defensible; together they leave the reader unsure what is actually
+   being claimed.
+
+   *Revision strategy:* State the claim cleanly once, then qualify
+   it once.  One hedge per claim.  If the evidence genuinely
+   supports only a weak statement, say so directly ("The evidence is
+   thin") rather than hedging the hedge.
+
+** 9.5 Let the Notes Voice Survive into the Paper
+
+   The working notes (e.g., =remote_survey_notes.org=, internal
+   VESDemand notes) use a direct, first-person voice---"I don't
+   have a particularly satisfying explanation for this"---that is
+   disarmingly clear.  Some of that directness gets formalized away
+   in revision.  Sentences like "Is it realistic to think of farmers
+   taking short asset positions?  That's a behavior we tend to
+   associate with sophisticated investors" are among the clearest in
+   the corpus precisely because they read like the notes voice, not
+   the journal voice.
+
+   *Revision strategy:* During revision, compare a polished
+   paragraph to its notes-stage ancestor.  If the notes version is
+   clearer, keep it.  The contraction habit already resists
+   over-formalization; push further.
+
+** 9.6 Add Signposts Within Sections
+
+   The papers use roadmap paragraphs at the end of introductions
+   ("Section 2 does X, Section 3 does Y"), but within sections the
+   argument sometimes proceeds as a continuous flow without
+   sub-signposting.
+
+   *Revision strategy:* At the top of any derivation or argument
+   spanning more than a page, add a single orienting sentence: "We
+   need three results to establish the main proposition."  This
+   dramatically reduces cognitive load, especially in long
+   theoretical sections, and costs almost nothing in word count.
+
+* 10. The Voice in a Sentence
+
+  Write as a senior professor who respects the reader's intelligence,
+  explains before formalizing, hedges only where evidence is
+  genuinely uncertain, lets absurd implications speak for themselves,
+  and occasionally allows a wry aside to surface---always in service
+  of the argument, never for its own sake.  State the punchline
+  early, qualify once rather than thrice, and let the directness of
+  the working-note voice survive into the final draft.
