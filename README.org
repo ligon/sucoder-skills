@@ -1,0 +1,81 @@
+* sucoder-skills
+
+Agent skills for [[https://github.com/ligon/sucoder][sucoder]] --- reusable prompt
+modules that guide LLM coding agents in specific tasks.
+
+** Quick Start
+
+#+begin_src bash
+# If you used `make quick-start` or `make env-setup` in the sucoder repo,
+# skills are already cloned and linked.  Otherwise:
+git clone https://github.com/ligon/sucoder-skills ~/Projects/sucoder-skills
+ln -s ~/Projects/sucoder-skills ~/.sucoder/skills
+#+end_src
+
+Skills are loaded automatically when =sucoder collaborate= launches an agent.
+
+** Repository Structure
+
+#+begin_example
+├── VERSION              # Semver version for tool compatibility
+├── SKILLS.md            # Master catalog of all skills
+├── code-reviewer/       # Code review skill
+├── document-skill/      # Documentation skill
+├── orgmode/             # Org-mode authoring (with sub-skills)
+├── skill-creator/       # Skill creation workflow
+└── test-generator/      # Test generation skill
+#+end_example
+
+** Skill Format
+
+Each skill directory contains a =SKILL.md= with YAML frontmatter:
+
+#+begin_src yaml
+---
+name: my-skill          # must match directory name
+description: Brief summary
+license: Apache-2.0
+---
+#+end_src
+
+Optional subdirectories:
+- =references/= :: documentation loaded on demand
+- =scripts/= :: helper executables (never auto-executed; review before running)
+- =assets/= :: templates and supporting files
+
+** Versioning
+
+The =VERSION= file uses semantic versioning.  =sucoder= checks compatibility
+on launch:
+
+| Bump  | When                                     | Example        |
+|-------+------------------------------------------+----------------|
+| PATCH | Typo fixes, clarifications, examples     | 1.0.0 -> 1.0.1 |
+| MINOR | New skills, backward-compatible additions | 1.0.0 -> 1.1.0 |
+| MAJOR | Breaking changes (requires tool update)  | 1.0.0 -> 2.0.0 |
+
+** Security
+
+Skills live in a separate repository so that an agent working on tool code
+cannot simultaneously modify the prompts that influence agent behaviour.
+All skill changes should be human-reviewed before merging.
+
+** Why Org-mode?
+
+Many skill files and references use =.org= rather than Markdown.  Org-mode is
+a plain-text format that every LLM reads fluently, but it also has structured
+features --- TODO states, properties, tags, executable source blocks --- that
+Markdown lacks.  For skills that guide agent behaviour, those features let a
+single file carry metadata, runnable examples, and checklists rather than just
+prose.
+
+You don't need Emacs to read or edit =.org= files --- any text editor works and
+GitHub renders them natively.
+
+** License
+
+Apache-2.0.  See [[file:LICENSE][LICENSE]].
+
+** Related
+
+- [[https://github.com/ligon/sucoder][sucoder]] --- the CLI tool
