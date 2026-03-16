@@ -18,7 +18,7 @@ license: Apache-2.0
 - Prefer additive updates and keep skills interoperable across projects.
 
 ## Required Layout
-1. **Location** – Place each skill in its own directory (e.g., `~/.coder-collab/skills/<name>`).
+1. **Location** – Place each skill in its own directory (e.g., `~/.sucoder/skills/<name>`).
 2. **Entrypoint** – Use a `SKILL.md` file with YAML frontmatter (`name`, `description`, `license`, optional `allowed-tools`, `metadata`). The `name` must match the directory.
 3. **Body** – Provide clear procedures, checklists, and triggers. Move long references into separate files.
 4. **Catalogs** – Add a `SKILLS.md` (or `SKILLS.org`) with short entries when the directory groups multiple skills.
@@ -36,7 +36,7 @@ license: Apache-2.0
    - **Actions** – ordered procedures or commands.
    - **Pitfalls** – mistakes to avoid, escalation criteria, or fallback steps.
 5. Populate `references/`, `scripts/`, and `assets/` as needed; reference them from the instructions.
-6. Smoke-test the skill (`coder-collab collaborate … --task skill-smoke`) and confirm the prelude lists it and its resources.
+6. Smoke-test the skill (`sucoder collaborate … --task skill-smoke`) and confirm the prelude lists it and its resources.
 7. Update the repository skills catalog and any mirror configuration so future sessions auto-discover it.
 
 ## Example Skeleton
