@@ -22,6 +22,19 @@ The World Bank's LSMS-ISA Harmonised Panel project has Stata code mapping raw fi
 
 Their goal (one huge merged .dta) differs from ours (uniform API, preserve detail), but their per-wave do files reveal file names, variable names, and ID linkage logic that are useful reference. Treat with skepticism — verify against actual data.
 
+## Read existing documentation FIRST
+
+Before writing any code, **read the `.org` files** in the country's `_/` directory. These contain hard-won insights about data structure, variable quirks, and harmonization decisions:
+
+- **`{Country}/_/CONTENTS.org`** — overview of available data, known issues, and design decisions. Most LSMS-ISA countries have one. **Start here.**
+- **`{Country}/_/food_items.org`** — food item harmonization table
+- **`{Country}/_/units.org`** — unit code harmonization table
+- **`{Country}/_/demands.org`** — analysis notes that may reveal data structure
+- **`{Country}/_/nutrition.org`** — may contain conversion factor derivations
+- **`{Country}/_/categorical_mapping.org`** — centralized cross-wave category harmonization
+
+Also check wave-level org files: `{Country}/{wave}/_/*.org`
+
 ## Prerequisites
 
 - The reference implementation (usually Uganda) already has the feature
