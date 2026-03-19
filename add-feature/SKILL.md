@@ -206,14 +206,13 @@ j:
 
 This tells the library: "look up the org table named `harmonize_food`, use the `Original Label` column as keys and `Preferred Label` column as values."
 
-**Known bugs (as of 2026-03-18):**
-- The categorical mapping lookup is broken for **index variables** (`idxvars`) — the `Wave.categorical_mapping` property returns a dict but the code tries to call it as a function. See ISSUES.md for details.
-- Mali's `data_info.yml` uses `mappings:` (plural) but the code only handles `mapping:` (singular). The plural form is silently ignored.
-- Workaround: for now, use inline `mapping:` dicts for index variables. The categorical_mapping table reference works for `myvars` columns at the Country level.
+**Resolved bugs (fixed 2026-03-19):**
+- Both `mapping:` and `mappings:` (plural) are now accepted in `data_info.yml`. Mali uses the plural form for categorical table references in `idxvars`.
+- Categorical mapping table lookups (e.g., `['harmonize_food', 'Original Label', 'Preferred Label']`) now work correctly for both `idxvars` and `myvars`. The `.loc` bug that treated column names as row labels has been fixed.
 
 **When to use which:**
-- `mapping:` (inline dict) — for value transforms like Decrease→True, or simple recoding. Works reliably for both `idxvars` and `myvars`.
-- `mapping:` (categorical table reference) — for harmonizing labels across waves via `categorical_mapping.org`. Currently only reliable for `myvars`, not `idxvars`.
+- `mapping:` (inline dict) — for value transforms like Decrease→True, or simple recoding. Works for both `idxvars` and `myvars`.
+- `mapping:` or `mappings:` (categorical table reference) — for harmonizing labels across waves via `categorical_mapping.org`. Works for both `idxvars` and `myvars`. Mali uses this pattern for food items and units.
 
 **Use a `.py` script** only when:
 - Multi-round files that need splitting by a `round` column
@@ -271,7 +270,45 @@ After the feature works, check for repeated inline `mapping:` dicts that could b
 
 If you see the same mapping dict copy-pasted across 3+ wave `data_info.yml` files, consider creating a named table in `{Country}/_/categorical_mapping.org` and referencing it with `- mapping: ['table_name', 'Original Label', 'Preferred Label']`.
 
-**Note:** As of 2026-03-18, the categorical mapping table reference works for `myvars` but has bugs with `idxvars` (see ISSUES.md). Use inline `mapping:` dicts for index variables until the fix is verified.
+**Note:** Categorical mapping table references now work for both `myvars` and `idxvars` (fixed 2026-03-19). When multiple source files have different column structures (e.g., some files lack quantity/unit columns), the library fills missing columns with NaN automatically when `missing_ok` is enabled (triggered when the YAML `file:` lists multiple files).
+
+## food_acquired: YAML reference pattern
+
+The EHCVM surveys (Mali, Burkina Faso, Niger, Senegal) share a common food consumption module with standard variable names. Use this as a template for new EHCVM countries:
+
+```yaml
+food_acquired:
+    file: s07b_me_{country}{year}.dta
+    idxvars:
+        v: grappe
+        visit: vague
+        i:
+            - grappe
+            - menage
+        j:
+            - s07bq01
+            - mappings: ['harmonize_food', 'Original Label', 'Preferred Label']
+        u:
+            - s07bq03b
+            - mappings: ['unit', 'Original Label', 'Preferred Label']
+    myvars:
+        Quantity: s07bq03a
+        Expenditure: s07bq08
+        Produced: s07bq04
+```
+
+The corresponding `data_scheme.yml` entry:
+```yaml
+  food_acquired:
+    index: (t, v, visit, i, j, u)
+    Quantity: float
+    Expenditure: float
+    Produced: float
+```
+
+**Key lessons from Burkina Faso 2014:** Older (pre-EHCVM) waves often use completely different variable names and may have different column availability across survey passages. When listing multiple files (passages), columns absent from some files are automatically filled with NaN --- use this to include all available data even when some passages lack quantity detail.
+
+**Countries with legacy Python scripts** (e.g., Uganda, Malawi) use `!make` in `data_scheme.yml` to bypass schema normalization. Prefer the YAML approach for new work.
 
 ## Common pitfalls
 
