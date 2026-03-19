@@ -1,6 +1,6 @@
 # Workspace Skills Catalog
 
-The following skills ship with this repository. Load any entry with `codex read <path>` if you
+The following skills ship with this repository. Load any entry with `sucoder read <path>` if you
 need the full instructions.
 
 - file:document-skill/SKILL.md — Author skills aligned with the Agent Skills Spec and local norms.

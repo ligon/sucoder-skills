@@ -21,6 +21,7 @@ Skills are loaded automatically when =sucoder collaborate= launches an agent.
 ├── SKILLS.md            # Master catalog of all skills
 ├── code-reviewer/       # Code review skill
 ├── document-skill/      # Documentation skill
+├── ligon-voice/         # Academic research prose voice
 ├── orgmode/             # Org-mode authoring (with sub-skills)
 ├── skill-creator/       # Skill creation workflow
 └── test-generator/      # Test generation skill
