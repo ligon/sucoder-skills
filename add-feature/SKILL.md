@@ -14,6 +14,7 @@ For domain-specific guidance on particular features, load the relevant sub-skill
 - `add-feature/shocks` — Household shocks (natural disasters, economic shocks, coping strategies). Covers module identification across countries, effect variable mapping (Decrease→True), combined-effect splitting, French/English label handling, and the 26-binary-coping-indicator pattern in EHCVM surveys.
 - `add-feature/assets` — Durable goods ownership (item-level, no aggregation). Covers the Module L/M distinction across survey instruments and the design principle of passing item-level data without summing to household totals.
 - `add-feature/panel-ids` — Panel household ID linkage across waves. Covers ID stability patterns, composite IDs, household splits, cross-survey-program limitations, and the World Bank harmonised panel as a reference.
+- `add-feature/food-acquired` — Food acquisition data with unit conversions. The most complex feature — covers two approaches to unit-to-kg conversion: price-ratio inference from the data itself, and survey-provided conversion factor tables.
 
 ## World Bank reference code
 
