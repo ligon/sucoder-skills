@@ -31,6 +31,7 @@ need the full instructions.
 - file:add-feature/SKILL.md — Add a missing feature (table) to an LSMS-ISA country via YAML config or Python scripts.
 - file:add-feature/shocks/SKILL.md — Domain-specific guidance for adding household shocks data across LSMS-ISA countries.
 - file:add-feature/assets/SKILL.md — Domain-specific guidance for adding durable goods ownership data.
+- file:add-feature/panel-ids/SKILL.md — Panel household ID linkage across survey waves, with cross-country patterns and World Bank reference code.
 
 Add new skills by creating a subdirectory under `skills/` with a `SKILL.md` file (plus optional
 resources) and list it here using either a `file:` link or relative path so the catalog stays in
