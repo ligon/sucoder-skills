@@ -15,6 +15,12 @@ For domain-specific guidance on particular features, load the relevant sub-skill
 - `add-feature/assets` — Durable goods ownership (item-level, no aggregation). Covers the Module L/M distinction across survey instruments and the design principle of passing item-level data without summing to household totals.
 - `add-feature/panel-ids` — Panel household ID linkage across waves. Covers ID stability patterns, composite IDs, household splits, cross-survey-program limitations, and the World Bank harmonised panel as a reference.
 
+## World Bank reference code
+
+The World Bank's LSMS-ISA Harmonised Panel project has Stata code mapping raw files and variables for all 8 countries. Saved at `/var/tmp/lsms-isa-harmonised/reproduction/Reproduction_v2/Code/Cleaning_code/`. GitHub: `lsms-worldbank/LSMS-ISA-harmonised-dataset-on-agricultural-productivity-and-welfare` (release v2.0).
+
+Their goal (one huge merged .dta) differs from ours (uniform API, preserve detail), but their per-wave do files reveal file names, variable names, and ID linkage logic that are useful reference. Treat with skepticism — verify against actual data.
+
 ## Prerequisites
 
 - The reference implementation (usually Uganda) already has the feature
