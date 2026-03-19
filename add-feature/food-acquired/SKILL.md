@@ -36,15 +36,32 @@ Not all countries use all index levels — `visit` may be absent, `v` may be abs
 
 ### Step 1: Harmonize food item names
 
-Each country needs a `food_items.org` table in `{Country}/_/` that maps variant spellings across waves to canonical labels. Uses the `categorical_mapping` mechanism.
+Each country needs a `#+NAME: harmonize_food` table in `categorical_mapping.org` (or a standalone `food_items.org`) that maps variant spellings across waves to canonical labels.
 
-Reference: `lsms_library/countries/Uganda/_/food_items.org`
+Access from code:
+```python
+from lsms_library.local_tools import get_categorical_mapping
+food_labels = get_categorical_mapping(tablename='harmonize_food',
+                                      idxvars={'j': 'Original Label'},
+                                      **{'Label': 'Preferred Label'})
+```
+
+The `get_categorical_mapping()` function searches for the named org table in `categorical_mapping.org`, reads it via `df_from_orgfile()`, and returns a dict.
+
+Reference: `lsms_library/countries/Uganda/_/food_items.org`, `lsms_library/countries/Malawi/_/categorical_mapping.org`
 
 ### Step 2: Harmonize unit labels
 
-Each country needs a `units.org` or `unitlabels.csv` that maps numeric unit codes (which change across waves) to canonical unit names.
+Each country needs a `#+NAME: unit` table in `categorical_mapping.org` (or a standalone `units.org`) mapping numeric unit codes to canonical unit names across waves.
 
-Reference: `lsms_library/countries/Uganda/_/units.org`
+Access from code:
+```python
+unit_labels = get_categorical_mapping(tablename='unit')
+```
+
+The legacy approach uses a separate `unitlabels.csv` — the modern approach puts everything in `categorical_mapping.org`.
+
+Reference: `lsms_library/countries/Uganda/_/units.org`, `lsms_library/countries/Mali/_/categorical_mapping.org` (has `#+NAME: unit`)
 
 ### Step 3: Convert units to metric (THE CRITICAL STEP)
 
