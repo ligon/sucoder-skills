@@ -67,6 +67,12 @@ guide.  Apply all of them by default.
   judgments.  Let the directness of the working-note voice survive into the
   final draft.
 
+### Punctuation
+- Em dashes are rare in the Ligon voice.  Prefer commas, periods,
+  semicolons, or parentheses in almost all cases.  Reserve em dashes for
+  genuine structural pivots where no other punctuation works---at most
+  2--3 per section.  Never use them for dramatic pauses.
+
 ### Rhetoric and structure
 - Open with what is known, then pivot to what is missing.  State the
   punchline in the first paragraph, then build the case.
@@ -101,6 +107,7 @@ guide.  Apply all of them by default.
 | First person         | "We" for formal; "I" for editorial/personal judgment         | "One" as a systematic substitute; passive voice as default  |
 | Openings             | State the punchline in paragraph 1, then build the case      | Delay the contribution behind a full page of setup          |
 | Parentheticals       | At most one per sentence; quick factual glosses              | Multiple nested parentheticals; entire arguments in parens  |
+| Em dashes            | 2--3 per section max; only for genuine structural pivots     | Dramatic pauses; parenthetical asides; comma substitutes    |
 | Signposting          | Orienting sentence at the top of long derivations            | Multi-page arguments with no sub-signposts                  |
 | Register in revision | Preserve the notes-voice directness in the final draft       | Formalize away clarity present in the working draft         |
 | Exclamation marks    | At most once per paper, for genuine emphasis                 | As decoration or enthusiasm                                 |
