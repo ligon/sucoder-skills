@@ -51,7 +51,23 @@ Collect these fields (CV PDF at `static/cv.pdf` is the primary source):
 
 - **BibTeX key**: `author-YY` for sole author, `author1-author2YY` for two,
   `author1-etal-YY` for three+.  Use last two digits of year.
-- **Tags**: 3--6 org tags, underscore-separated multi-word (e.g., `Risk_sharing`).
+- **Tags**: Use 2--4 tags from the **established vocabulary** below.
+  Reuse existing tags rather than inventing new ones; this keeps
+  the `/tags/` page useful for grouping related papers.
+
+  | Tag | Description |
+  |-----|-------------|
+  | `Risk_sharing` | Insurance, risk pooling, limited commitment, vulnerability |
+  | `Welfare` | Welfare measurement, MUEs, expenditure-based analysis |
+  | `Development` | Development economics broadly; field experiments in LICs |
+  | `Agriculture` | Agricultural production, food systems, farm households |
+  | `Poverty` | Poverty measurement, targeting, distributional effects |
+  | `Experiments` | Lab or field experiments (dictator games, RCTs) |
+  | `Demand` | Consumer demand estimation, Engel curves, preferences |
+
+  Add a new tag only if it would apply to 3+ papers on the site.
+  Use underscores for multi-word tags (e.g., `Risk_sharing`).
+
 - **Abstract source**: Try eScholarship, then DOI page, then web search.
   eScholarship often blocks programmatic access; web search is more reliable.
 - **BibTeX entry type**: `@Article` for published, `@InCollection` for book
