@@ -424,3 +424,20 @@ to_parquet(df, 'my_feature.parquet')
 - **Missing columns across waves:** Earlier survey instruments may not include all variables. Columns absent from a wave's `data_info.yml` entry will be NaN in the output — this is expected.
 - **DVC-tracked files:** Pull data with `dvc pull {path}.dvc` before building. Run from the DVC root (`lsms_library/countries/`).
 - **Pre-ISA vs ISA waves:** Earlier waves (e.g., Malawi 2004-05 "IHS2") predate the LSMS-ISA standardization and often use completely different module letters and variable naming conventions. Module L might be "non-food expenditures" in 2004-05 but "durable goods" in 2010+. Always verify via the World Bank data dictionary — never assume module letters are stable across survey instruments.
+
+## When you discover a problem you can't fix now
+
+**File a GitHub issue.** Discovering a problem is half the battle — don't let findings evaporate just because fixing them is out of scope for the current task.
+
+```bash
+gh issue create --repo ligon/LSMS_Library \
+  --title "Country: Brief description of the problem" \
+  --body "## Summary\n\nWhat you found.\n\n## Evidence\n\nCode, output, or file paths.\n\n## What needs to happen\n\nSteps to fix."
+```
+
+Examples of things worth filing:
+- Scaffolding that exists but was never activated (e.g., commented-out Waves dict entries)
+- Data gaps you confirmed by inspecting files (e.g., a survey wave that lacks a module)
+- Unmapped labels that need adding to `kinship.yml` or `categorical_mapping.org`
+- Cross-wave ID linkage that exists in the data but isn't configured
+- Features that work for some waves but break on others
