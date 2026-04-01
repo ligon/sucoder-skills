@@ -315,6 +315,22 @@ The corresponding `data_scheme.yml` entry:
 
 **Countries with legacy Python scripts** (e.g., Uganda, Malawi) use `!make` in `data_scheme.yml` to bypass schema normalization. Prefer the YAML approach for new work.
 
+## Data loading in Python scripts
+
+When a feature requires a `.py` script (marked `!make` in `data_scheme.yml`), **always use `get_dataframe()` from `local_tools`** to read `.dta` files:
+
+```python
+from lsms_library.local_tools import get_dataframe, to_parquet
+
+df = get_dataframe('../Data/sect1_hh_w5.dta')
+# ... transform ...
+to_parquet(df, 'my_feature.parquet')
+```
+
+`get_dataframe()` handles local files, DVC remotes, and path resolution transparently. Scripts run from the wave's `_/` directory, so `../Data/file.dta` is the standard relative path.
+
+**Do not** use `dvc.api.open()` + `from_dta()` (obsolete), hardcoded absolute paths (breaks on other machines), or raw `pd.read_stata()` (no DVC fallback).
+
 ## Common pitfalls
 
 - **Wrong module:** Module letters change across survey instruments (U=shocks in one country, U=livestock in another). Always check the World Bank data dictionary.

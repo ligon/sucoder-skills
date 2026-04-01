@@ -134,6 +134,25 @@ dvc add Ethiopia/2021-22/Data/*.dta
 dvc push
 ```
 
+## Data Loading in Scripts
+
+**Always use `get_dataframe()` from `local_tools`** to read `.dta` files in feature scripts. It handles local files, DVC remotes, and path resolution transparently:
+
+```python
+from lsms_library.local_tools import get_dataframe, to_parquet
+
+df = get_dataframe('../Data/sect1_hh_w5.dta')
+```
+
+**Do not** use these obsolete patterns:
+- `dvc.api.open(fn, mode='rb')` + `from_dta(dta)` -- couples the script to DVC internals
+- `from_dta('/absolute/path/to/file.dta')` -- breaks on other machines
+- `pd.read_stata(fn)` -- bypasses DVC entirely, no remote fallback
+
+The relative path `../Data/file.dta` works because scripts run from the wave's `_/` directory. `get_dataframe` resolves it through the DVC filesystem when the file isn't local.
+
+Some older library functions (e.g., `age_sex_composition`) still use `dvc.api.open` internally -- that's fine, they accept the same relative paths. But new scripts should prefer `get_dataframe` for consistency.
+
 ## Cluster / Slurm Notes
 
 - The `import lsms_library` is slow (~90s) due to DVC initialization at import time. Budget for this in job time limits.
