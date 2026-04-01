@@ -327,9 +327,9 @@ df = get_dataframe('../Data/sect1_hh_w5.dta')
 to_parquet(df, 'my_feature.parquet')
 ```
 
-`get_dataframe()` handles local files, DVC remotes, and path resolution transparently. Scripts run from the wave's `_/` directory, so `../Data/file.dta` is the standard relative path.
+`get_dataframe()` handles local files, DVC remotes, **and** World Bank Microdata Library downloads transparently via a four-level fallback chain (local → DVC filesystem → `dvc.api.open` → `get_data_file` WB download). Scripts run from the wave's `_/` directory, so `../Data/file.dta` is the standard relative path.
 
-**Do not** use `dvc.api.open()` + `from_dta()` (obsolete), hardcoded absolute paths (breaks on other machines), or raw `pd.read_stata()` (no DVC fallback).
+**Do not** use `dvc.api.open()` + `from_dta()`, hardcoded absolute paths, `pd.read_stata()`, or `pyreadstat.read_dta()` directly. These bypass the fallback chain and break portability. See the "Data Access" section in `CLAUDE.md` for the full anti-pattern table.
 
 ## Common pitfalls
 
