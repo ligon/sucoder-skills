@@ -279,7 +279,32 @@ print(has_data['{key_column}'].value_counts())  # Sensible?
 print(has_data.head(10))
 ```
 
-Run existing tests: `pytest tests/test_table_structure.py`
+**Mandatory validation gate:**
+
+```python
+from lsms_library.diagnostics import validate_feature
+
+report = validate_feature('{Country}', '{feature_name}',
+                          new_wave='2021-22')
+report.summarize()
+assert report.ok
+```
+
+`validate_feature()` runs all 14 sanity checks plus:
+- Verifies the new wave appears in the output
+- Checks no existing waves regressed (became empty)
+- Detects unmapped labels (raw survey codes like "1. LABEL")
+- Compares columns, index structure, and value ranges against Uganda (or another reference)
+
+**The feature is not done until `report.ok` is True.** For Slurm dispatch, use the gate script:
+
+```bash
+python slurm_logs/run_validate.py Ethiopia household_roster --wave 2021-22
+```
+
+Exit code 0 = passed, exit code 1 = failed.
+
+Also run existing tests: `pytest tests/test_table_structure.py`
 
 ### Step 8: Review for consolidation
 
