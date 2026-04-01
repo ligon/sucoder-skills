@@ -425,6 +425,18 @@ to_parquet(df, 'my_feature.parquet')
 - **DVC-tracked files:** Pull data with `dvc pull {path}.dvc` before building. Run from the DVC root (`lsms_library/countries/`).
 - **Pre-ISA vs ISA waves:** Earlier waves (e.g., Malawi 2004-05 "IHS2") predate the LSMS-ISA standardization and often use completely different module letters and variable naming conventions. Module L might be "non-food expenditures" in 2004-05 but "durable goods" in 2010+. Always verify via the World Bank data dictionary — never assume module letters are stable across survey instruments.
 
+## Record country-specific findings in CONTENTS.org
+
+Every country has (or should have) a `{Country}/_/CONTENTS.org` file documenting data quirks, module changes, and known gaps. **Update it when you discover something non-obvious:**
+
+- A survey wave that lacks an expected module (e.g., "Mali 2017-18 EACI dropped the food consumption module")
+- Module numbers that changed across waves (e.g., "Niger shocks: section 11 in 2011-12, section 10 in 2014-15, section 14 in 2018-19+")
+- Data quality issues (e.g., "Stata missing codes '.' survive as strings in birth year columns")
+- Panel breaks (e.g., "Ethiopia W4 (2018-19) drew a new sample — zero ID overlap with W1-W3")
+- Data availability gaps (e.g., "Albania 1996 directory exists but WB does not host the microdata")
+
+This is the institutional memory for the country. Future agents and humans read CONTENTS.org first (Step 0 of the workflow). Don't make them rediscover what you already found.
+
 ## When you discover a problem you can't fix now
 
 **File a GitHub issue.** Discovering a problem is half the battle — don't let findings evaporate just because fixing them is out of scope for the current task.
