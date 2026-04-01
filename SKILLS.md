@@ -28,6 +28,7 @@ need the full instructions.
 - file:orgmode/tags/SKILL.md — Apply tags, manage inheritance, and configure tag search behaviour.
 - file:orgmode/properties-and-columns/SKILL.md — Manage property drawers, inheritance, and column view layouts.
 - file:orgmode/dates-and-times/SKILL.md — Schedule and deadline tasks, use repeaters, and manage clocking data.
+- file:add-wave/SKILL.md — Add a new survey wave to an existing LSMS-ISA country: discover new waves on WB, download, push to S3 via DVC, and register in the library.
 - file:add-feature/SKILL.md — Add a missing feature (table) to an LSMS-ISA country via YAML config or Python scripts.
 - file:add-feature/shocks/SKILL.md — Domain-specific guidance for adding household shocks data across LSMS-ISA countries.
 - file:add-feature/assets/SKILL.md — Domain-specific guidance for adding durable goods ownership data.

@@ -35,11 +35,16 @@ Before writing any code, **read the `.org` files** in the country's `_/` directo
 
 Also check wave-level org files: `{Country}/{wave}/_/*.org`
 
+## Related Skills
+
+- `add-wave` — Use this skill first if the survey wave's raw data hasn't been downloaded and pushed to S3 yet. Covers `discover_waves()`, `add_wave()`, DVC push, and wave registration.
+
 ## Prerequisites
 
 - The reference implementation (usually Uganda) already has the feature
 - The target country has raw survey data (`.dta` files tracked via DVC) containing the needed variables
 - The target country directory exists under `lsms_library/countries/{Country}/`
+- **The wave must appear in `Country(name).waves`.** Many countries have a hardcoded `Waves` dict in `{country}.py` (e.g., `lsms_library/countries/Ethiopia/_/ethiopia.py`). If the dict exists, it overrides directory scanning -- you must add the new wave to it. See the `add-wave` skill for details.
 
 ## Workflow
 
