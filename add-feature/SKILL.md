@@ -249,6 +249,20 @@ report.summarize()
 assert report.ok  # True if no checks failed (warnings allowed)
 ```
 
+**Cross-country validation with Feature:**
+
+Use the `Feature` class to verify that a newly added feature works alongside existing countries:
+
+```python
+import lsms_library as ll
+
+feat = ll.Feature('{feature_name}')
+feat.countries    # All countries declaring this table
+df = feat(['{Country}', 'Uganda'])  # Compare against reference country
+```
+
+The returned DataFrame has a `country` index level prepended. This is the fastest way to spot schema mismatches, missing columns, or unexpected dtypes across countries.
+
 This runs 13 checks: non-empty, index levels match `data_scheme.yml`, no null indices, time/household indices present, reasonable size, no all-null or constant columns, declared columns present, dtype consistency, duplicate rate, and household ID overlap with the spine.
 
 **The feature is not done until `report.ok` is True.**
