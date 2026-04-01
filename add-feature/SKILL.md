@@ -15,6 +15,7 @@ For domain-specific guidance on particular features, load the relevant sub-skill
 - `add-feature/assets` — Durable goods ownership (item-level, no aggregation). Covers the Module L/M distinction across survey instruments and the design principle of passing item-level data without summing to household totals.
 - `add-feature/panel-ids` — Panel household ID linkage across waves. Covers ID stability patterns, composite IDs, household splits, cross-survey-program limitations, and the World Bank harmonised panel as a reference.
 - `add-feature/food-acquired` — Food acquisition data with unit conversions. The most complex feature — covers two approaches to unit-to-kg conversion: price-ratio inference from the data itself, and survey-provided conversion factor tables.
+- `add-feature/multi-round` — Post-planting/post-harvest (pp/ph) dual-round survey structure. Required for Nigeria, Ethiopia, Tanzania (2008-15), and other countries where a single wave directory contains data from two survey rounds. Covers distinct `t`-value assignment, attrition deduplication, the `!make` requirement, and duplicate-index bug avoidance.
 
 ## World Bank reference code
 
