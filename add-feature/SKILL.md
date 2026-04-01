@@ -95,6 +95,36 @@ Data Scheme:
 
 Identify which `.dta` file in each wave contains the needed variables.
 
+#### Filename patterns by survey program
+
+Use this as a starting point — **always verify against the actual files**:
+
+| Program | Countries | Pattern | food | shocks | assets | roster |
+|---------|-----------|---------|------|--------|--------|--------|
+| EHCVM | Mali, Niger, Burkina Faso, Senegal, Togo, Benin, Guinea-Bissau | `s{NN}_me_{country}{year}.dta` | s07b | s08a | s12 | `ehcvm_individu_{cc}{year}.dta` |
+| ECVMA (Niger pre-2018) | Niger 2011-12, 2014-15 | `ecvma{mod}_p{pass}_{lang}.dta` or `ECVMA2_MS{NN}P{pass}.dta` | varies | varies | varies | varies |
+| ESS (Ethiopia) | Ethiopia | `sect{N}_hh_w{wave}.dta` | sect6a | sect9 | sect10a | sect1 |
+| NPS (Tanzania) | Tanzania | `HH_SEC_{letter}.dta` | J1 | S | M1 | B |
+| GHS (Nigeria) | Nigeria | `sect{N}_{round}w{wave}.dta` | varies | varies | sect5 | sect1 |
+| IHS/IHPS (Malawi) | Malawi | `HH_MOD_{letter}.dta` | G1 | U | L | B |
+| UNPS (Uganda) | Uganda | `GSEC{N}.dta` | 15C | varies | 14A | 2 |
+
+#### EHCVM composite household ID
+
+All EHCVM countries (Mali, Niger, Burkina Faso, Senegal, etc.) construct household IDs from two columns:
+```yaml
+i:
+    - grappe    # cluster number
+    - menage    # household number within cluster
+```
+This composite `(grappe, menage)` is the standard `i` for all EHCVM features. Copy this pattern from existing configs (e.g., `Mali/2018-19/_/data_info.yml`).
+
+#### Reference configs to copy from
+
+For EHCVM countries, start from **Mali 2018-19** — it has the most complete feature set.
+For ESS countries, start from **Ethiopia 2018-19**.
+For NPS/GHS/IHS, start from **Uganda** or **Malawi** (most waves covered).
+
 **Primary method: World Bank data dictionary.** Each wave has a `Documentation/SOURCE.org` file with a URL like `https://microdata.worldbank.org/index.php/catalog/XXXX/get-microdata`. Replace `get-microdata` with `data-dictionary` to browse the variable catalog online. This is the authoritative source for which module contains which variables.
 
 **IMPORTANT:** Module letters are NOT consistent across surveys. For example, shocks data lives in Module U in Malawi 2010+ but Module AB in Malawi 2004-05, and Module S in Uganda. Always verify via the data dictionary — never assume.
@@ -105,15 +135,28 @@ Identify which `.dta` file in each wave contains the needed variables.
 3. **Questionnaire PDFs** in `{wave}/Documentation/`
 4. **Naming convention inference** — within a wave, variables follow patterns (e.g., `hh_b02`, `hh_b03`, `hh_b04`)
 
-**Always pull the data and inspect it directly:**
+#### Inspecting column names
+
+Use `pyreadstat` with `metadataonly=True` for fast column inspection — this reads only the file header, no data loading needed:
 ```python
-from ligonlibrary.dataframes import from_dta
-df = from_dta('/path/to/file.dta')
-print(df.columns.tolist())
-print(df.shape)
-for c in df.columns:
-    print(f'  {c}: {df[c].dropna().value_counts().head(3).to_dict()}')
+import pyreadstat
+df, meta = pyreadstat.read_dta('path/to/file.dta', metadataonly=True)
+print(meta.column_names)
+# Value labels for categorical columns:
+for var, labels in meta.variable_value_labels.items():
+    if len(labels) < 30:
+        print(f'  {var}: {labels}')
 ```
+
+This is the **only** acceptable use of `pyreadstat` directly. For actually reading data in feature scripts, use `get_dataframe()` from `local_tools`.
+
+#### DVC data access on clusters
+
+If pulling data via DVC and you hit a lock error (`Unable to acquire lock`), clear stale locks:
+```bash
+rm -f lsms_library/countries/.dvc/tmp/*.lock lsms_library/countries/.dvc/tmp/rwlock
+```
+Then retry. Lock contention happens when multiple processes access DVC simultaneously. For parallel work, use git worktrees so each agent has its own DVC lock.
 
 ### Step 4: Map variable names per wave
 
