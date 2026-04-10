@@ -44,11 +44,41 @@ Three patterns for how household IDs work across waves:
 
 3. **Composite IDs** (West Africa): Household ID is constructed from `grappe` (cluster) + `menage` (household number). The same household keeps the same grappe+menage in the panel wave, but the construction method or variable names may change.
 
+### Disjoint sub-panels
+
+Some countries split their sample into sub-panels tracked in different
+subsequent waves.  Tanzania is the key example:
+
+- **2014-15** drew both an "Extended Panel" (~20% of the 2008-13
+  cohort) and a "Refresh Panel" (entirely new sample).
+- **2019-20** followed the Extended Panel only.
+- **2020-21** followed the Refresh Panel only, plus an urban booster.
+
+These sub-panels have **zero household overlap by design**.
+`panel_attrition()` correctly shows 0 in the cross-cell.  The
+`y4_hhid` in the 2020-21 data uses refresh panel numbering
+(e.g. `1000-001`) which matches `r_hhid` values first appearing in
+2014-15 --- not the extended panel `r_hhid` values (`0001-001`).
+
+Check the World Bank's Basic Information Document for each wave to
+determine if sub-panel splits exist.
+
 ### Household splits
 
-Some surveys track household splits — when one household divides into two. The split-off household gets a new ID but its `previous_i` points to the original household. The library's `update_id()` function handles this by appending `_1`, `_2` suffixes.
+Some surveys track household splits --- when one household divides
+into two.  The split-off household gets a new ID but its `previous_i`
+points to the original household.  The library's `update_id()`
+function handles this by appending `_1`, `_2` suffixes.
 
-Niger uses an `extension` variable: `0` = same household same location, `1` = same household moved, `2` = split-off.
+Niger uses an `extension` variable: `0` = same household same
+location, `1` = same household moved, `2` = split-off.
+
+Tanzania 2008-15 uses **suffix-based detection**: within the
+multi-round UPD4 data, multiple UPHIs can share the same `r_hhid` in
+early rounds and diverge later.  Round 2 (16-digit r_hhid): suffix
+`01` = primary, `02`+ = split-off.  Rounds 3-4 (NNNN-NNN): suffix
+`001` = primary, others = split-off.  `map_08_15()` only links
+primaries backward; split-offs start as new households.
 
 ## Implementation patterns
 
