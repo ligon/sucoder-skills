@@ -100,26 +100,43 @@ up where it left off.
 
 ## Job Submission Template
 
-Minimal single-task job (free low-prio account, saturated node):
+Minimal single-task job (free low-prio account, modest ask,
+saturate whatever the scheduler gives you):
 
 ```bash
 sbatch \
   --account=co_carleton \
   --partition=savio4_htc \
   --qos=savio_lowprio \
-  --cpus-per-task=56 \
-  --mem=0 \
+  --cpus-per-task=8 \
+  --mem=32G \
   --time=01:00:00 \
   --job-name=my_task \
   --output=slurm_logs/%x_%j.out \
   --error=slurm_logs/%x_%j.err \
-  --wrap="cd /path/to/project && .venv/bin/python -m pytest tests/ -n auto"
+  --wrap='cd /path/to/project && .venv/bin/python -m pytest tests/ -n "${SLURM_CPUS_ON_NODE:-$SLURM_CPUS_PER_TASK}"'
 ```
 
-`--cpus-per-task=56` + `--mem=0` asks for all cores and all memory
-on the node, which is appropriate when the partition allocates whole
-nodes anyway (see "Whole-Node Allocation" below).  On a genuinely
-shared partition, request exactly what the job needs.
+Two design choices worth explaining:
+
+- **Modest request**: `--cpus-per-task=8` and `--mem=32G` are
+  schedulable on essentially any HPC node (old and new hardware
+  alike).  A request that only fits on the largest nodes locks you
+  out of smaller partitions and makes preemption-on-resubmit far
+  slower.  Ask for what the job actually needs plus a small
+  cushion, not the full size of the biggest node you've seen.
+- **Runtime saturation via `$SLURM_CPUS_ON_NODE`**: pytest reads
+  `$SLURM_CPUS_ON_NODE`, which reflects **what Slurm actually
+  gave you** — which may be more than `--cpus-per-task` if the
+  partition is whole-node.  So you ask politely for 8 cores and
+  use however many you end up with.  Fall back to
+  `$SLURM_CPUS_PER_TASK` when `$SLURM_CPUS_ON_NODE` isn't set
+  (some Slurm versions).
+
+On genuinely shared partitions, you get exactly `--cpus-per-task`
+and the two variables match.  On whole-node partitions,
+`$SLURM_CPUS_ON_NODE` is larger and you saturate the bonus cores
+instead of wasting them.
 
 Common flags:
 
@@ -136,7 +153,7 @@ Common flags:
   and `%j` for job id
 - `--wrap` — inline command; for more than one line, write a script
 
-## Whole-Node Allocation: Saturate What You Request
+## Whole-Node Allocation: Saturate What You Get
 
 On some clusters and partitions, **you are allocated the entire
 physical node regardless of `--cpus-per-task`**.  Asking for 4 cores
@@ -145,13 +162,35 @@ duration of the job.  This is true on Savio's condo / priority
 partitions in particular, but can apply to HTC partitions depending
 on site configuration, memory request, and QoS.
 
-**Implication**: if you're going to grab a whole node anyway, the
-only responsible thing is to **saturate it**.  A 56-core node running
-a single-threaded pytest is worse than wasteful — it's antisocial to
-every other user waiting in the queue for those cores.
+The temptation is to "just ask for all 56 cores up front" — but
+that's the wrong fix.  A 56-core request only fits on the largest
+nodes and locks you out of smaller hardware and most lower-priority
+partitions, which is especially bad when you're preemptible.  The
+right pattern is **ask modestly, saturate what Slurm actually gives
+you**:
 
-Before dispatch, confirm whether your target partition shares nodes
-or allocates them whole:
+1. Request a schedulable amount (e.g. `--cpus-per-task=8`,
+   `--mem=32G`) — enough for the work, schedulable on most nodes.
+2. Inside the job, **saturate whatever you were handed** using
+   `$SLURM_CPUS_ON_NODE` (the variable set by Slurm to reflect the
+   cores the job was given on its node, which may exceed
+   `--cpus-per-task` on a whole-node partition).
+
+```bash
+# Use the bonus cores if we got them; fall back to the request otherwise
+NPROC="${SLURM_CPUS_ON_NODE:-$SLURM_CPUS_PER_TASK}"
+.venv/bin/python -m pytest tests/ -n "$NPROC"
+make -j"$NPROC"
+xargs -P "$NPROC" ...
+```
+
+That way, a modest request gets you scheduled on any partition, and
+a bonus whole-node allocation still gets saturated at runtime.  The
+worst case (shared partition, exactly `--cpus-per-task` cores) still
+uses what you asked for, with no waste.
+
+Before deciding how modest to be, confirm whether your target
+partition shares nodes or allocates them whole:
 
 ```bash
 scontrol show partition savio4_htc | grep -iE 'shared|exclusive|oversubscribe'
@@ -161,40 +200,77 @@ sinfo -p savio4_htc --format="%N %C %m %T"
 # it isn't.
 ```
 
-When you are on a whole-node partition:
+When you know the partition is whole-node:
 
-- **Request `--cpus-per-task` = all cores on the node**, not a polite
-  fraction.  You have them anyway.
-- **Use parallelism tools** to saturate: `pytest -n auto`, `make -jN`,
-  `parallel`, `joblib.Parallel`, `xargs -P`, etc.
+- **Keep the request modest** for schedulability and preemption
+  recovery, but **saturate at runtime** via `$SLURM_CPUS_ON_NODE`
+  (see above).  Never hard-code a core count.
+- **Use parallelism tools** that respect a passed-in N: `pytest -n
+  $N`, `make -jN`, `parallel -j $N`, `joblib.Parallel(n_jobs=N)`,
+  `xargs -P $N`.
 - **Check memory**: don't let a single-threaded process balloon to
   the whole node's RAM while other cores sit idle.  Parallelism
-  usually amortizes memory across workers.
-- **Prefer shorter jobs**: a saturated 20-minute job is a much better
-  queue citizen than a single-threaded 6-hour job on the same
-  allocation.
+  usually amortizes memory across workers, but peak memory per
+  worker still matters.
+- **Prefer shorter jobs**: a saturated 20-minute job is a much
+  better queue citizen than a single-threaded 6-hour job on the
+  same allocation, and far friendlier to preemption.
 
-When you are on a shared partition (HTC configured for sharing):
+When you know the partition is shared (HTC configured for sharing):
 request exactly what you need.  Over-requesting holds cores other
-users could be running.
+users could be running.  In this case `$SLURM_CPUS_ON_NODE` will
+equal `--cpus-per-task` and the runtime saturation logic is still
+correct — there's no downside to writing code that reads the
+variable.
 
-### pytest on a whole-node allocation
+### Scale out, not up
+
+If the work genuinely needs more cores than a modest single-node
+ask gives, do not respond by hunting for one massive node.  Scale
+**horizontally** instead:
+
+- **Embarrassingly parallel work** (one task per country, one per
+  file, one per seed): use an **array job** (see "Array Jobs"
+  below).  Each element of the array runs on its own small
+  allocation, and a preempted element costs only its own work, not
+  the whole run.
+- **Tightly coupled work** (MPI, Dask, distributed training):
+  request **`--nodes=N` `--ntasks-per-node=K`** and let Slurm
+  place the job across N nodes.  You get N × K workers without
+  needing any single node to be huge.
+- **Coordinator + workers**: run the coordinator on one small
+  Slurm job and have it `sbatch` worker jobs for the parallel
+  tasks.  The coordinator stays lightweight; the workers are
+  replaceable.
+
+Horizontal scale is friendlier to the scheduler (more partitions
+fit a 4-core × 16-node job than a 64-core × 1-node job),
+friendlier to preemption (losing one element of an array is
+cheap), and friendlier to cost accounting (you only pay for what
+you use).
+
+### pytest on Slurm
 
 Install `pytest-xdist` as a test-group dependency (`pip install
-pytest-xdist` or add to `pyproject.toml` under the test group).  Then
-invoke pytest with:
+pytest-xdist` or add to `pyproject.toml` under the test group),
+then let the job decide how many workers at runtime:
 
 ```bash
-.venv/bin/python -m pytest tests/ -n auto
-# or, to be explicit:
-.venv/bin/python -m pytest tests/ -n "$SLURM_CPUS_ON_NODE"
+NPROC="${SLURM_CPUS_ON_NODE:-${SLURM_CPUS_PER_TASK:-1}}"
+.venv/bin/python -m pytest tests/ -n "$NPROC"
 ```
 
-`-n auto` lets xdist pick up all available cores.  For I/O-bound
-test suites (e.g. data-pipeline integration tests that read many
-files), parallelism hides per-test latency even though CPU isn't
-saturated; a 10x speedup from 8 workers on a file-reading workload
-is common.
+`-n $NPROC` uses exactly the cores Slurm gave you — whether that's
+the modest `--cpus-per-task` on a shared partition or the full
+node on a whole-node partition.  `-n auto` is a reasonable fallback
+but it guesses from `os.cpu_count()`, which can under-count in
+containerized or cgroup-limited environments; `$SLURM_CPUS_ON_NODE`
+is authoritative.
+
+For I/O-bound test suites (e.g. data-pipeline integration tests
+that read many files), parallelism hides per-test latency even when
+CPU isn't saturated; a 10x speedup from 8 workers on a
+file-reading workload is common.
 
 Gotcha: xdist runs tests in separate worker processes, so any test
 that writes to a shared on-disk cache or mutates a shared fixture

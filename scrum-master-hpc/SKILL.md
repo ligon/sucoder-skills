@@ -214,22 +214,32 @@ parallelism exceeds the current node's cores.  See
 [references/slurm_dispatch.md](references/slurm_dispatch.md) for a
 ready-to-use submission template.
 
-Two standing rules when dispatching to Slurm:
+Three standing rules when dispatching to Slurm:
 
 - **Default to the free, low-priority account.**  Priority / condo
   accounts (e.g. `fc_jevons`) draw down shared compute budget and
   should be reserved for urgent work.  Free low-prio accounts (e.g.
   `co_carleton` on Savio) cost nothing and handle most workloads
   fine.  Ask before billing a priority account.
-- **Saturate what you're allocated.**  Many HPC partitions give you
-  the whole physical node regardless of `--cpus-per-task`.  A
-  single-threaded job on a 56-core node is worse than wasteful — it
-  blocks other users for the entire runtime.  Use `pytest -n auto`,
-  `make -jN`, `parallel`, or a scatter-gather inside the job.  If
-  you don't know whether the partition is whole-node or shared,
-  check with `scontrol show partition <name>` before submitting.
+- **Ask modestly, saturate what you're given.**  Request a
+  schedulable core count and memory (e.g. `--cpus-per-task=8`,
+  `--mem=32G`) — enough for the work, schedulable on most nodes,
+  and recoverable after preemption.  Inside the job, read
+  `$SLURM_CPUS_ON_NODE` to detect what Slurm actually handed you,
+  and saturate that with `pytest -n $NPROC`, `make -j$NPROC`, etc.
+  On whole-node partitions the runtime figure may be larger than
+  what you asked for; on shared partitions the two match.  **Never
+  hard-code a big core count** in the `sbatch` line just to grab
+  bonus cores — it locks you out of smaller hardware.
+- **Scale out, not up.**  If the work genuinely needs more cores
+  than a modest single-node ask gives, the right move is
+  `--nodes=N` (or an array job), not hunting for one massive node.
+  Horizontal scale is friendlier to the scheduler, fits on more
+  partitions, and degrades gracefully under preemption — a
+  preempted element of an array job costs one element's work,
+  not the whole job.
 
-Both rules are expanded in
+All three rules are expanded in
 [references/slurm_dispatch.md](references/slurm_dispatch.md).
 
 ## Parallel Orchestration (Scatter-Gather)
