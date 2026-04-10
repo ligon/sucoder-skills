@@ -224,26 +224,39 @@ prompt with the specific change to make.
 ### Bidirectional message channel for long-running agents
 
 For agents expected to run more than a few minutes, set up two files
-**in advance** and pass their paths in the prompt:
+**before dispatching** and pass their paths in the prompt:
 
 - **`MESSAGES_TO_AGENT.txt`** — the scrum master appends steering
-  notes, answers, or "stop doing that"  mid-flight.  The agent
+  notes, answers, or "stop doing that" mid-flight.  The agent
   re-reads it at natural checkpoints.
 - **`QUESTIONS_FROM_AGENT.txt`** — the agent appends questions or
   blockers.  The scrum master polls it periodically (or the user
   prompts a check).
 
-Include instructions like this in the prompt:
+**Create the files before dispatch, do not tell the agent to create
+them.**  Telling the agent "create it if missing" shifts a
+setup-time decision to the agent's runtime, and a distracted or
+rushed agent may skip creation entirely, silently disabling the
+channel.  Two one-line commands before the dispatch:
+
+```bash
+: > slurm_logs/build_$(date +%Y-%m-%d)/MESSAGES_TO_AGENT.txt
+: > slurm_logs/build_$(date +%Y-%m-%d)/QUESTIONS_FROM_AGENT.txt
+```
+
+Then include instructions like this in the prompt:
 
 ```
 You may receive steering during this task.  At the top of each
 major step, re-read:
   slurm_logs/build_YYYY-MM-DD/MESSAGES_TO_AGENT.txt
+(the file already exists; it may be empty or contain new directives)
 
 If you have a blocking question or need clarification, append it to:
   slurm_logs/build_YYYY-MM-DD/QUESTIONS_FROM_AGENT.txt
-and proceed with the next independent sub-task while waiting for
-an answer (do not block).  Do not ask the same question twice.
+(the file already exists) and proceed with the next independent
+sub-task while waiting for an answer (do not block).  Do not ask
+the same question twice.
 ```
 
 This turns a one-shot fire-and-forget dispatch into something closer

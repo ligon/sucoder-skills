@@ -204,7 +204,7 @@ might hit a question that needs human judgment.
 **Approach**: Provision two files **before dispatching** and tell
 the agent about them in the prompt.
 
-**Setup** (before dispatch):
+**Setup** (before dispatch — **do this, don't ask the agent to do it**):
 
 ```bash
 CHANNEL=slurm_logs/build_$(date +%Y-%m-%d)
@@ -212,6 +212,15 @@ mkdir -p "$CHANNEL"
 : > "$CHANNEL/MESSAGES_TO_AGENT.txt"
 : > "$CHANNEL/QUESTIONS_FROM_AGENT.txt"
 ```
+
+Creating the files before dispatch is not cosmetic — it is
+load-bearing.  A prompt that says "create it if missing" shifts a
+setup-time decision to agent runtime, and a distracted agent may
+skip creation entirely, silently disabling the channel.  The scrum
+master finds out only when nothing arrives in QUESTIONS_FROM_AGENT
+and assumes "everything is fine" when actually the channel was
+never wired up.  Two `touch`-equivalent commands eliminate the
+failure mode.
 
 **Prompt shape**:
 
