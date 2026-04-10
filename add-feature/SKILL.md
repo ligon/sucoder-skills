@@ -15,6 +15,7 @@ For domain-specific guidance on particular features, load the relevant sub-skill
 - `add-feature/assets` — Durable goods ownership (item-level, no aggregation). Covers the Module L/M distinction across survey instruments and the design principle of passing item-level data without summing to household totals.
 - `add-feature/panel-ids` — Panel household ID linkage across waves. Covers ID stability patterns, composite IDs, household splits, cross-survey-program limitations, and the World Bank harmonised panel as a reference.
 - `add-feature/food-acquired` — Food acquisition data with unit conversions. The most complex feature — covers two approaches to unit-to-kg conversion: price-ratio inference from the data itself, and survey-provided conversion factor tables.
+- `add-feature/multi-round` — Post-planting/post-harvest (pp/ph) dual-round survey structure. Required for Nigeria, Ethiopia, Tanzania (2008-15), and other countries where a single wave directory contains data from two survey rounds. Covers distinct `t`-value assignment, attrition deduplication, the `!make` requirement, and duplicate-index bug avoidance.
 
 ## World Bank reference code
 
@@ -35,11 +36,16 @@ Before writing any code, **read the `.org` files** in the country's `_/` directo
 
 Also check wave-level org files: `{Country}/{wave}/_/*.org`
 
+## Related Skills
+
+- `add-wave` — Use this skill first if the survey wave's raw data hasn't been downloaded and pushed to S3 yet. Covers `discover_waves()`, `add_wave()`, DVC push, and wave registration.
+
 ## Prerequisites
 
 - The reference implementation (usually Uganda) already has the feature
 - The target country has raw survey data (`.dta` files tracked via DVC) containing the needed variables
 - The target country directory exists under `lsms_library/countries/{Country}/`
+- **The wave must appear in `Country(name).waves`.** Many countries have a hardcoded `Waves` dict in `{country}.py` (e.g., `lsms_library/countries/Ethiopia/_/ethiopia.py`). If the dict exists, it overrides directory scanning -- you must add the new wave to it. See the `add-wave` skill for details.
 
 ## Workflow
 
@@ -90,6 +96,36 @@ Data Scheme:
 
 Identify which `.dta` file in each wave contains the needed variables.
 
+#### Filename patterns by survey program
+
+Use this as a starting point — **always verify against the actual files**:
+
+| Program | Countries | Pattern | food | shocks | assets | roster |
+|---------|-----------|---------|------|--------|--------|--------|
+| EHCVM | Mali, Niger, Burkina Faso, Senegal, Togo, Benin, Guinea-Bissau | `s{NN}_me_{country}{year}.dta` | s07b | s08a | s12 | `ehcvm_individu_{cc}{year}.dta` |
+| ECVMA (Niger pre-2018) | Niger 2011-12, 2014-15 | `ecvma{mod}_p{pass}_{lang}.dta` or `ECVMA2_MS{NN}P{pass}.dta` | varies | varies | varies | varies |
+| ESS (Ethiopia) | Ethiopia | `sect{N}_hh_w{wave}.dta` | sect6a | sect9 | sect10a | sect1 |
+| NPS (Tanzania) | Tanzania | `HH_SEC_{letter}.dta` | J1 | S | M1 | B |
+| GHS (Nigeria) | Nigeria | `sect{N}_{round}w{wave}.dta` | varies | varies | sect5 | sect1 |
+| IHS/IHPS (Malawi) | Malawi | `HH_MOD_{letter}.dta` | G1 | U | L | B |
+| UNPS (Uganda) | Uganda | `GSEC{N}.dta` | 15C | varies | 14A | 2 |
+
+#### EHCVM composite household ID
+
+All EHCVM countries (Mali, Niger, Burkina Faso, Senegal, etc.) construct household IDs from two columns:
+```yaml
+i:
+    - grappe    # cluster number
+    - menage    # household number within cluster
+```
+This composite `(grappe, menage)` is the standard `i` for all EHCVM features. Copy this pattern from existing configs (e.g., `Mali/2018-19/_/data_info.yml`).
+
+#### Reference configs to copy from
+
+For EHCVM countries, start from **Mali 2018-19** — it has the most complete feature set.
+For ESS countries, start from **Ethiopia 2018-19**.
+For NPS/GHS/IHS, start from **Uganda** or **Malawi** (most waves covered).
+
 **Primary method: World Bank data dictionary.** Each wave has a `Documentation/SOURCE.org` file with a URL like `https://microdata.worldbank.org/index.php/catalog/XXXX/get-microdata`. Replace `get-microdata` with `data-dictionary` to browse the variable catalog online. This is the authoritative source for which module contains which variables.
 
 **IMPORTANT:** Module letters are NOT consistent across surveys. For example, shocks data lives in Module U in Malawi 2010+ but Module AB in Malawi 2004-05, and Module S in Uganda. Always verify via the data dictionary — never assume.
@@ -100,15 +136,28 @@ Identify which `.dta` file in each wave contains the needed variables.
 3. **Questionnaire PDFs** in `{wave}/Documentation/`
 4. **Naming convention inference** — within a wave, variables follow patterns (e.g., `hh_b02`, `hh_b03`, `hh_b04`)
 
-**Always pull the data and inspect it directly:**
+#### Inspecting column names
+
+Use `pyreadstat` with `metadataonly=True` for fast column inspection — this reads only the file header, no data loading needed:
 ```python
-from ligonlibrary.dataframes import from_dta
-df = from_dta('/path/to/file.dta')
-print(df.columns.tolist())
-print(df.shape)
-for c in df.columns:
-    print(f'  {c}: {df[c].dropna().value_counts().head(3).to_dict()}')
+import pyreadstat
+df, meta = pyreadstat.read_dta('path/to/file.dta', metadataonly=True)
+print(meta.column_names)
+# Value labels for categorical columns:
+for var, labels in meta.variable_value_labels.items():
+    if len(labels) < 30:
+        print(f'  {var}: {labels}')
 ```
+
+This is the **only** acceptable use of `pyreadstat` directly. For actually reading data in feature scripts, use `get_dataframe()` from `local_tools`.
+
+#### DVC data access on clusters
+
+If pulling data via DVC and you hit a lock error (`Unable to acquire lock`), clear stale locks:
+```bash
+rm -f lsms_library/countries/.dvc/tmp/*.lock lsms_library/countries/.dvc/tmp/rwlock
+```
+Then retry. Lock contention happens when multiple processes access DVC simultaneously. For parallel work, use git worktrees so each agent has its own DVC lock.
 
 ### Step 4: Map variable names per wave
 
@@ -244,6 +293,20 @@ report.summarize()
 assert report.ok  # True if no checks failed (warnings allowed)
 ```
 
+**Cross-country validation with Feature:**
+
+Use the `Feature` class to verify that a newly added feature works alongside existing countries:
+
+```python
+import lsms_library as ll
+
+feat = ll.Feature('{feature_name}')
+feat.countries    # All countries declaring this table
+df = feat(['{Country}', 'Uganda'])  # Compare against reference country
+```
+
+The returned DataFrame has a `country` index level prepended. This is the fastest way to spot schema mismatches, missing columns, or unexpected dtypes across countries.
+
 This runs 13 checks: non-empty, index levels match `data_scheme.yml`, no null indices, time/household indices present, reasonable size, no all-null or constant columns, declared columns present, dtype consistency, duplicate rate, and household ID overlap with the spine.
 
 **The feature is not done until `report.ok` is True.**
@@ -260,7 +323,32 @@ print(has_data['{key_column}'].value_counts())  # Sensible?
 print(has_data.head(10))
 ```
 
-Run existing tests: `pytest tests/test_table_structure.py`
+**Mandatory validation gate:**
+
+```python
+from lsms_library.diagnostics import validate_feature
+
+report = validate_feature('{Country}', '{feature_name}',
+                          new_wave='2021-22')
+report.summarize()
+assert report.ok
+```
+
+`validate_feature()` runs all 14 sanity checks plus:
+- Verifies the new wave appears in the output
+- Checks no existing waves regressed (became empty)
+- Detects unmapped labels (raw survey codes like "1. LABEL")
+- Compares columns, index structure, and value ranges against Uganda (or another reference)
+
+**The feature is not done until `report.ok` is True.** For Slurm dispatch, use the gate script:
+
+```bash
+python slurm_logs/run_validate.py Ethiopia household_roster --wave 2021-22
+```
+
+Exit code 0 = passed, exit code 1 = failed.
+
+Also run existing tests: `pytest tests/test_table_structure.py`
 
 ### Step 8: Review for consolidation
 
@@ -310,6 +398,22 @@ The corresponding `data_scheme.yml` entry:
 
 **Countries with legacy Python scripts** (e.g., Uganda, Malawi) use `!make` in `data_scheme.yml` to bypass schema normalization. Prefer the YAML approach for new work.
 
+## Data loading in Python scripts
+
+When a feature requires a `.py` script (marked `!make` in `data_scheme.yml`), **always use `get_dataframe()` from `local_tools`** to read `.dta` files:
+
+```python
+from lsms_library.local_tools import get_dataframe, to_parquet
+
+df = get_dataframe('../Data/sect1_hh_w5.dta')
+# ... transform ...
+to_parquet(df, 'my_feature.parquet')
+```
+
+`get_dataframe()` handles local files, DVC remotes, **and** World Bank Microdata Library downloads transparently via a four-level fallback chain (local → DVC filesystem → `dvc.api.open` → `get_data_file` WB download). Scripts run from the wave's `_/` directory, so `../Data/file.dta` is the standard relative path.
+
+**Do not** use `dvc.api.open()` + `from_dta()`, hardcoded absolute paths, `pd.read_stata()`, or `pyreadstat.read_dta()` directly. These bypass the fallback chain and break portability. See the "Data Access" section in `CLAUDE.md` for the full anti-pattern table.
+
 ## Common pitfalls
 
 - **Wrong module:** Module letters change across survey instruments (U=shocks in one country, U=livestock in another). Always check the World Bank data dictionary.
@@ -321,3 +425,32 @@ The corresponding `data_scheme.yml` entry:
 - **Missing columns across waves:** Earlier survey instruments may not include all variables. Columns absent from a wave's `data_info.yml` entry will be NaN in the output — this is expected.
 - **DVC-tracked files:** Pull data with `dvc pull {path}.dvc` before building. Run from the DVC root (`lsms_library/countries/`).
 - **Pre-ISA vs ISA waves:** Earlier waves (e.g., Malawi 2004-05 "IHS2") predate the LSMS-ISA standardization and often use completely different module letters and variable naming conventions. Module L might be "non-food expenditures" in 2004-05 but "durable goods" in 2010+. Always verify via the World Bank data dictionary — never assume module letters are stable across survey instruments.
+
+## Record country-specific findings in CONTENTS.org
+
+Every country has (or should have) a `{Country}/_/CONTENTS.org` file documenting data quirks, module changes, and known gaps. **Update it when you discover something non-obvious:**
+
+- A survey wave that lacks an expected module (e.g., "Mali 2017-18 EACI dropped the food consumption module")
+- Module numbers that changed across waves (e.g., "Niger shocks: section 11 in 2011-12, section 10 in 2014-15, section 14 in 2018-19+")
+- Data quality issues (e.g., "Stata missing codes '.' survive as strings in birth year columns")
+- Panel breaks (e.g., "Ethiopia W4 (2018-19) drew a new sample — zero ID overlap with W1-W3")
+- Data availability gaps (e.g., "Albania 1996 directory exists but WB does not host the microdata")
+
+This is the institutional memory for the country. Future agents and humans read CONTENTS.org first (Step 0 of the workflow). Don't make them rediscover what you already found.
+
+## When you discover a problem you can't fix now
+
+**File a GitHub issue.** Discovering a problem is half the battle — don't let findings evaporate just because fixing them is out of scope for the current task.
+
+```bash
+gh issue create --repo ligon/LSMS_Library \
+  --title "Country: Brief description of the problem" \
+  --body "## Summary\n\nWhat you found.\n\n## Evidence\n\nCode, output, or file paths.\n\n## What needs to happen\n\nSteps to fix."
+```
+
+Examples of things worth filing:
+- Scaffolding that exists but was never activated (e.g., commented-out Waves dict entries)
+- Data gaps you confirmed by inspecting files (e.g., a survey wave that lacks a module)
+- Unmapped labels that need adding to `kinship.yml` or `categorical_mapping.org`
+- Cross-wave ID linkage that exists in the data but isn't configured
+- Features that work for some waves but break on others
