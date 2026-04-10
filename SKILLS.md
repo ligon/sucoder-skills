@@ -33,6 +33,7 @@ need the full instructions.
 - file:add-feature/shocks/SKILL.md — Domain-specific guidance for adding household shocks data across LSMS-ISA countries.
 - file:add-feature/assets/SKILL.md — Domain-specific guidance for adding durable goods ownership data.
 - file:add-feature/panel-ids/SKILL.md — Panel household ID linkage across survey waves, with cross-country patterns and World Bank reference code.
+- file:scrum-master-hpc/SKILL.md — Scrum-master / dispatcher patterns for HPC work: delegation discipline, worktree hygiene, Slurm dispatch, parallel orchestration, and recovery from broken working-tree states.
 
 Add new skills by creating a subdirectory under `skills/` with a `SKILL.md` file (plus optional
 resources) and list it here using either a `file:` link or relative path so the catalog stays in
