@@ -38,9 +38,13 @@ At the start of a scrum-master session, run this checklist:
    `sinfo` for the cluster you're on.  See the [Slurm reference](references/slurm_dispatch.md)
    for partition-picking guidance.
 3. **Know what's running**: `squeue -u $USER` for your Slurm jobs.
-4. **Check for stale state**: leftover worktrees under
+4. **Know your budget**: run the cluster's account-usage tool (on
+   Savio, `check_usage.sh -a <priority_account>`) and record the
+   remaining balance in the session handoff.  See the
+   [Cost Awareness](#cost-awareness) section.
+5. **Check for stale state**: leftover worktrees under
    `.claude/worktrees/`, stale DVC locks, half-finished branches.
-5. **Confirm today's date**: `date`, since handoff notes use it.
+6. **Confirm today's date**: `date`, since handoff notes use it.
 
 Do not start dispatching until the above is clear.
 
@@ -58,6 +62,95 @@ needs you for.  The rule of thumb:
 This doesn't mean "delegate everything".  It means **delegate
 understanding-free tasks** and keep the judgment calls in your own
 context.
+
+## Cost Awareness
+
+Compute has two costs, and the scrum master is responsible for both:
+
+1. **Private cost** — Service Units (SUs) drawn from your PI's
+   allocation, billed to a fair-share or condo account (e.g.
+   `fc_jevons` on Savio).  Denominated in SUs, not CPU-hours, because
+   partition multipliers apply: newer hardware charges more SUs per
+   wall-hour than older.  **Think in SUs.**
+2. **Social cost** — queue delay and blocked capacity for every other
+   researcher sharing the cluster.  This is the cost *you* don't pay
+   but *they* do.  On whole-node partitions, a 55-minute
+   single-threaded pytest on a 56-core HTC node is effectively a
+   51-core-hour gift to nobody — a gift that, had the node been
+   released, would have shortened someone else's queue wait.
+
+The second cost is frequently larger than the first.  A group with
+deep allocation headroom might pay nothing meaningful for 50 wasted
+core-hours, but the graduate student whose experiment waited 45
+minutes behind your job paid 45 minutes of their life.  Marginal
+private cost and marginal social cost can point in opposite
+directions.
+
+### The rule: minimize the sum
+
+When the two costs point in the same direction, the answer is
+obvious.  When they diverge, **lean social**:
+
+- Single-threaded on a whole-node partition: low private cost, high
+  social cost → parallelize or resize.
+- `fc_jevons` when `co_carleton` would work: nonzero private cost,
+  low social cost (allocation has slack) → use `co_carleton`.
+- A 2-minute job on any account: negligible both ways → don't
+  over-think it.
+
+Even if your group's allocation is effectively infinite, **other
+researchers share the queue**.  If you wouldn't be comfortable
+explaining the resource use to the person whose job was delayed
+behind yours, don't dispatch it that way.
+
+### Knowing the numbers
+
+Savio-specific (generalize to your cluster):
+
+```bash
+# Account balance: how much of the priority allocation is left?
+check_usage.sh -a <priority_account>           # e.g. fc_jevons
+
+# Your personal usage this allocation year
+check_usage.sh -u $USER
+
+# Fair-share position (useful for diagnosing queue waits)
+sshare -A <priority_account> --all
+
+# Period utilization with per-user breakdown
+sreport -t hours cluster accountutilizationbyuser \
+    start=$(date -d '1 month ago' +%Y-%m-%d) end=now account=<priority_account>
+```
+
+`check_usage.sh` lives at `/global/home/groups/allhands/bin/` on
+Savio and is on `$PATH` by default.  The key number is SUs consumed
+vs. SUs allocated; treat >80% as a warning threshold worth
+surfacing to the human.
+
+### Protocol for the scrum master
+
+1. **At session start**, run the account-usage command as part of
+   the Quick Start checklist.  Record the remaining SU balance in the
+   session handoff.  If usage is above ~80% of allocation, surface it
+   immediately: switch all non-urgent work to the free account and
+   flag the situation to the human.
+
+2. **Before submitting any large job** (wall ≥ 2h, or whole-node
+   allocation) on a billed account, estimate SU cost and report it
+   in the dispatch message.  Rough formula:
+
+       SUs ≈ cores × wall_hours × partition_multiplier
+
+   Multipliers vary by cluster; for Savio, dividing the `sreport`
+   SUs by the CPU-hours for the same period gives an empirical
+   blended rate per partition.
+
+3. **At session end**, re-run the account-usage command and record
+   the delta in the handoff note.  That delta is the session's bill.
+
+4. **On whole-node partitions, saturate or resize** — never block a
+   big node with a single-threaded job.  See "Whole-Node Allocation"
+   in `references/slurm_dispatch.md`.
 
 ## When to Delegate vs. Do It Directly
 
@@ -120,6 +213,24 @@ compute that shouldn't run on the login/current node, or when
 parallelism exceeds the current node's cores.  See
 [references/slurm_dispatch.md](references/slurm_dispatch.md) for a
 ready-to-use submission template.
+
+Two standing rules when dispatching to Slurm:
+
+- **Default to the free, low-priority account.**  Priority / condo
+  accounts (e.g. `fc_jevons`) draw down shared compute budget and
+  should be reserved for urgent work.  Free low-prio accounts (e.g.
+  `co_carleton` on Savio) cost nothing and handle most workloads
+  fine.  Ask before billing a priority account.
+- **Saturate what you're allocated.**  Many HPC partitions give you
+  the whole physical node regardless of `--cpus-per-task`.  A
+  single-threaded job on a 56-core node is worse than wasteful — it
+  blocks other users for the entire runtime.  Use `pytest -n auto`,
+  `make -jN`, `parallel`, or a scatter-gather inside the job.  If
+  you don't know whether the partition is whole-node or shared,
+  check with `scontrol show partition <name>` before submitting.
+
+Both rules are expanded in
+[references/slurm_dispatch.md](references/slurm_dispatch.md).
 
 ## Parallel Orchestration (Scatter-Gather)
 
@@ -232,7 +343,33 @@ research, implement it" — that pushes synthesis onto the agent.
 Instead, run the investigation, read the report, then issue a second
 prompt with the specific change to make.
 
-### Bidirectional message channel for long-running agents
+Bidirectional steering of long-running agents is covered in the
+[Monitoring Long-Running Work](#monitoring-long-running-work)
+section below, alongside the distinct pattern for Slurm jobs.
+
+## Monitoring Long-Running Work
+
+Any dispatch longer than a few minutes needs observability.  Without
+it, the scrum master either polls anxiously (wasting context on raw
+log output) or forgets the job entirely (wasting compute and
+delaying results).  How you observe depends on whether the
+dispatched target is an **LLM agent** that can read steering files
+at checkpoints, or a **deterministic process** like a Slurm job
+running pytest, make, or a plain Python script.
+
+| | LLM agent | Slurm job / deterministic script |
+|---|---|---|
+| Target reads files at checkpoints? | Yes | No |
+| Mechanism | Bidirectional file channel | One-way filtered log stream |
+| Tool | Plain files + the agent's own Read tool | `Monitor` harness tool + `tail -F` |
+| Control | Append to `MESSAGES_TO_AGENT.txt` | `scancel JOBID` (binary) |
+| Completion signal | Agent writes a final report | `sacct -j JOBID --format=State` |
+
+Pick the right pattern for the target.  Do not try to use the agent
+pattern for Slurm jobs — a pytest subprocess cannot re-read a
+steering file.
+
+### LLM agents: bidirectional file channels
 
 For agents expected to run more than a few minutes, set up two files
 **before dispatching** and pass their paths in the prompt:
@@ -281,14 +418,113 @@ Keep the files in a session-specific directory (e.g.,
 `slurm_logs/build_2026-04-10/`) so old channels don't contaminate
 new sessions.
 
+### Slurm jobs: one-way filtered Monitor
+
+A Slurm job is a deterministic process — pytest, make, a Python
+script — that cannot read steering files.  Observability is
+one-way, from the job's logs to the scrum master.  The right tool
+is the harness's **`Monitor`**, which streams filtered stdout from a
+background shell script into the chat as notifications.
+
+**Attach Monitor at dispatch time, not later.**  Polling `squeue`
+and `tail`-ing logs by hand means you waste context reading raw
+output and only notice problems when you think to look.  Monitor
+pushes the signal to you: matching log lines become notifications,
+and you keep working until something matters.
+
+**The filter is the whole discipline.**  Every stdout line from the
+Monitor command becomes a chat notification, so you must emit only
+the lines that carry signal.  Raw `tail -f` on a pytest log is a
+flood — every PASSED line, every progress percentage, every
+`make[1]: Entering directory` — and the harness will auto-stop an
+over-producing monitor.  Design the filter around failure signals
+and summary lines, never progress.
+
+Reference implementation for a pytest Slurm job:
+
+```bash
+LOG=slurm_logs/session/pytest_${JOBID}.out
+JOBID=33329846
+
+echo "=== monitor attached $(date +%H:%M:%S) jobid=$JOBID ==="
+
+# Catch-up: emit any past failures/errors/summaries already in the log
+grep -E 'FAILED \[|ERROR \[|short test summary info|[0-9]+ passed' \
+    "$LOG" 2>/dev/null | tail -40
+
+# Live stream: only lines that carry signal
+tail -n 0 -F "$LOG" 2>/dev/null | \
+  grep --line-buffered -E \
+    'FAILED \[|ERROR \[|short test summary info|[0-9]+ passed.*[0-9]+ (failed|error)|^FAILED |^ERROR ' &
+TAIL_PID=$!
+
+# Poll Slurm for job completion every 30s
+while true; do
+    state=$(sacct -j $JOBID --format=State --noheader --parsable2 \
+              2>/dev/null | head -1 | tr -d ' ')
+    case "$state" in
+        COMPLETED|FAILED|CANCELLED*|TIMEOUT|NODE_FAIL|OUT_OF_MEMORY)
+            sleep 5  # let the log flush
+            echo "=== JOB $JOBID EXITED STATE=$state $(date +%H:%M:%S) ==="
+            tail -5 "$LOG" 2>/dev/null
+            kill "$TAIL_PID" 2>/dev/null
+            exit 0
+            ;;
+    esac
+    sleep 30
+done
+```
+
+Dispatch this with `Monitor(persistent=true, ...)` so the watch
+survives for the whole job.  When Slurm reports a terminal state,
+the script emits one final marker line, tails a few lines for
+immediate context, and self-terminates.
+
+**Filter design principles:**
+
+- **Emit only signal.**  For pytest: `FAILED [`, `ERROR [`,
+  `short test summary info`, and the blended-count summary
+  (`257 passed, 6 failed, 50 skipped`).  For `make`:
+  `^make.*Error`, `^Error:`, and an explicit completion marker
+  you echo yourself.
+- **Always use `grep --line-buffered`** inside pipes.  Without it,
+  pipe buffering delays events by minutes, and the job-exit
+  notification can land before the failure notifications.
+- **Catch up on attach.**  A plain `grep` over the existing log
+  before starting the live `tail -F` picks up any failures that
+  happened between dispatch and monitor attach.  The harness
+  batches lines emitted within 200ms into one notification, so the
+  catch-up grep arrives as a single event.
+- **Poll Slurm state for completion, not the log.**  A pytest
+  process can crash without writing a final line; `sacct` is
+  authoritative.
+- **Tight exit signaling.**  On completion, emit one clear marker
+  line (`=== JOB X EXITED STATE=Y ===`), flush the log with a
+  short `sleep`, tail the last few lines for immediate context,
+  then `exit 0`.  No open-ended tails.
+
+**What never belongs in the filter:** `PASSED`, `SKIPPED`,
+progress percentages, `make[1]: Entering directory`, DVC pull
+progress, raw parquet reads, INFO-level logs.  Anything that fires
+more than once every few minutes under normal operation.
+
+**Combining with cost tracking.**  At the end of a monitored
+session, re-run `check_usage.sh -a <account>` to get the session's
+SU delta.  Record both the job exit state and the SU cost in the
+handoff note.
+
 ## Recording the Session
 
 For long or complex sessions, keep a running handoff note (an org or
 markdown file in `slurm_logs/` or equivalent).  Record:
 
 - Date and brief session summary
+- **Priority-account balance at session start and session end**
+  (see [Cost Awareness](#cost-awareness)); the delta is the
+  session's bill and tells the next reader what the session cost
 - What was committed (hash + one-line description)
-- What agents were dispatched and what they did
+- What agents were dispatched and what they did (include Slurm
+  job IDs and node names)
 - Open questions / half-finished work
 - Known issues surfaced during the session
 
