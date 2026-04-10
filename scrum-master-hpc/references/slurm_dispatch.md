@@ -155,12 +155,29 @@ Common flags:
 
 ## Whole-Node Allocation: Saturate What You Get
 
-On some clusters and partitions, **you are allocated the entire
-physical node regardless of `--cpus-per-task`**.  Asking for 4 cores
-on a 56-core node still blocks all 56; the other 52 sit idle for the
-duration of the job.  This is true on Savio's condo / priority
-partitions in particular, but can apply to HTC partitions depending
-on site configuration, memory request, and QoS.
+On *some* clusters and partitions, you can be allocated the entire
+physical node regardless of `--cpus-per-task` — asking for 4 cores
+on a 56-core node would still block all 56; the other 52 sit idle
+for the duration of the job.  This is **not universal**.  It varies
+by cluster, by partition, by account, by QoS, and sometimes by the
+size of your memory request.  **Verify before you assume**, with
+the detection commands below.
+
+Empirical data points (Savio, 2026-04-10):
+
+| Account | QoS | Partition | `--cpus-per-task` | `SLURM_CPUS_ON_NODE` | Whole-node? |
+|---|---|---|---|---|---|
+| `fc_jevons` | `savio_normal` (default) | `savio4_htc` | 8 | 8 | No (shared) |
+| `co_carleton` | `savio_lowprio` | `savio4_htc` | 8 | 8 | No (shared) |
+
+The earlier conventional wisdom that "fc_jevons gives you the whole
+node on HTC" turned out not to be true on `savio4_htc` under the
+default `savio_normal` QoS — a probe job confirmed the kernel
+restricted the process to exactly 8 cores via `Cpus_allowed_list`,
+even though the node has 56 physical cores.  Other partitions
+(`savio4`, `savio3_bigmem`, GPU partitions) may behave differently.
+Always verify on the specific partition × account × QoS combo
+you're using.
 
 The temptation is to "just ask for all 56 cores up front" — but
 that's the wrong fix.  A 56-core request only fits on the largest
@@ -262,10 +279,32 @@ NPROC="${SLURM_CPUS_ON_NODE:-${SLURM_CPUS_PER_TASK:-1}}"
 
 `-n $NPROC` uses exactly the cores Slurm gave you — whether that's
 the modest `--cpus-per-task` on a shared partition or the full
-node on a whole-node partition.  `-n auto` is a reasonable fallback
-but it guesses from `os.cpu_count()`, which can under-count in
-containerized or cgroup-limited environments; `$SLURM_CPUS_ON_NODE`
-is authoritative.
+node on a whole-node partition.
+
+**Do not use `pytest -n auto` inside a cgroup-limited Slurm job.**
+xdist's `auto` calls Python's `os.cpu_count()`, which on Linux
+reads `/sys/devices/system/cpu/` and reports the **physical node**
+core count regardless of any cgroup affinity restriction.  On a
+56-core node where Slurm gave you 8 logical CPUs via the
+`Cpus_allowed_list` mechanism, `os.cpu_count()` still returns
+**56** — and `pytest -n auto` will spawn 56 workers oversubscribing
+your 8 cores by 7×.  For I/O-bound test suites this slows you down
+by ~10-30% from context-switching overhead; for CPU-bound tests it
+slows you down much more.
+
+Empirical demonstration on Savio (2026-04-10), inside a job with
+`--cpus-per-task=8` on `savio4_htc`:
+
+```
+nproc                  → 8     (cgroup-aware: correct)
+SLURM_CPUS_ON_NODE     → 8     (Slurm-authoritative: correct)
+Cpus_allowed_list      → 18-25 (kernel restricted to 8 cores)
+python os.cpu_count()  → 56    (physical, NOT cgroup-aware: WRONG)
+```
+
+`nproc` is cgroup-aware on modern Linux and is also a safe choice
+in shell scripts.  `$SLURM_CPUS_ON_NODE` is the authoritative
+Slurm-side answer.  Either is fine; both beat `os.cpu_count()`.
 
 For I/O-bound test suites (e.g. data-pipeline integration tests
 that read many files), parallelism hides per-test latency even when

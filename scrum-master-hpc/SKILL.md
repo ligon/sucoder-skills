@@ -224,13 +224,17 @@ Three standing rules when dispatching to Slurm:
 - **Ask modestly, saturate what you're given.**  Request a
   schedulable core count and memory (e.g. `--cpus-per-task=8`,
   `--mem=32G`) — enough for the work, schedulable on most nodes,
-  and recoverable after preemption.  Inside the job, read
+  recoverable after preemption.  Inside the job, read
   `$SLURM_CPUS_ON_NODE` to detect what Slurm actually handed you,
   and saturate that with `pytest -n $NPROC`, `make -j$NPROC`, etc.
-  On whole-node partitions the runtime figure may be larger than
-  what you asked for; on shared partitions the two match.  **Never
-  hard-code a big core count** in the `sbatch` line just to grab
-  bonus cores — it locks you out of smaller hardware.
+  On most shared partitions the runtime figure equals the request;
+  on the rarer whole-node partitions it may be larger.  Either way
+  the same code works.  **Never use `pytest -n auto`** inside a
+  cgroup-limited Slurm job — `os.cpu_count()` reports the physical
+  node count, not the cgroup-restricted count, and you'll
+  oversubscribe by N×.  **Never hard-code a big core count** in
+  the `sbatch` line just to grab "bonus" cores — it locks you out
+  of smaller hardware and most lower-priority partitions.
 - **Scale out, not up.**  If the work genuinely needs more cores
   than a modest single-node ask gives, the right move is
   `--nodes=N` (or an array job), not hunting for one massive node.
