@@ -181,6 +181,17 @@ artifacts).  When the cache might contain stale content:
 3. **Be careful what you run with a clean cache.**  A test suite that
    triggers data builds can consume hours of CPU on a cleared cache;
    prefer structural tests first, data tests second.
+4. **Stale parquets during regression comparison are a trap.**  If
+   you are comparing outputs between two versions of the code (e.g.
+   old branch vs. new branch), and either side has cached parquets
+   from a previous build, the "difference" you observe may reflect
+   old-code-cached-output versus whatever the other side is currently
+   producing — not the real behavioral delta between the two code
+   versions.  Always clear the caches on both sides before the
+   comparison, or rebuild the side under test before comparing.  A
+   dispatched regression agent that reports "schema difference"
+   should be asked to verify by rebuilding at least one
+   representative table from source on the side under test.
 
 ## State Recovery
 
