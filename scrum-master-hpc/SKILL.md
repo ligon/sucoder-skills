@@ -44,7 +44,21 @@ At the start of a scrum-master session, run this checklist:
    [Cost Awareness](#cost-awareness) section.
 5. **Check for stale state**: leftover worktrees under
    `.claude/worktrees/`, stale DVC locks, half-finished branches.
-6. **Confirm today's date**: `date`, since handoff notes use it.
+6. **Sanity-check the project venv**: if the repo uses one (often a
+   symlink), test it immediately with `.venv/bin/python -c true`.  On
+   failure, `ls` the parent directory and **read any `README*.md` in
+   sibling venv-ish paths** (`.venv.lustre/`, `.venv.backup/`, …)
+   BEFORE improvising a workaround.  A project-specific recovery
+   recipe in such a README is almost always faster and more correct
+   than reaching for `.venv.<sibling>/bin/python` directly — that
+   route silently puts every import through whatever filesystem the
+   sibling sits on (e.g., Lustre instead of node-local SSD) and
+   skips any pinning the real venv does.  On Savio specifically,
+   `.venv` usually symlinks to `/local/jobNNN/venv`, which is
+   node-local and goes stale when you land on a different compute
+   node; other clusters / login nodes / laptops may have entirely
+   different conventions — don't generalise the Savio recipe.
+7. **Confirm today's date**: `date`, since handoff notes use it.
 
 Do not start dispatching until the above is clear.
 
@@ -336,6 +350,25 @@ Worktree pitfalls:
 - **Credential propagation**: Decrypted credentials (e.g.,
   `.dvc/s3_creds`) may be `.gitignore`d and not present in the
   worktree.  Copy them explicitly if the agent needs them.
+- **`.pth`-pinned package imports**: If the project installs itself
+  editable via a `.pth` file (e.g.
+  `.venv/lib/python3.x/site-packages/<pkg>.pth` containing an absolute
+  path to the main repo), every `python -c "import <pkg>"` inside the
+  worktree resolves the package to the **main checkout**, not the
+  worktree — regardless of `PYTHONPATH` or `sys.path.insert(0, '.')`.
+  The site-packages `.pth` line runs at Python startup before user
+  code and its path wins.  Worker agents relying on
+  `Package.Thing().foo()` imports to *verify* their YAML or code edits
+  are silently running the main checkout's code; the verification is
+  meaningless.  An agent encountering this mismatch may "fix" it by
+  editing files in the main checkout (scope violation — see the
+  trust-but-verify note on SCOPE DEVIATIONS below).  Detection:
+  `cat .venv/lib/python*/site-packages/*.pth`.  Mitigations:
+  (a) verify via static diff / grep only, skip functional rebuild in
+  the agent prompt; (b) give the worktree its own venv
+  (`python -m venv` + `poetry install`) — expensive but clean;
+  (c) temporarily comment out the `.pth` line for the agent's session
+  (risky — concurrent main-checkout processes are also affected).
 - **Path reuse**: `isolation: "worktree"` can place a new agent in
   an existing worktree rather than creating a fresh one.  Two
   successive `isolation: "worktree"` calls may land in the same
@@ -582,10 +615,23 @@ that leads with deviations:
 
 This turns narrative into punch-list.  Anything important surfaces
 in the first section, where the coordinator will actually read it.
-An agent that writes "SCOPE DEVIATIONS: none" as its first line
-has made a positive assertion you can trust; an agent whose report
-opens with a narrative may have buried a scope violation in item
-three of a seven-item list.
+An agent whose report opens with a narrative may have buried a
+scope violation in item three of a seven-item list.
+
+**Trust, but verify.**  The "SCOPE DEVIATIONS: none" line is a
+self-report, not a proof.  Agents under pressure — e.g., their
+functional verification failing because of the `.pth`-pinned
+import pitfall above — have been observed to edit files outside
+their assigned worktree while still opening the report with
+"SCOPE DEVIATIONS: none".  The agent's narrative later
+(e.g., under "Surprises") may describe the scope violation
+candidly, effectively contradicting its own first line.  Before
+merging any worker commit, independently run `git status` on the
+**main checkout** and `git -C <worktree> status` on the worktree:
+any uncommitted modifications on main that weren't committed on
+the worktree branch are a silent scope violation regardless of
+the self-report.  An agent that writes "SCOPE DEVIATIONS: none"
+has only told you what it *thinks* it did.
 
 Bidirectional steering of long-running agents is covered in the
 [Monitoring Long-Running Work](#monitoring-long-running-work)
