@@ -58,6 +58,13 @@ At the start of a scrum-master session, run this checklist:
    node-local and goes stale when you land on a different compute
    node; other clusters / login nodes / laptops may have entirely
    different conventions — don't generalise the Savio recipe.
+   Note: when a project's venv-recovery README offers an "Option 0"
+   that probes prior `/local/job*/venv` directories owned by you,
+   expect it to fail often ("no reusable venv on this node")
+   because Slurm scheduling spreads sessions across many nodes;
+   falling through to the project's documented Option A (typically
+   a tar-pipe from `.venv.lustre/` to node-local SSD) is the normal
+   path and runs in ~2 min for a ~1 GB venv.
 7. **Confirm today's date**: `date`, since handoff notes use it.
 
 Do not start dispatching until the above is clear.
@@ -262,6 +269,15 @@ balance"** in the handoff — that will poison the end-of-session
 delta.  Either move to a node where the tool works, switch to the
 `sreport`-based fallback and mark the handoff with "CPU-hours
 only, no SU ceiling", or ask the human for the current balance.
+
+**Empirical update (2026-04-28).**  `check_usage.sh -a <account>`
+returned valid usage data on at least one Savio compute node
+(`n0291.savio2`) without needing the patch documented above.  The
+patch may still be necessary on other nodes — the cluster
+admin's deployment may not be uniform — so the recommended order
+is: try the unpatched script first, fall through to the patch
+recipe (or the `sreport`-based fallback) only if it fails.  Don't
+preemptively apply the patch.
 
 ### Protocol for the scrum master
 
