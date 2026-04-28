@@ -17,7 +17,34 @@ sinfo -p savio4_htc --format="%N %C %m %f %T"
 
 # What's my current utilization?
 squeue -u $USER
+
+# How much of the priority allocation is left?
+check_usage.sh -a fc_jevons          # account balance
+check_usage.sh -u $USER               # your personal usage
 ```
+
+`check_usage.sh` lives at `/global/home/groups/allhands/bin/` on
+Savio (on `$PATH` by default).  Example output:
+
+```
+$ check_usage.sh -a fc_jevons
+Usage for ACCOUNT fc_jevons [2025-06-01, 2026-04-10]:
+  2131 jobs, 26913.38 CPUHrs, 33270.11 SUs used from an allocation of 1500000 SUs.
+```
+
+The numbers that matter are **SUs used / SUs allocated**.  CPU-hours
+and SUs diverge because partition multipliers vary by hardware.
+Think in SUs when estimating cost.
+
+For a per-user period breakdown:
+
+```bash
+sreport -t hours cluster accountutilizationbyuser \
+    start=$(date -d '1 month ago' +%Y-%m-%d) end=now account=fc_jevons
+```
+
+See the [Cost Awareness](../SKILL.md#cost-awareness) section of
+the main skill for the protocol around when and why to check.
 
 Key fields in `sinfo` output:
 
@@ -38,28 +65,78 @@ General guidance (tune to the cluster you're on):
 | Opportunistic / free | Low-priority on a co-investigator account | `co_carleton` / `savio_lowprio` |
 | GPU work | GPU partition | `savio3_gpu`, `savio4_gpu` |
 
+## Account choice: default to free
+
+**Default to the free, low-priority account.**  On Savio this is
+`co_carleton` (or the equivalent co-investigator account the group has
+access to).  A fair-share / condo partition like `fc_jevons` is a
+billed resource — every CPU-hour you spend on it draws down shared
+compute budget the PI may be saving for end-of-term crunch or student
+dissertation work.
+
+Reserve the priority account for:
+
+- Urgent work where preemption risk is unacceptable (paper deadline,
+  live debugging during an interactive session)
+- Jobs long enough that restart-on-preemption is expensive
+- Work that genuinely cannot tolerate the low-prio queue wait
+
+Everything else — test runs, data rebuilds, regression checks,
+scatter-gather country sweeps, one-off scripts — should go on the
+free low-prio account.  If a low-prio job gets preempted, resubmit
+it; the cost of occasional restart is lower than the cost of
+draining the shared budget.
+
+**Ask before dispatching on a billed account.**  If you're a
+scrum-master agent and you're about to submit to `fc_jevons` (or
+equivalent), pause and surface the decision to the human first
+unless they've already told you priority is warranted.
+
 **Preemption**: Low-priority jobs can be evicted when a higher-priority
 job claims the node.  For jobs under 1 hour, the risk is usually
-acceptable.  For multi-hour jobs, use a priority partition or
-checkpoint regularly.
+acceptable.  For multi-hour jobs, either use a priority partition,
+checkpoint regularly, or make the job idempotent so a re-run picks
+up where it left off.
 
 ## Job Submission Template
 
-Minimal single-task job:
+Minimal single-task job (free low-prio account, modest ask,
+saturate whatever the scheduler gives you):
 
 ```bash
 sbatch \
   --account=co_carleton \
   --partition=savio4_htc \
   --qos=savio_lowprio \
-  --cpus-per-task=4 \
-  --mem=16G \
+  --cpus-per-task=8 \
+  --mem=32G \
   --time=01:00:00 \
   --job-name=my_task \
   --output=slurm_logs/%x_%j.out \
   --error=slurm_logs/%x_%j.err \
-  --wrap="cd /path/to/project && .venv/bin/python my_script.py"
+  --wrap='cd /path/to/project && .venv/bin/python -m pytest tests/ -n "${SLURM_CPUS_ON_NODE:-$SLURM_CPUS_PER_TASK}"'
 ```
+
+Two design choices worth explaining:
+
+- **Modest request**: `--cpus-per-task=8` and `--mem=32G` are
+  schedulable on essentially any HPC node (old and new hardware
+  alike).  A request that only fits on the largest nodes locks you
+  out of smaller partitions and makes preemption-on-resubmit far
+  slower.  Ask for what the job actually needs plus a small
+  cushion, not the full size of the biggest node you've seen.
+- **Runtime saturation via `$SLURM_CPUS_ON_NODE`**: pytest reads
+  `$SLURM_CPUS_ON_NODE`, which reflects **what Slurm actually
+  gave you** — which may be more than `--cpus-per-task` if the
+  partition is whole-node.  So you ask politely for 8 cores and
+  use however many you end up with.  Fall back to
+  `$SLURM_CPUS_PER_TASK` when `$SLURM_CPUS_ON_NODE` isn't set
+  (some Slurm versions).
+
+On genuinely shared partitions, you get exactly `--cpus-per-task`
+and the two variables match.  On whole-node partitions,
+`$SLURM_CPUS_ON_NODE` is larger and you saturate the bonus cores
+instead of wasting them.
 
 Common flags:
 
@@ -75,6 +152,170 @@ Common flags:
 - `--output` / `--error` — stdout/stderr paths; use `%x` for job name
   and `%j` for job id
 - `--wrap` — inline command; for more than one line, write a script
+
+## Whole-Node Allocation: Saturate What You Get
+
+On *some* clusters and partitions, you can be allocated the entire
+physical node regardless of `--cpus-per-task` — asking for 4 cores
+on a 56-core node would still block all 56; the other 52 sit idle
+for the duration of the job.  This is **not universal**.  It varies
+by cluster, by partition, by account, by QoS, and sometimes by the
+size of your memory request.  **Verify before you assume**, with
+the detection commands below.
+
+Empirical data points (Savio, 2026-04-10):
+
+| Account | QoS | Partition | `--cpus-per-task` | `SLURM_CPUS_ON_NODE` | Whole-node? |
+|---|---|---|---|---|---|
+| `fc_jevons` | `savio_normal` (default) | `savio4_htc` | 8 | 8 | No (shared) |
+| `co_carleton` | `savio_lowprio` | `savio4_htc` | 8 | 8 | No (shared) |
+
+The earlier conventional wisdom that "fc_jevons gives you the whole
+node on HTC" turned out not to be true on `savio4_htc` under the
+default `savio_normal` QoS — a probe job confirmed the kernel
+restricted the process to exactly 8 cores via `Cpus_allowed_list`,
+even though the node has 56 physical cores.  Other partitions
+(`savio4`, `savio3_bigmem`, GPU partitions) may behave differently.
+Always verify on the specific partition × account × QoS combo
+you're using.
+
+The temptation is to "just ask for all 56 cores up front" — but
+that's the wrong fix.  A 56-core request only fits on the largest
+nodes and locks you out of smaller hardware and most lower-priority
+partitions, which is especially bad when you're preemptible.  The
+right pattern is **ask modestly, saturate what Slurm actually gives
+you**:
+
+1. Request a schedulable amount (e.g. `--cpus-per-task=8`,
+   `--mem=32G`) — enough for the work, schedulable on most nodes.
+2. Inside the job, **saturate whatever you were handed** using
+   `$SLURM_CPUS_ON_NODE` (the variable set by Slurm to reflect the
+   cores the job was given on its node, which may exceed
+   `--cpus-per-task` on a whole-node partition).
+
+```bash
+# Use the bonus cores if we got them; fall back to the request otherwise
+NPROC="${SLURM_CPUS_ON_NODE:-$SLURM_CPUS_PER_TASK}"
+.venv/bin/python -m pytest tests/ -n "$NPROC"
+make -j"$NPROC"
+xargs -P "$NPROC" ...
+```
+
+That way, a modest request gets you scheduled on any partition, and
+a bonus whole-node allocation still gets saturated at runtime.  The
+worst case (shared partition, exactly `--cpus-per-task` cores) still
+uses what you asked for, with no waste.
+
+Before deciding how modest to be, confirm whether your target
+partition shares nodes or allocates them whole:
+
+```bash
+scontrol show partition savio4_htc | grep -iE 'shared|exclusive|oversubscribe'
+sinfo -p savio4_htc --format="%N %C %m %T"
+# If %C shows e.g. 132/204/0/336 with STATE=mixed, the partition is
+# shared across users.  If jobs always show whole-node allocations,
+# it isn't.
+```
+
+When you know the partition is whole-node:
+
+- **Keep the request modest** for schedulability and preemption
+  recovery, but **saturate at runtime** via `$SLURM_CPUS_ON_NODE`
+  (see above).  Never hard-code a core count.
+- **Use parallelism tools** that respect a passed-in N: `pytest -n
+  $N`, `make -jN`, `parallel -j $N`, `joblib.Parallel(n_jobs=N)`,
+  `xargs -P $N`.
+- **Check memory**: don't let a single-threaded process balloon to
+  the whole node's RAM while other cores sit idle.  Parallelism
+  usually amortizes memory across workers, but peak memory per
+  worker still matters.
+- **Prefer shorter jobs**: a saturated 20-minute job is a much
+  better queue citizen than a single-threaded 6-hour job on the
+  same allocation, and far friendlier to preemption.
+
+When you know the partition is shared (HTC configured for sharing):
+request exactly what you need.  Over-requesting holds cores other
+users could be running.  In this case `$SLURM_CPUS_ON_NODE` will
+equal `--cpus-per-task` and the runtime saturation logic is still
+correct — there's no downside to writing code that reads the
+variable.
+
+### Scale out, not up
+
+If the work genuinely needs more cores than a modest single-node
+ask gives, do not respond by hunting for one massive node.  Scale
+**horizontally** instead:
+
+- **Embarrassingly parallel work** (one task per country, one per
+  file, one per seed): use an **array job** (see "Array Jobs"
+  below).  Each element of the array runs on its own small
+  allocation, and a preempted element costs only its own work, not
+  the whole run.
+- **Tightly coupled work** (MPI, Dask, distributed training):
+  request **`--nodes=N` `--ntasks-per-node=K`** and let Slurm
+  place the job across N nodes.  You get N × K workers without
+  needing any single node to be huge.
+- **Coordinator + workers**: run the coordinator on one small
+  Slurm job and have it `sbatch` worker jobs for the parallel
+  tasks.  The coordinator stays lightweight; the workers are
+  replaceable.
+
+Horizontal scale is friendlier to the scheduler (more partitions
+fit a 4-core × 16-node job than a 64-core × 1-node job),
+friendlier to preemption (losing one element of an array is
+cheap), and friendlier to cost accounting (you only pay for what
+you use).
+
+### pytest on Slurm
+
+Install `pytest-xdist` as a test-group dependency (`pip install
+pytest-xdist` or add to `pyproject.toml` under the test group),
+then let the job decide how many workers at runtime:
+
+```bash
+NPROC="${SLURM_CPUS_ON_NODE:-${SLURM_CPUS_PER_TASK:-1}}"
+.venv/bin/python -m pytest tests/ -n "$NPROC"
+```
+
+`-n $NPROC` uses exactly the cores Slurm gave you — whether that's
+the modest `--cpus-per-task` on a shared partition or the full
+node on a whole-node partition.
+
+**Do not use `pytest -n auto` inside a cgroup-limited Slurm job.**
+xdist's `auto` calls Python's `os.cpu_count()`, which on Linux
+reads `/sys/devices/system/cpu/` and reports the **physical node**
+core count regardless of any cgroup affinity restriction.  On a
+56-core node where Slurm gave you 8 logical CPUs via the
+`Cpus_allowed_list` mechanism, `os.cpu_count()` still returns
+**56** — and `pytest -n auto` will spawn 56 workers oversubscribing
+your 8 cores by 7×.  For I/O-bound test suites this slows you down
+by ~10-30% from context-switching overhead; for CPU-bound tests it
+slows you down much more.
+
+Empirical demonstration on Savio (2026-04-10), inside a job with
+`--cpus-per-task=8` on `savio4_htc`:
+
+```
+nproc                  → 8     (cgroup-aware: correct)
+SLURM_CPUS_ON_NODE     → 8     (Slurm-authoritative: correct)
+Cpus_allowed_list      → 18-25 (kernel restricted to 8 cores)
+python os.cpu_count()  → 56    (physical, NOT cgroup-aware: WRONG)
+```
+
+`nproc` is cgroup-aware on modern Linux and is also a safe choice
+in shell scripts.  `$SLURM_CPUS_ON_NODE` is the authoritative
+Slurm-side answer.  Either is fine; both beat `os.cpu_count()`.
+
+For I/O-bound test suites (e.g. data-pipeline integration tests
+that read many files), parallelism hides per-test latency even when
+CPU isn't saturated; a 10x speedup from 8 workers on a
+file-reading workload is common.
+
+Gotcha: xdist runs tests in separate worker processes, so any test
+that writes to a shared on-disk cache or mutates a shared fixture
+must be made concurrency-safe.  Most unit tests are fine; data-build
+tests that share a parquet cache may need `--dist=loadfile` (group
+tests by file into one worker) or explicit locking.
 
 ## Array Jobs (Parallel Sweeps)
 
