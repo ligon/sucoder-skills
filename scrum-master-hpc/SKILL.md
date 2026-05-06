@@ -363,6 +363,20 @@ Worktree pitfalls:
   commit** (`git -C <worktree> log HEAD^..HEAD --oneline`) matches
   what you expected.  If not, abandon the commit and retry from a
   known-clean state.
+
+  **Verify per-worktree, not per-dispatch.**  When several agents
+  are launched in a single message (a scatter-gather sweep), the
+  individual worktrees can branch from *different* parent commits —
+  one off the active branch tip, another off whatever the harness
+  happened to cache for that branch name, etc.  Run `git worktree
+  list` once after the multi-agent dispatch and confirm every entry
+  is at the expected SHA.  Empirically observed 2026-05-06: two
+  agents dispatched in the same message for two different countries
+  landed on different bases (one on `master`, one on `development`),
+  invalidating the worker that drifted onto the stale base.
+  Symptoms: the worker's prompt referenced files / helpers added in
+  recent commits, and the worker either silently regenerated them
+  or had to work around their absence.
 - **Credential propagation**: Decrypted credentials (e.g.,
   `.dvc/s3_creds`) may be `.gitignore`d and not present in the
   worktree.  Copy them explicitly if the agent needs them.
