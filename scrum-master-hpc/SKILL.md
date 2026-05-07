@@ -363,6 +363,39 @@ Worktree pitfalls:
   commit** (`git -C <worktree> log HEAD^..HEAD --oneline`) matches
   what you expected.  If not, abandon the commit and retry from a
   known-clean state.
+
+  **Verify per-worktree, not per-dispatch.**  When several agents
+  are launched in a single message (a scatter-gather sweep), the
+  individual worktrees can branch from *different* parent commits —
+  one off the active branch tip, another off whatever the harness
+  happened to cache for that branch name, etc.  Run `git worktree
+  list` once after the multi-agent dispatch and confirm every entry
+  is at the expected SHA.  Empirically observed 2026-05-06: two
+  agents dispatched in the same message for two different countries
+  landed on different bases (one on `master`, one on `development`);
+  later the same day a five-agent dispatch put **all five** on the
+  stale `master` tip.  When the drift hits, the worker's prompt
+  references files / helpers added in recent commits, and the worker
+  either silently regenerates them or has to work around their
+  absence.
+
+  **Self-reset is better than verify-and-abort.**  Rather than
+  asking the worker to bail when the base is wrong, put a fixed
+  reset block at the very top of every worker prompt that brings the
+  worktree to the right tip *unconditionally*:
+
+      git -C "$(pwd)" fetch origin <branch> 2>&1 | tail -2
+      git -C "$(pwd)" reset --hard origin/<branch>
+      git -C "$(pwd)" log -1 --oneline   # for the report
+
+  This is idempotent — a worktree already at the right tip becomes a
+  no-op — and it sidesteps the harness's branch-parent heuristic
+  entirely.  Pair it with a simple "if the log line still doesn't
+  show the commit you expect, STOP and report" check so a genuinely
+  broken harness still surfaces.  Compared to abort-on-mismatch,
+  this avoids re-dispatching a fresh agent every time the harness
+  picks the wrong default — relevant when most cluster sessions hit
+  the bug, not just some.
 - **Credential propagation**: Decrypted credentials (e.g.,
   `.dvc/s3_creds`) may be `.gitignore`d and not present in the
   worktree.  Copy them explicitly if the agent needs them.
