@@ -14,6 +14,6 @@
 - Include `#+cite_export:` when citations require a particular processor.
 
 * Scripts
-- Store helper scripts under `skills/orgmode/exporting/scripts/` and note assumptions (e.g., Emacs installed).
+- Store helper scripts under this skill's =scripts/= directory and note assumptions (e.g., Emacs installed).
 
 Update this file if export tooling or conventions change.
