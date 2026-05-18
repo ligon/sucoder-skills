@@ -17,7 +17,7 @@ license: Apache-2.0
    emacs --batch manuscript.org -l ~/.emacs.d/init.el -f org-latex-export-to-pdf
    ```
    Use `org-html-export-to-html`, `org-md-export-to-markdown`, etc., for other formats.
-2. **Scripts** — Invoke `skills/orgmode/exporting/scripts/export-pdf.sh` when you want a standard export harness. Update the script if the repo uses a custom init file.
+2. **Scripts** — Invoke file:scripts/export-pdf.sh when you want a standard export harness. Update the script if the repo uses a custom init file.
 3. **Document Options** — Capture export settings inside the Org file (`#+OPTIONS:`, `#+TITLE:`, `#+AUTHOR:`, `#+cite_export:`) so batch commands stay simple.
 4. **Assets & Paths** — Ensure figures, bibliography, and LaTeX dependencies are available; keep paths relative to the Org file so the export runs on other machines.
 5. **Cleaning Output** — Remove auxiliary LaTeX artifacts if they aren’t needed for review (`rm *.aux *.log`). Leave PDFs/HTML in the repository root unless the project specifies an output directory.

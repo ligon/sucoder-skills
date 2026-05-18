@@ -16,7 +16,7 @@ license: Apache-2.0
 2. **Refiling** — By default, captured items land in system-specific files (e.g., `~/Assistant/in.org`); refile them promptly to project-specific documents.
 3. **Timestamps** — Ensure capture templates stamp entries with the current date `<YYYY-MM-DD Day>` to keep logs consistent.
 4. **Attachments** — Store large files in designated directories (e.g., `docs/assets/`). Use org-attach or shell commands to move files, and note paths in handoffs.
-5. **Scripts and Helpers** — Place helper scripts in `skills/orgmode/capture-attachments/scripts/` if capture automation is needed (empty for now—add as workflows solidify).
+5. **Scripts and Helpers** — Place helper scripts in this skill's `scripts/` directory if capture automation is needed (empty for now—add as workflows solidify).
 
 ## House Rules
 - See file:references/house-rules.org for default refile locations and attachment policy. Update as capture templates change.
