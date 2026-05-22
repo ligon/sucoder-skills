@@ -15,9 +15,11 @@ license: Apache-2.0
 1. **Paragraphs & Blocks** — Separate paragraphs with blank lines. Use `#+begin_quote`, `#+begin_center`, or `#+begin_verse` (lowercase) for formatted blocks and add blank lines around them.
 2. **Emphasis** — Apply `*bold*`, `/italic/`, `_underline_`, `=code=`, and `~verbatim~` where appropriate. Use `C-c C-x C-f` (`org-emphasize`) to insert markers, and avoid nesting emphasis that confuses exporters.
 3. **Subscripts/Superscripts** — Use ASCII-friendly `^`/`_` syntax, e.g., `R_{sun}`. Configure `#+OPTIONS: ^:{}` if you need curly notation. Toggle pretty display with `C-c C-x \`.
-4. **Math Delimiters** — Inline math goes in `\( ... \)`; display math in `\[ ... \]`. Never use `$...$` or `$$...$$`. Keep LaTeX commands ASCII-only (e.g., `\mu`, `\Sigma`).
-5. **Special Symbols** — Type `\` + letters and press `M-TAB` to insert Org entities (`\alpha`, `\to`). Avoid pasting Unicode characters; rely on LaTeX commands for portability.
-6. **Line Breaks** — Use `\\` for manual breaks within a paragraph. For poetry or preformatted text, wrap content in a `verse` block.
+4. **Math Delimiters** — Inline math goes in `\( ... \)`; display math in `\[ ... \]`. Never use `$...$` or `$$...$$`. 
+5.  **Prefer \LaTeX markup to unicode** —  Keep LaTeX commands ASCII-only (e.g., `\mu`, `\Sigma`).
+6. **Special Symbols** — Type `\` + letters and press `M-TAB` to insert Org entities (`\alpha`, `\to`). Avoid pasting Unicode characters; rely on LaTeX commands for portability.
+7. **Line Breaks** — Use `\\` for manual breaks within a paragraph. For poetry or preformatted text, wrap content in a `verse` block.
+8. **Display Math** — Do *not* put extra vertical whitespace before and after display math unless you really mean to end a paragraph.
 
 ## House Rules
 - See file:references/house-rules.org for our math delimiter and ASCII policies. Update it as conventions evolve.
