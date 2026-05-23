@@ -327,6 +327,33 @@ When in doubt, **delegate the search but not the synthesis**.  An agent
 can produce a list of candidate files; the scrum master decides which
 matter.
 
+### Corollary: a fix you've already designed *is* dispatchable
+
+The synthesis-vs-mechanical line cuts both ways.  If you can describe
+the change concretely in one paragraph — which you must do anyway, or
+you don't actually have a design — the implementation is mechanical
+and dispatchable.  Watch for the failure mode where each individual
+fix is small enough that hand-coding feels faster than dispatching,
+but the cumulative hand-coding burns the scrum master's context
+budget on edits an agent could have made in parallel.  When you find
+yourself thinking *"I'll just apply this one-liner to three more
+files myself,"* that's your cue to write the agent prompt instead.
+
+The gravitational pull toward hand-coding is strongest when
+iterating: each individual fix looks small, the dispatch overhead
+looks comparable, and the inertia of "just one more edit" wins.
+The way out is to step back periodically and ask "would I have
+dispatched this if I'd known how many of these I'd do?" — and if
+the answer is yes, dispatch the *next* one rather than continuing
+to hand-code.
+
+The litmus test for "designed enough to dispatch" is whether you
+can write the change as a unified diff in your head.  If yes, the
+agent prompt is "apply this diff shape to these files, verify, push."
+If you find yourself saying "well, it depends on what we find in
+file X" — that's the synthesis signal; keep that in your own
+context.
+
 ## Dispatch Modes
 
 Four ways to dispatch work, in increasing order of isolation:
@@ -528,6 +555,29 @@ latency and context-load; a for-loop is instant.
   of the commit, include a `Co-Authored-By:` trailer identifying the
   model so humans can distinguish automated contributions.
 
+### Stacked PRs and `--delete-branch`
+
+When PR B's base is PR A's branch (PR B "stacks" on PR A), merging A
+with `--delete-branch` removes the branch B references.  GitHub
+auto-closes B when its base ref disappears, *before* B's base can be
+auto-retargeted to `development`.  The closed-with-deleted-base state
+cannot be reopened directly — recovery requires opening a replacement
+PR with the same head branch and a corrected base.
+
+The fix is to retarget B *before* merging A:
+
+```bash
+gh pr edit  <child>  --base development
+gh pr merge <parent> --squash --delete-branch
+gh pr merge <child>  --squash --delete-branch
+```
+
+Or use `--auto` / merge queues to let GitHub handle the sequencing.
+
+The same trap applies to any `gh pr close --delete-branch` that
+removes a branch other PRs reference; treat closed-with-deleted-base
+as effectively destroyed and plan to open a replacement PR.
+
 ## Worktree and Branch Cleanup
 
 After a worktree agent's work is merged (or deliberately abandoned):
@@ -564,6 +614,19 @@ artifacts).  When the cache might contain stale content:
    dispatched regression agent that reports "schema difference"
    should be asked to verify by rebuilding at least one
    representative table from source on the side under test.
+5. **Any behavioral discrepancy gets a fresh-cache check before you
+   draw conclusions about the code.**  This generalizes (4): stale
+   caches don't only mislead regression comparisons, they mislead
+   *any* "actual differs from expected" investigation.  The first
+   diagnostic question for "test X fails" / "method Y returns wrong
+   shape" / "feature Z doesn't include the new HH" is "is the cache
+   stale?", not "what's wrong with the code?"  Latent bugs in
+   rebuild paths can sit dormant for weeks behind a working cache,
+   then surface only when someone clears it.  Conversely, code
+   changes you've shipped may be invisible to your own test runs
+   because the cache was warmed pre-change.  In either case, a
+   single `--rebuild-caches` (or project equivalent) resolves the
+   ambiguity in one run.  Run that *first*, before debugging.
 
 ## State Recovery
 
@@ -585,6 +648,33 @@ to panic or start re-editing.  Instead:
 you've confirmed it's actually missing.**  Rewriting correct content
 on top of incorrect working-tree state destroys the real change.
 
+### Same discipline applies to *code* reading
+
+When the scrum master concludes "this code path is broken," that's
+a strong claim that needs strong evidence — running the path with a
+fresh cache/state and observing what actually happens.  Reading a
+single function in isolation can mislead: framework code is full of
+upstream wrappers, registries, and dispatch tables that change what
+arguments a function actually receives.  Before claiming a code
+path is broken, run it once on a representative input and let
+observation arbitrate.  If observation contradicts the analysis,
+the analysis is wrong, not the observation.
+
+Worked example (real, this skill's author): closing a PR with a
+confident "this YAML pattern doesn't have a valid handler in
+`df_data_grabber.grabber()`" claim — based on reading `grabber` in
+isolation — without tracing through the upstream `column_mapping`
+that wraps the YAML's list value with the country's registered
+formatting function.  The pattern was first-class supported and the
+PR was the right fix.  A 2-minute probe (`Country('X').sample()`)
+would have shown canonical compound-string output and refuted the
+claim before it landed in a public retraction comment.
+
+The pattern is symmetric to "never re-edit before observing":
+**never re-pronounce a code path broken before observing.**  And
+once observation is available, take it as authoritative; don't
+talk yourself out of it.
+
 ## Message Discipline with Subagents
 
 Prompts to agents are **self-contained**.  They don't see the scrum
@@ -603,6 +693,46 @@ master's conversation history.  Every prompt should:
 research, implement it" — that pushes synthesis onto the agent.
 Instead, run the investigation, read the report, then issue a second
 prompt with the specific change to make.
+
+### Anchor design in a shared artifact, not the prompt
+
+For any non-trivial change (refactor, multi-file edit, framework
+extension), the *design* belongs in a shared artifact — a GitHub
+issue body, a design doc, or a project-internal `.org`/`.md` file —
+*before* the implementation agent is dispatched.  The agent prompt
+then becomes a tight implementation brief that *references* the
+design doc, rather than embedding the design in itself.
+
+Why:
+
+- **Reviewers can push back on the design before code lands.**
+  Once the agent has produced a 500-line diff, the cost of "I
+  don't think the API should look like this" goes up substantially.
+  A design surfaced in an issue body lets the human reject or
+  refine the approach in 5 minutes rather than re-litigate it
+  across an open PR.
+- **Multiple agents can implement against the same spec.**  If
+  the work is large enough to dispatch in pieces, every piece
+  shares the same canonical reference, not slightly-divergent
+  copies in each prompt.
+- **The design survives the agent.**  Agents have no memory across
+  sessions; an issue body or design doc does.  Future contributors
+  (human or agent) reading the resulting code can find the design
+  rationale.
+- **It separates synthesis (which the scrum master keeps) from
+  implementation (which the agent does).**  Embedding both in one
+  prompt collapses the separation that makes delegation safe.
+
+Practically: if the change is large enough that you'd want a human
+reviewer to read more than the diff, draft the design first.  If
+small enough to describe in two sentences in the prompt, skip the
+doc.
+
+The reverse anti-pattern is *"agent, design and implement this
+refactor"* — that pushes the design choice onto the agent, which
+then has no incentive to surface alternatives.  Even if the agent's
+choice happens to be reasonable, the human review burden goes up
+because the choice and its rationale aren't separately visible.
 
 ### Stop-list: files and decisions that require human judgment
 
