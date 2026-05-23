@@ -13,7 +13,7 @@ license: Apache-2.0
 
 ## Key Practices
 1. **Bullets & Numbering** — Use `-` for standard bullets, `1.` or `1)` for numbered lists. Org auto-increments numbers when you press `M-RET`.
-2. **Description Lists** — Prefer `- Term :: Explanation` for definitions, settings, or option/value pairs—this keeps exports clean and matches our house style.
+2. **Description Lists** — Use `- Term :: Explanation` for definitions, settings, or option/value pairs. The Term is plain text: no italics, no bold, no trailing period inside markup. The `::` separator already distinguishes term from body, so `- /Term/ :: …`, `- *Term* :: …`, `- /Term./ :: …`, and `- Term. :: …` are all non-canonical; write `- Term :: …`. (Bold-colon faux-headings — `*Label*: text` without `::` — export badly; description lists exist precisely to replace them.)
 3. **Indentation** — Maintain two spaces for nested bullets and ensure code blocks under list items are indented consistently (usually four spaces after the bullet).
 4. **Checkboxes** — Start the item with a bullet followed immediately by the checkbox marker, e.g., `- [ ]`, `- [X]`, or `- [-]`. Toggle with `C-c C-c`. Use checkboxes for short tasks; convert to TODO headlines when tracking history or scheduling.
 5. **Auto Formatting** — `M-S-RET` inserts a new item with the same marker; `C-c C-c` realigns or fixes list markers; `C-c -` cycles bullet styles.
