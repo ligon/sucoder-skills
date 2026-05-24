@@ -15,3 +15,9 @@
 - Use Org’s entity completion (`\alpha`, `\to`, etc.) when inserting symbols; do not copy Unicode arrows or Greek letters.
 
 Update this file if new markup preferences emerge.
+* Strikeout & plus markers =+=
+Org treats +...+ as strike-through. To get a literal plus:
+
+- Escape it: write \+ (e.g., fat (\+) vs protein (-)).
+- Or use math: $+$ (e.g., fat ($+$) vs protein (-)).
+- Or verbatim/code: =+= or ~+~ (monospace).
