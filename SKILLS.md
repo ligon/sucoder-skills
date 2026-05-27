@@ -7,6 +7,7 @@ need the full instructions.
 - file:skill-creator/SKILL.md — Comprehensive skill creation workflow with initialization, packaging, and validation tooling.
 - file:code-reviewer/SKILL.md — Perform systematic code reviews with prioritized findings.
 - file:test-generator/SKILL.md — Generate comprehensive automated tests across frameworks.
+- file:jax-pandas-bridge/SKILL.md — Wrap pandas-labelled tensors for JAX autodiff/JIT: PyTree registration, hashable label aux representations, abstract-tracer-safe validation, and strict-by-default labelled operators with bool-safe equality.
 - file:ligon-voice/SKILL.md — Adopt the Ligon academic-prose voice when drafting research papers, working notes, and editorial correspondence.
 - file:orgmode/SKILL.md — Overview of workspace Org-mode authoring practices and related sub-skills.
 - file:orgmode/plain-lists/SKILL.md — Keep bullets, description lists, and checkboxes tidy.
