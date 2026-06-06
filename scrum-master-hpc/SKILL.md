@@ -65,6 +65,17 @@ At the start of a scrum-master session, run this checklist:
    falling through to the project's documented Option A (typically
    a tar-pipe from `.venv.lustre/` to node-local SSD) is the normal
    path and runs in ~2 min for a ~1 GB venv.
+   Faster still: some projects ship the venv as a **single-file
+   image** (e.g. a squashfs `.venv.<n>.sqfs`) with a mount helper
+   (`bin/*venv*` or similar) that FUSE-mounts it to node-local
+   storage in one step — one shared-filesystem inode instead of
+   tens of thousands, so it sidesteps the metadata-server load the
+   tar-pipe still incurs.  When the project provides such a helper
+   (check its `CLAUDE.md` and any venv-dir docs), prefer
+   `<helper> mount` over the tar-pipe; the helper verifies the
+   import itself and fails loudly rather than leaving a broken
+   `.venv`.  Fall back to the tar-pipe only when no image/helper
+   exists.
 7. **Confirm today's date**: `date`, since handoff notes use it.
 
 Do not start dispatching until the above is clear.
