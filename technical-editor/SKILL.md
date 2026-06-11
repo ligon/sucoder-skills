@@ -128,6 +128,38 @@ not restraint. Restraint is correct only when the prose is genuinely finished
 commits, READMEs, and internal working docs are exempt). A clean-mechanics draft
 with a buried punchline is not a finished draft; say so.
 
+### Agent-residue tells (the prose a voice-aware writer still leaves behind)
+The hardest case is prose drafted *with* a voice skill already loaded. It has no
+crude tells (no em-dash spray, no "It is important to note"), because the writer
+was told to avoid them. What it leaves instead is the residue of trying visibly
+hard to obey the voice rules. This is the most valuable thing you catch, because
+the writer's own voice skill cannot self-enforce against it --- the writer is
+over-applying that very skill. Hunt for these specifically; they are almost
+always Tier 2 or Tier 3:
+
+- NARRATING THE VOICE RULE instead of following it. The voice says "state the
+  punchline first," so the prose writes the literal word "punchline" ("The
+  punchline:", "The key point is"). The voice says "be concise," so the prose
+  announces its concision. Don't label the move; make it. Flag any meta-label
+  that tells the reader what kind of sentence is coming.
+- PROCESS / IMPLEMENTATION ASIDES in publication prose. "before wiring it into
+  the estimator," "as we'll see," "as discussed above," "it pays to make this
+  precise." These are working-note artifacts; a journal referee does not need
+  the scaffolding. Cut or demote to the actual derivation.
+- DOUBLED INTENT PHRASING. The same "this is worth doing / worth making precise
+  / let us be careful here" idea stated twice in a few lines. The writer is
+  signalling rigor rather than being rigorous. Keep one, or better, just do the
+  precise thing.
+- CONTENT-LIGHT RUNWAY that restates the real claim in vaguer terms first
+  ("changes inference in ways worth making precise" ... then, later, the actual
+  change). Merge the vague preview into the concrete statement.
+- FORWARD-REFERENCE HEDGES. "though, as we'll see, not by..." makes the reader
+  hold a promise. State it now or state it at the payoff, not both.
+
+These are not voice violations in the ligon-voice checklist; they are what
+*survives* that checklist. Naming them is the editor's distinct job. (Worked in
+Example E.)
+
 ## Prose Actions & Constraints
 
 ### 1. Kill fluff & throat-clearing (Tier 1)
@@ -367,6 +399,48 @@ well-being?
 The lesson: D1 and D2 are equally free of errors. The editor that treats them
 identically has failed. D1 is done; D2 is a competent draft that a critical
 editor moves toward acceptance by attacking structure, not typos.
+
+### Example E --- Agent prose drafted WITH the voice skill (catch the residue)
+This is the subtlest and most important case. The passage below was drafted by
+an agent that had the voice skill loaded, so it has no crude tells: clean
+mechanics, contractions, even a deliberate punchline-first attempt. Near-silence
+here would be a miss. The value is entirely in the residue.
+
+INPUT (opening of a technical appendix):
+#+begin_quote
+Our experiment hands us more structure than a flat cluster-robust covariance
+uses, and the unused structure changes inference in ways worth making precise,
+though, as we'll see, not by tightening the variance of a global moment the way
+one might first guess.  [...]  A covariance estimator that respects this design
+differs from the stratum-by-arm clustering we use at present in three specific
+ways, each of which it pays to make precise before wiring it into the estimator.
+The punchline: the design implies a covariance that is a sum over strata of
+within-stratum, between-group dispersions, with no between-stratum term, [...].
+#+end_quote
+
+OUTPUT:
+- EDITED TEXT: (Tier 1 only --- mechanics already clean; nothing silent to fix.)
+- REDLINES:
+  - REDLINE :: "though, as we'll see, not by tightening" --> "though not by
+    tightening"  [forward-reference hedge; don't make the reader hold a promise]
+  - REDLINE :: "in three specific ways, each of which it pays to make precise
+    before wiring it into the estimator" --> "in three ways"  [drops "specific,"
+    a process aside, and a doubled "make precise"; the count carries it]
+  - REDLINE :: "The punchline: the design implies" --> "The design implies"
+    [narrating the voice rule; state the punchline, don't label it]
+- MARGIN NOTES:
+  - NOTE [opener] :: Content-light runway. "changes inference in ways worth
+    making precise" promises precision without stating anything, then restates
+    the real claim (the sum-over-strata structure) several lines later in
+    concrete form. Merge: open on the concrete claim.
+  - NOTE [whole opener] :: Doubled intent phrasing --- "worth making precise"
+    and "it pays to make precise" both signal rigor rather than delivering it.
+    Keep neither; just be precise.
+
+Note what this is NOT: none of these appear in the ligon-voice checklist. The
+draft passed that checklist (that's why it's clean). The editor's distinct job
+is to catch what the checklist can't see --- the writer obeying the voice rules
+so visibly that the obedience becomes the new noise.
 
 ## Related Skills
 - =file:../ligon-voice/SKILL.md= --- the voice oracle this skill defers to.
