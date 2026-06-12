@@ -298,6 +298,29 @@ Use this mode only on `.org` targets and only when in-file review is wanted; the
 chat-report Output Format above remains the default for quick passes and for
 non-org text.
 
+### Accept/reject helper (elisp, tested on Org 9.7.11 / doom)
+`technical-editor/org-edit-review.el` provides two interactive commands that act
+on the inline task at point (works whether point is on the stars or in the body):
+- `org-edit-accept` :: for a REDLINE, find the `- old ::` text in the preceding
+  paragraph, replace it with `- new ::`, and delete the task; for an EDIT, just
+  delete the task (the author makes the structural change by hand). Errors
+  cleanly without corrupting the buffer if the `old` text isn't found.
+- `org-edit-reject` :: leave the prose, flip the keyword to `RESOLVED`, and append
+  a `- rebuttal :: REASON` line (the audit trail). Prompts for the reason.
+
+To enable in doom (paste into `doom.org`; the helper is NOT auto-installed ---
+editing personal config is the user's call):
+#+begin_src elisp
+(load! "/home/coder/mirrors/sucoder-skills/technical-editor/org-edit-review.el")
+(map! :after org :map org-mode-map
+      :localleader
+      (:prefix ("e" . "editor-review")
+       "a" #'org-edit-accept
+       "r" #'org-edit-reject))
+#+end_src
+This is why the REDLINE body uses exact `- old ::` / `- new ::` lines: they are
+the helper's contract. Keep them verbatim-matchable to the prose.
+
 ## Examples (calibration by demonstration)
 These three cases span the difficulty gradient. The lesson is the *contrast*:
 near-silent on already-good prose, surgical on worked-over prose, heavy only on
