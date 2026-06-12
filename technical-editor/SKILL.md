@@ -248,6 +248,56 @@ Return exactly these sections, in order. Omit a section only if it is empty.
 Keep notes terse. The measure of a good edit is how little the writer has to
 argue with it.
 
+## Org annotation mode (in-file markup, for .org targets)
+When editing an Org file and the user wants to review in Emacs (not read a chat
+report), emit Tier 2/3 as **Org inline tasks at the locus** instead of a prose
+report. This lets the author fold, navigate, agenda-filter, and (eventually)
+accept/reject the annotations in the buffer. Tier 1 is still applied silently to
+the prose; only Tier 2/3 become inline tasks.
+
+The mechanism (verified on Org 9.7): an inline task is a line of 15 stars + a
+keyword, a body, and a closing `*************** END`. It is a real Org object
+(foldable, navigable, agenda-visible). It is kept OUT of export by the file-level
+option `inline:nil`.
+
+SAFETY REQUIREMENT (non-negotiable --- this is what keeps annotations out of the
+PDF): before writing any inline task, ensure the file's `#+OPTIONS:` line
+contains `inline:nil`, and that a `#+TODO: EDIT REDLINE | RESOLVED` line exists
+in the header. Add them if absent. Without `inline:nil` the tasks EXPORT into the
+compiled document --- a referee-facing leak. (Most Ligon papers already set
+`inline:nil`; check, don't assume.)
+
+Placement: immediately after the sentence or paragraph the annotation concerns.
+
+Tier 3 structural note --- keyword `EDIT`, a short summary on the headline, an
+optional residue/category tag, body = the objection:
+#+begin_src org
+*************** EDIT buried punchline :structural:
+The contribution isn't stated until paragraph 3; lead with it.
+*************** END
+#+end_src
+
+Tier 2 redline --- keyword `REDLINE`, body as description-list lines so the
+old/new/why are both human-readable and machine-parseable by the future
+accept/reject helper:
+#+begin_src org
+*************** REDLINE :tier2:
+- old :: a disciplined framework
+- new :: a framework
+- why :: self-praising adjective; let the content earn it
+*************** END
+#+end_src
+
+Tags reuse the residue/structure vocabulary: =:structural:=, =:buried-punchline:=,
+=:residue:=, =:overclaim:=, =:mechanics:=, =:register:= (the last for coauthor
+voice calls --- flag, never auto-fix). When the author actions an item they flip
+the keyword to `RESOLVED` (or delete the task); the prose change for a REDLINE is
+applied separately (by hand now, by the helper later).
+
+Use this mode only on `.org` targets and only when in-file review is wanted; the
+chat-report Output Format above remains the default for quick passes and for
+non-org text.
+
 ## Examples (calibration by demonstration)
 These three cases span the difficulty gradient. The lesson is the *contrast*:
 near-silent on already-good prose, surgical on worked-over prose, heavy only on

@@ -118,6 +118,29 @@ When REBUTTING an editor pass: return only the verdict list described above, plu
 the updated text with the ACCEPT/REVISE changes applied. Leave REJECTED items as
 the original.
 
+## Rebutting in Org annotation mode (in-file inline tasks)
+If the editor left its critique as Org inline tasks in the file (keywords `EDIT`
+/ `REDLINE`, closed by `*************** END`; see the editor skill's "Org
+annotation mode") rather than a chat report, your rebuttal acts on the file:
+
+- For each inline task, decide ACCEPT / REJECT / REVISE as usual.
+- ACCEPT a `REDLINE` :: apply its =- new ::= text to the prose at the locus,
+  then delete the inline task (or flip its keyword to `RESOLVED`).
+- ACCEPT an `EDIT` (structural) :: make the structural fix in the prose, then
+  flip the task to `RESOLVED` / delete it.
+- REJECT :: leave the prose unchanged, flip the task to `RESOLVED`, and append a
+  one-line =- rebuttal ::= to the task body stating why (so the human sees the
+  disagreement when reviewing the residue). Do NOT silently delete a rejected
+  task --- the rejection and its reason are the audit trail.
+- REVISE :: apply your third-option text to the prose, flip to `RESOLVED`, and
+  note =- revised-to ::= in the task body.
+- NEVER weaken a correct empirical hedge or a domain fact because an inline task
+  asked you to; REJECT with the reason, leave the task for the human.
+
+Do not touch the file's `#+OPTIONS`/`#+TODO` header lines the editor added; they
+keep the annotations out of export. One rebuttal pass, then hand the file back
+with the residual (REJECTED / human-call) tasks still present for Ethan.
+
 ## Related Skills
 - =file:../technical-editor/SKILL.md= --- the editor half of the loop; reads
   your output cold and returns the tiered redline you rebut.
