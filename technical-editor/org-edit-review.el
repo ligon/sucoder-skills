@@ -23,18 +23,25 @@
 (defun org-edit-review--task-bounds ()
   "Return (BEG . END) covering the inline task at point, or nil.
 BEG is the start of the opening stars line; END is the end of the
-closing `*************** END' line (including its newline)."
-  (save-excursion
-    (let* ((stars (make-string org-inlinetask-min-level ?*))
-           (open-re (concat "^" (regexp-quote stars) "\\(?:\\*\\)? "))
-           (end-re  (concat "^" (regexp-quote stars) "\\(?:\\*\\)? END[ \t]*$"))
-           beg end)
-      (end-of-line)
-      (when (re-search-backward open-re nil t)
+closing `*************** END' line (including its trailing newline).
+
+Uses Org's own inline-task navigation so the END line of one task is
+never confused with the opening of the next (a hand-rolled stars regex
+matches the END line too, which merges adjacent tasks --- the two-in-a-row
+deletion bug)."
+  (when (org-inlinetask-in-task-p)
+    (save-excursion
+      (let (beg end)
+        ;; goto-end first: from anywhere in/around the task it lands after
+        ;; the END line. Then goto-beginning from there finds this task's open.
+        (org-inlinetask-goto-end)
+        ;; point is now at the start of the line *after* END; back up to
+        ;; include the END line (and its newline) in the region.
+        (setq end (point))
+        (forward-line -1)
+        (org-inlinetask-goto-beginning)
         (setq beg (line-beginning-position))
-        (when (re-search-forward end-re nil t)
-          (setq end (min (point-max) (1+ (line-end-position))))
-          (cons beg end))))))
+        (cons beg end)))))
 
 (defun org-edit-review--field (beg end label)
   "Return the value of a `- LABEL :: value' description line within BEG..END."
@@ -61,7 +68,11 @@ author makes the structural change by hand)."
   (interactive)
   (let ((bounds (org-edit-review--task-bounds)))
     (unless bounds (user-error "Point is not on an editor inline task"))
-    (let* ((beg (car bounds)) (end (cdr bounds))
+    ;; Use markers: the prose replacement below changes buffer length BEFORE
+    ;; the task, which would invalidate plain integer positions and make the
+    ;; subsequent delete-region eat the wrong span (buffer corruption).
+    (let* ((beg (copy-marker (car bounds)))
+           (end (copy-marker (cdr bounds)))
            (kw  (org-edit-review--keyword beg)))
       (when (equal kw "REDLINE")
         (let ((old (org-edit-review--field beg end "old"))
@@ -73,8 +84,9 @@ author makes the structural change by hand)."
             (if (search-backward old nil t)
                 (replace-match new t t)
               (user-error "Could not find the `old' text before the task: %s" old)))))
-      ;; delete the task region
+      ;; delete the task region (markers have tracked any earlier edit)
       (delete-region beg end)
+      (set-marker beg nil) (set-marker end nil)
       (message "Accepted %s task." (or kw "editor")))))
 
 (defun org-edit-reject (&optional reason)
@@ -108,6 +120,10 @@ so it is safe on any keyword (EDIT or REDLINE)."
   (let ((bounds (org-edit-review--task-bounds)))
     (unless bounds (user-error "Point is not on an editor inline task"))
     (delete-region (car bounds) (cdr bounds))
+    ;; Leave point where the task was (start of the deleted region), so the
+    ;; cursor sits at the join in the surrounding prose rather than wherever it
+    ;; happened to be inside the now-gone task.
+    (goto-char (car bounds))
     (message "Killed editor task.")))
 
 (provide 'org-edit-review)
