@@ -99,5 +99,16 @@ and append a `- rebuttal :: REASON' line so the human sees the disagreement."
             (insert (format "- rebuttal :: %s\n" reason)))))
       (message "Rejected; recorded rebuttal."))))
 
+(defun org-edit-kill ()
+  "Delete the editor inline task at point with no prose change and no record.
+Use this to discard a noise annotation outright (neither an accept nor a
+reasoned reject).  Unlike `org-edit-accept', it never touches the prose,
+so it is safe on any keyword (EDIT or REDLINE)."
+  (interactive)
+  (let ((bounds (org-edit-review--task-bounds)))
+    (unless bounds (user-error "Point is not on an editor inline task"))
+    (delete-region (car bounds) (cdr bounds))
+    (message "Killed editor task.")))
+
 (provide 'org-edit-review)
 ;;; org-edit-review.el ends here

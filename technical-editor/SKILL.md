@@ -299,14 +299,18 @@ chat-report Output Format above remains the default for quick passes and for
 non-org text.
 
 ### Accept/reject helper (elisp, tested on Org 9.7.11 / doom)
-`technical-editor/org-edit-review.el` provides two interactive commands that act
-on the inline task at point (works whether point is on the stars or in the body):
+`technical-editor/org-edit-review.el` provides three interactive commands that
+act on the inline task at point (works whether point is on the stars or in the
+body):
 - `org-edit-accept` :: for a REDLINE, find the `- old ::` text in the preceding
   paragraph, replace it with `- new ::`, and delete the task; for an EDIT, just
   delete the task (the author makes the structural change by hand). Errors
   cleanly without corrupting the buffer if the `old` text isn't found.
 - `org-edit-reject` :: leave the prose, flip the keyword to `RESOLVED`, and append
   a `- rebuttal :: REASON` line (the audit trail). Prompts for the reason.
+- `org-edit-kill` :: delete the task outright --- no prose change, no record.
+  For discarding a noise annotation that is neither accepted nor reasoned-rejected.
+  Safe on any keyword (unlike accept, it never touches the prose).
 
 To enable in doom (paste into `doom.org`; the helper is NOT auto-installed ---
 editing personal config is the user's call):
@@ -316,7 +320,17 @@ editing personal config is the user's call):
       :localleader
       (:prefix ("e" . "editor-review")
        "a" #'org-edit-accept
-       "r" #'org-edit-reject))
+       "r" #'org-edit-reject
+       "k" #'org-edit-kill))
+#+end_src
+The localleader resolves by leader scheme: `SPC m e a/r/k` under evil, `C-c l e
+a/r/k` under non-evil doom (Ethan runs doom WITHOUT evil). For a
+scheme-independent binding, skip the leader and bind directly:
+#+begin_src elisp
+(with-eval-after-load 'org
+  (define-key org-mode-map (kbd "C-c e a") #'org-edit-accept)
+  (define-key org-mode-map (kbd "C-c e r") #'org-edit-reject)
+  (define-key org-mode-map (kbd "C-c e k") #'org-edit-kill))
 #+end_src
 This is why the REDLINE body uses exact `- old ::` / `- new ::` lines: they are
 the helper's contract. Keep them verbatim-matchable to the prose.
