@@ -13,7 +13,7 @@ license: Apache-2.0
 
 ## Checklist
 1. **Sectioning** — Use headline syntax (`*`, `**`, … followed by a space and title). Avoid ad-hoc bold headers.
-2. **Math** — Wrap inline formulas with `\( … \)` and display math with `\[ … \]`; never use dollar signs.
+2. **Math** — Wrap inline formulas with `\( … \)` and display math with `\[ … \]`; never use dollar signs. **Never begin a line inside display math with `+`, `-`, or `*`** (even after indentation): Org strips the leading whitespace and parses the bullet character as a plain-list item, silently breaking the `\[ … \]` fragment so it exports as escaped text and crashes LaTeX with `! Missing $`. Break the line *after* the operator, prefix the wrapped line with an empty group (`{} + ...`), or use a `\begin{equation}`/`\begin{align}` environment (immune, since Org never re-parses environments).
 3. **Description Lists** — Prefer `- Label :: Details` over bold-with-colon patterns so LaTeX export stays clean.
 4. **TODO Workflow** — Promote TODO entries to actual headings (e.g., `* TODO Review appendix`). Do not mimic TODOs with inline bold text.
 5. **Character Set** — Stick to ASCII. Replace Unicode symbols with LaTeX macros (write `\alpha`, not `α`).
@@ -23,6 +23,7 @@ license: Apache-2.0
 - Run a quick scan for stray Unicode by setting your editor to highlight non-ASCII characters.
 - For long documents, place checklists or tables inside description lists to avoid LaTeX lint failures.
 - If you need multi-state tasks beyond TODO/DONE, use Org’s built-in tags (e.g., `WAITING`, `NEXT`) as headline keywords.
+- Multi-line display math is safest in a LaTeX environment (`\begin{equation}...\end{equation}`): Org passes environments through verbatim, whereas `\[ ... \]` fragments are re-parsed and break when a continuation line starts with a list bullet (`+`/`-`/`*`). If you keep `\[ ... \]`, break after the operator or prefix the wrapped line with `{}` (e.g. `{} + c`).
 
 ## Additional Resources
 - file:references/rules_for_orgmode_markup.org — Full guidance with examples and rationale.

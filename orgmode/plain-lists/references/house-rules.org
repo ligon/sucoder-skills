@@ -3,6 +3,12 @@
 
 * Description Lists First
 - Prefer `- Label :: Details` instead of bold pseudo headings (`*Label*: text`).
+- The Label is plain text.  The `::` already separates label from body, so don't add markup or punctuation that the separator handles.
+  - Right:                             ~- Production :: When the household ...~
+  - Wrong (italic):                    ~- /Production/ :: ...~
+  - Wrong (italic + trailing period):  ~- /Production./ :: ...~
+  - Wrong (bold):                      ~- *Production* :: ...~
+  - Wrong (period before separator):   ~- Production. :: ...~
 - Use description lists for parameter/value listings or short definitions.
 
 * Bullets
