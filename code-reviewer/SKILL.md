@@ -17,6 +17,16 @@ Use this skill when:
 - The user needs feedback on their implementation
 - You've completed a significant code change and want to validate it
 
+Use a *different* skill when:
+- The target is **research prose** (papers, notes, referee replies), not code —
+  use `technical-editor` (`../technical-editor/SKILL.md`) instead.
+- You're working in an **existing repo** and the risk is reinventing tested
+  machinery or contradicting a local convention — run `prior-art-ledger`
+  (`../prior-art-ledger/SKILL.md`) first to ground and anchor the work, then use
+  this skill for the deeper defect pass. The two compose: the ledger anchors
+  against the repo's own terms; this skill hunts for bugs, security, and
+  performance issues in general.
+
 ## Review Process
 
 ### Step 1: Understand Context

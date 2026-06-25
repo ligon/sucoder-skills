@@ -151,6 +151,15 @@ to a ledger entry is out of scope for this pass—say so rather than padding.
   heavier `Workflow`-backed successor to this skill—escalate rather than bloat
   this one.
 
+## Related Skills
+
+- **code-reviewer** (`../code-reviewer/SKILL.md`) — Phase 3 here is an *anchored*
+  check (reuse / definition / invariant, judged only against the ledger) and is
+  deliberately narrow. For a general bug, security, and performance pass that
+  goes beyond what the ledger can see, run `code-reviewer` after this skill's
+  verify step. The two compose: the ledger anchors against the repo's own terms;
+  `code-reviewer` hunts for defects in general.
+
 ## Changelog
 
 - **<2026-06-25 Thu>** — Initial draft. Empirical-package case (reuse /
