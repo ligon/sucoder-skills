@@ -595,6 +595,39 @@ never exits.  This silently hangs an agent forever.  Match the concrete
 process (`pgrep -f "bin/python -m pytest"`, excluding your own PID) — or,
 better, just pin with `taskset` and skip the wait entirely.
 
+## Keep the interactive session responsive: `nice` shared-node jobs
+
+When the heavy background compute runs on the **same node** as your
+interactive session (a parallel build sweep, a cross-country scan,
+`pytest -n`, a `make -j`), it competes with the very session the user is
+typing into.  A saturating `--jobs N` run at normal priority makes the
+scrum master's own tool calls lag — defeating the "stay interactive"
+principle above.  Cheap fix: **`nice` (and `ionice`) the job** so the
+kernel preempts it in favour of interactive work.
+
+```bash
+# nice is inherited by children, so nicing the parent covers the whole
+# worker pool; ionice -c 3 (idle) yields the disk too (DVC reads / parquet
+# writes).  Both are unprivileged.
+nice -n 19 ionice -c 3 .venv/bin/python scan.py --jobs 28 ...
+```
+
+- **Nice the launch, not after the fact.**  Re-nicing a running 30-worker
+  pool means chasing every child PID.  Set it at `run_in_background` time.
+- **Still leave headroom.**  `nice` makes the job *yield*, but a few free
+  cores (`--jobs $((nproc-4))`) keep latency low even under contention.
+- **Reaping orphans: do NOT `pkill -f "scan.py"`.**  Its own command line
+  contains `scan.py`, so `pkill` SIGTERMs the shell running it (observed:
+  the launching bash dies with exit 144) — the same self-match trap as the
+  wait loop above.  Stop the *harness-tracked* background task instead
+  (clean, reaps the worker pool); if you must `pgrep`/`kill` by hand, use
+  the bracket trick (`pgrep -f '[s]can.py'`, which doesn't match its own
+  argv) and exclude your own PID.
+- **Or get off the node entirely.**  If the run is big enough that even a
+  niced sweep churns the session, dispatch it to Slurm (separate node) per
+  the [dispatch rules](#4-slurm-job-separate-node) — niceness is a
+  same-node palliative, Slurm is the real isolation.
+
 ## Branch Hygiene
 
 - **Commit early, commit often.**  The default is to commit each
