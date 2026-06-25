@@ -32,6 +32,7 @@ need the full instructions.
 - file:orgmode/properties-and-columns/SKILL.md — Manage property drawers, inheritance, and column view layouts.
 - file:orgmode/dates-and-times/SKILL.md — Schedule and deadline tasks, use repeaters, and manage clocking data.
 - file:scrum-master-hpc/SKILL.md — Scrum-master / dispatcher patterns for HPC work: delegation discipline, worktree hygiene, Slurm dispatch, parallel orchestration, and recovery from broken working-tree states.
+- file:prior-art-ledger/SKILL.md — Ground a task in an existing repo before adding an estimator/function: build a git-tracked "ledger" of existing tested machinery, definitions, and conventions, act with it in context, then verify reuse/consistency against it. Catches reinvented methods and contradicted definitions; tools (gitnexus/cq) optional over a git+ripgrep floor.
 
 Project-specific skills now live with their projects rather than here:
 
