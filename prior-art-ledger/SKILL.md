@@ -1,6 +1,6 @@
 ---
 name: prior-art-ledger
-description: Use this skill at the start of a non-trivial task in an existing code repository, BEFORE adding an estimator, function, or analysis. It forces an explicit inventory of the "terms of the debate"—existing tested utilities, definitions, and conventions already in force—then requires the work to cite that inventory, then checks the result against it. Targets the failure mode where an agent reinvents an existing tested method (e.g., effective degrees of freedom) or contradicts a local definition. The ledger is a git-tracked living document, so grounding compounds across sessions. Lightweight, prompt-discipline only; no orchestration.
+description: Use this skill at the start of a non-trivial task in an existing code repository, BEFORE adding an estimator, function, or analysis. Builds a git-tracked "ledger" of existing tested machinery, definitions, and conventions already in force, requires the work to cite it, then verifies the result against it. Catches the failure mode where an agent reinvents an existing tested method (e.g., effective degrees of freedom) or contradicts a local definition. Lightweight, prompt-discipline only; no orchestration.
 license: Apache-2.0
 ---
 
@@ -50,6 +50,11 @@ accelerators—their absence degrades search *quality*, not correctness.
   2. cq commons (`mcp__plugin_cq_cq__query` / `propose`) if present — for
      *transferable* pitfalls only, not repo-specific definitions.
 
+The MCP tool names above (`mcp__gitnexus__*`, `mcp__plugin_cq_cq__*`) are
+illustrative and vary by host — discover the actual names exposed in your
+session rather than assuming these, and drop to the git+ripgrep floor if they
+are absent.
+
 Record in the ledger which tier you used, so a later session knows how thorough
 the search actually was.
 
@@ -57,7 +62,10 @@ the search actually was.
 
 The ledger is a **living, git-tracked file** (default `.coder/ledger.md`; pick a
 path that fits the repo and keep it stable once chosen). It always reflects
-*current* understanding—edit it in place, do not append a running log.
+*current* understanding—edit it in place, do not append a running log. On first
+use, copy the skeleton in `assets/ledger-template.md` to the chosen path; its
+headed sections §1–§6 mirror Phase 1 so the `§N` citations used in code and
+verification resolve.
 
 - **At task start**, if the ledger exists: read it, then skim
   `git log -p -- <ledger>` and recent commit subjects to see how and why it
@@ -78,7 +86,9 @@ Read-only except for the ledger file. Do not write task code yet. This is the
 highest-leverage step and the one the human should review.
 
 Read the existing ledger and its git history first (see Persistence), then for
-each thing the task will need to compute or assume, fill in or update:
+each thing the task will need to compute or assume, fill in or update the six
+numbered sections below—keep them numbered §1–§6 in the ledger so the `§N`
+citations elsewhere in this skill resolve (skeleton: `assets/ledger-template.md`):
 
 1. **Task, restated.** One paragraph in the repo's own vocabulary. If you can't
    restate it without inventing terms, you don't understand it yet.
@@ -143,7 +153,7 @@ to a ledger entry is out of scope for this pass—say so rather than padding.
 
 ## Changelog
 
-- ## <2026-06-25 Thu> Initial draft. Empirical-package case (reuse / convention
-  / definition). Lightweight, single-file, no orchestration. Tools (gitnexus,
-  cq) optional with a git+ripgrep floor; ledger is git-tracked with history as
-  the journal.
+- **<2026-06-25 Thu>** — Initial draft. Empirical-package case (reuse /
+  convention / definition). Lightweight, single-file, no orchestration. Tools
+  (gitnexus, cq) optional with a git+ripgrep floor; ledger is git-tracked with
+  history as the journal.
