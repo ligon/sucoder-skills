@@ -65,6 +65,17 @@ At the start of a scrum-master session, run this checklist:
    falling through to the project's documented Option A (typically
    a tar-pipe from `.venv.lustre/` to node-local SSD) is the normal
    path and runs in ~2 min for a ~1 GB venv.
+   Faster still: some projects ship the venv as a **single-file
+   image** (e.g. a squashfs `.venv.<n>.sqfs`) with a mount helper
+   (`bin/*venv*` or similar) that FUSE-mounts it to node-local
+   storage in one step — one shared-filesystem inode instead of
+   tens of thousands, so it sidesteps the metadata-server load the
+   tar-pipe still incurs.  When the project provides such a helper
+   (check its `CLAUDE.md` and any venv-dir docs), prefer
+   `<helper> mount` over the tar-pipe; the helper verifies the
+   import itself and fails loudly rather than leaving a broken
+   `.venv`.  Fall back to the tar-pipe only when no image/helper
+   exists.
 7. **Confirm today's date**: `date`, since handoff notes use it.
 
 Do not start dispatching until the above is clear.
@@ -540,6 +551,50 @@ data_scheme.yml files"), a **single script** (written and run directly
 by the scrum master) is often better than 30 agents.  Agents add
 latency and context-load; a for-loop is instant.
 
+## Running JAX/XLA suites on a shared many-core node
+
+JAX/XLA is a special case of oversubscription that bites *harder* than the
+`pytest -n auto` rule above — and the fix is different.
+
+**The hazard.**  XLA sizes its JIT thread pool to the number of *visible*
+CPUs and `mmap`s executable pages per worker.  So two or more *uncapped*
+JAX processes on, say, a 64-core node spin up `2 × 64` threads plus double
+the executable-page mmaps and **segfault** — a hard kill mid-run, often
+with no pytest summary line, not the graceful slowdown ordinary
+oversubscription gives.  This is the most likely cause of a mid-session
+"the suite just died" on a fat node, and it strikes any multi-agent setup
+where several agents each run a JAX `pytest`.
+
+**The fix: pin to disjoint core sets with `taskset`, don't serialize.**
+XLA sizes its pool to the *affinity-limited* CPU count
+(`len(os.sched_getaffinity(0))`), so `taskset -c 0-31` makes a JAX process
+behave as a 32-core process — fewer threads, fewer mmaps, confined cores.
+Pin concurrent suites to disjoint halves and they coexist at full speed:
+
+```bash
+# two JIT-heavy suites, concurrently, on one 64-core node:
+XLA_FLAGS=--xla_force_host_platform_device_count=1 taskset -c 0-31  pytest <A> &
+XLA_FLAGS=--xla_force_host_platform_device_count=1 taskset -c 32-63 pytest <B> &
+```
+
+Validated: two JIT-heavy suites pinned to `0-31` / `32-63` both pass
+concurrently with no segfault — and each is ~20× faster than the
+ultra-safe `OMP_NUM_THREADS=1` single-thread fallback (which forces one
+thread).  Even a *single* run benefits from `taskset -c 0-31`: a fast
+32-core run that leaves the other half free.  **Multi-agent rule:** give
+each agent a distinct core range, not an instruction to serialize.
+
+(This is local-node discipline.  Under a cgroup-limited Slurm job the
+affinity is already restricted — read `$SLURM_CPUS_ON_NODE` per the
+dispatch rules above; you rarely need `taskset` there.)
+
+**Pitfall — the self-matching wait loop.**  Do *not* gate a "wait for the
+other suite to finish" loop on `pgrep -f "pytest"`: the loop's own command
+line contains the string `pytest`, so `pgrep` matches *itself* and the loop
+never exits.  This silently hangs an agent forever.  Match the concrete
+process (`pgrep -f "bin/python -m pytest"`, excluding your own PID) — or,
+better, just pin with `taskset` and skip the wait entirely.
+
 ## Branch Hygiene
 
 - **Commit early, commit often.**  The default is to commit each
@@ -701,6 +756,62 @@ The pattern is symmetric to "never re-edit before observing":
 once observation is available, take it as authoritative; don't
 talk yourself out of it.
 
+## Triage by Oracle Head-to-Head (ports and validation suites)
+
+When you've ported a battle-tested library into your stack (or are
+validating your implementation against a reference), and the port's
+test suite comes up with a cluster of failures, **do not start
+fixing.**  A failure against a faithful port has three very different
+root causes, and they call for opposite responses:
+
+1. **Our-bug** — our implementation diverges from the reference.
+   Fix the code.
+2. **Anti-oracle test** — our test asserts behavior the reference
+   *doesn't* exhibit; the test encodes an opinion the oracle refutes.
+   Reconcile the test.
+3. **Fixture defect** — the test's own setup doesn't construct the
+   situation it claims (degenerate input, unsatisfiable precondition,
+   a throw in the fixture rather than the code under test).  Fix the
+   fixture.
+
+You cannot tell these apart by reading the failing test.  The move
+that separates them is the **oracle head-to-head**: run the
+*reference implementation* (pymanopt, scipy, the upstream library) on
+the **identical fixture** and observe what it does.
+
+- Oracle gives the test's expected answer and we don't → our-bug (1).
+- Oracle gives *our* (failing) answer, not the test's expectation →
+  the test is anti-oracle (2); the oracle wins.
+- Oracle also can't run the fixture, or lands on a degenerate result
+  → fixture defect (3).
+
+This was the methodological win of the 2026-06-17 RTR session:
+running pymanopt-TR and scipy on the same fixed-weight problems
+classified 16 failures into solver-bugs vs anti-oracle tests vs
+fixture defects *before* any code was touched — and proved the core
+solver faithful (identical convergence to the oracle to four
+decimals), redirecting the work from "fix the solver" to "reconcile
+the tests."  Two earlier reasoned-only patch attempts had already
+regressed the suite by guessing the solver was wrong.
+
+Operationally:
+
+- Make the oracle head-to-head the **first** step of port-suite
+  triage, not a fallback after patching.
+- Run it on the *exact* fixture — same seed, same weight matrix, same
+  dimensions.  A head-to-head on a different problem proves nothing.
+- Dispatch the comparison as read-only agents (one per failing
+  component) producing a *divergence register*, but **re-judge their
+  classifications yourself** (see the trust-but-verify note on
+  synthesis above) — a misread traceback mislabels a fixture defect as
+  a solver bug.
+- Record, per failure, which bucket it lands in and the oracle
+  evidence.  That register, not the raw red suite, drives the fix plan.
+
+The principle generalizes "observe before pronouncing a code path
+broken" above: when a battle-tested reference exists, *it* is the
+observation that arbitrates — let it, before you change a line.
+
 ## Message Discipline with Subagents
 
 Prompts to agents are **self-contained**.  They don't see the scrum
@@ -837,6 +948,57 @@ any uncommitted modifications on main that weren't committed on
 the worktree branch are a silent scope violation regardless of
 the self-report.  An agent that writes "SCOPE DEVIATIONS: none"
 has only told you what it *thinks* it did.
+
+**Verify the agent's *classifications*, not only its file-touches.**
+Trust-but-verify applies to synthesis, not just scope.  A read-only
+investigation agent that *classifies* — "this is a solver bug," "this
+test is the broken one," "failure X is downstream of failure Y" — is
+doing synthesis you are about to act on, and it can be confidently
+wrong from a traceback it read too fast.  Observed (2026-06-17): an
+agent labelled a test-*fixture* defect as a *solver* bug off a stack
+trace whose throw was actually in the test's own setup code; acting
+on the label would have "fixed" correct solver code.  Re-judge every
+classification against the primary evidence (the actual failing line,
+the fixture construction, the oracle's behavior) before it drives a
+code change — exactly as you independently re-run `git status` to
+check the scope self-report.  An agent's bucket labels are
+hypotheses, not findings.
+
+### Delegated fixes must self-verify by *running*, not reasoning
+
+The trust-but-verify discipline has a sharper edge for *fix* tasks
+than for investigations.  An investigation agent that only reads is
+doing its job; a *fix* agent that only reads has not actually
+established that its fix works.  Require every delegated fix to **run
+its target test green before reporting** — and, on a JAX/many-core
+box, to do so pinned to its own disjoint core range so the
+verification can't be skipped for fear of oversubscription.
+
+The failure mode is specific and was observed (2026-06-17): when the
+prompt warns agents about oversubscription, some agents respond by
+*reasoning about* the fix instead of running the suite — and
+"reason-only" fixes are unreliable (2 of 3 fixture-fix agents produced
+wrong fixes this way).  The oversubscription rule is not a license to
+skip verification; it is a reason to *pin* it.  The node almost always
+has cores to spare for one more bounded pytest.  Put both halves in
+the worker prompt:
+
+> Before reporting, run your target test(s) and confirm they pass,
+> pinned to YOUR assigned core range:
+>
+>     XLA_FLAGS=--xla_force_host_platform_device_count=1 \
+>       taskset -c <lo>-<hi> .venv/bin/python -m pytest <target> -q
+>
+> Paste the final pytest summary line into your report.  A fix you
+> have only reasoned about, without a green run, is not done — say so
+> rather than claiming success.
+
+Give each concurrent fix agent a distinct range (carved from the
+affinity-visible set — e.g. `0-15` / `16-31` on a 32-core allocation),
+exactly as in the [JAX-suite rule](#running-jaxxla-suites-on-a-shared-many-core-node)
+above.  A fix that *cannot* be run green in the worktree is a signal
+to pull the task back into your own context, not to accept a
+reasoned-only patch.
 
 Bidirectional steering of long-running agents is covered in the
 [Monitoring Long-Running Work](#monitoring-long-running-work)
@@ -1007,6 +1169,41 @@ more than once every few minutes under normal operation.
 session, re-run `check_usage.sh -a <account>` to get the session's
 SU delta.  Record both the job exit state and the SU cost in the
 handoff note.
+
+### Backgrounded jobs: the wait-loop must *be* the backgrounded command
+
+When you launch a long job with the harness's background execution
+(`run_in_background`) and then want to block on it, a tempting shape
+is to wrap a launcher *and* a waiter together in one subshell:
+
+```bash
+# WRONG — orphans the real work
+( real_job > log 2>&1 & wait_for_it ) &
+```
+
+The harness tracks the *outer* command.  That subshell exits as soon
+as it has spawned the inner `&`, so the harness reports the background
+task **completed** while the real job and its waiter run on, orphaned
+and untracked.  You get a false "done," plus a child that outlives the
+shell — the hazard a project `CLAUDE.md` may flag as "a backgrounded
+wrapper exits, the child survives."
+
+The rule: **the thing you background must be the thing you care about
+finishing.**  Make the wait-loop itself the `run_in_background`
+command, with no inner `&`:
+
+```bash
+# RIGHT — the harness tracks the job you actually care about
+real_job > log 2>&1                          # background THIS: the job itself
+# or, when polling an external job you did not spawn here:
+until <terminal-state-test>; do sleep 30; done   # the loop IS the backgrounded command
+```
+
+Then the completion notification fires when the real work ends, not
+when a launcher subshell returns.  If you genuinely need a detached
+job to outlive the session, use `setsid nohup … < /dev/null &` and
+watch its log — but never nest a `&` inside a `run_in_background` and
+trust the harness's "completed."
 
 ## Recording the Session
 
