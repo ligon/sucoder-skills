@@ -627,6 +627,32 @@ artifacts).  When the cache might contain stale content:
    because the cache was warmed pre-change.  In either case, a
    single `--rebuild-caches` (or project equivalent) resolves the
    ambiguity in one run.  Run that *first*, before debugging.
+6. **Highly-parallel rebuilds can corrupt large remote reads — and that
+   is concurrency, not the network.**  A `make -jN` (or scatter-gather)
+   build that fetches several large objects from object storage at once
+   can intermittently raise TLS-record errors mid-transfer
+   (`ssl.SSLError: DECRYPTION_FAILED_OR_BAD_RECORD_MAC`,
+   `aiohttp.ClientPayloadError: Response payload is not completed`) from
+   the s3fs/fsspec concurrent-multipart download path.  A single
+   *sequential* read of the same object succeeds at full throughput, so
+   do NOT chase it as a connectivity problem — prove it with one
+   sequential fetch before blaming the link.  Mitigate by lowering build
+   parallelism (e.g. `LSMS_MAKE_JOBS=1`) or retrying the fetch with
+   backoff (treat `FileNotFoundError` as non-transient so the caller can
+   still fall through to its next cache layout).
+7. **Killed builds leave orphaned partials that quietly fill the cache
+   disk.**  Atomic-write fetchers download to a PID-suffixed temp
+   (`<blob>.tmp.<pid>`) then rename into place; a build killed by
+   `timeout`/SIGTERM mid-download never runs the cleanup, so a full-size
+   partial survives.  Repeated killed attempts at a multi-GB file stack
+   up, and on a near-full *shared* disk that cascades into "fetch failed"
+   errors that look like network problems but are disk exhaustion.  When
+   downloads fail mysteriously on a tight disk, list the cache dir for
+   `*.tmp.<pid>` orphans from dead PIDs and remove them before retrying;
+   and prefer a few serial large fetches over many parallel ones you may
+   later kill.  (NB: on overlay/container filesystems, `df` can report
+   stale free space for a moment after a large `rm` — re-check with a
+   fresh `df`/`du` before concluding the inode is still held.)
 
 ## State Recovery
 
