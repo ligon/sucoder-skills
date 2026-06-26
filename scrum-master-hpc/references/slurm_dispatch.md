@@ -57,13 +57,13 @@ Key fields in `sinfo` output:
 
 General guidance (tune to the cluster you're on):
 
-| Need | Partition profile | Example (Savio) |
-|---|---|---|
-| Light tasks, parallel sweeps | HTC (high-throughput) with many cores/node | `savio4_htc`, 56 cores, 256–512 GB |
-| Memory-hungry single tasks | bigmem with 256+ GB | `savio3_bigmem`, 384 GB |
-| Long-running / preemption-sensitive | A partition your group owns | `fc_jevons`-allocated |
-| Opportunistic / free | Low-priority on a co-investigator account | `co_carleton` / `savio_lowprio` |
-| GPU work | GPU partition | `savio3_gpu`, `savio4_gpu` |
+| Need                                | Partition profile                          | Example (Savio)                    |
+|-------------------------------------|--------------------------------------------|------------------------------------|
+| Light tasks, parallel sweeps        | HTC (high-throughput) with many cores/node | `savio4_htc`, 56 cores, 256–512 GB |
+| Memory-hungry single tasks          | bigmem with 256+ GB                        | `savio3_bigmem`, 384 GB            |
+| Long-running / preemption-sensitive | A partition your group owns                | `fc_jevons`-allocated              |
+| Opportunistic / free                | Low-priority on a co-investigator account  | `co_carleton` / `savio_lowprio`    |
+| GPU work                            | GPU partition                              | `savio3_gpu`, `savio4_gpu`         |
 
 ## Account choice: default to free
 
@@ -71,10 +71,9 @@ General guidance (tune to the cluster you're on):
 `co_carleton` (or the equivalent co-investigator account the group has
 access to).  A fair-share / condo partition like `fc_jevons` is a
 billed resource — every CPU-hour you spend on it draws down shared
-compute budget the PI may be saving for end-of-term crunch or student
-dissertation work.
+compute budget.  However, the budget is pretty generous.
 
-Reserve the priority account for:
+Use the priority account for:
 
 - Urgent work where preemption risk is unacceptable (paper deadline,
   live debugging during an interactive session)
@@ -165,10 +164,10 @@ the detection commands below.
 
 Empirical data points (Savio, 2026-04-10):
 
-| Account | QoS | Partition | `--cpus-per-task` | `SLURM_CPUS_ON_NODE` | Whole-node? |
-|---|---|---|---|---|---|
-| `fc_jevons` | `savio_normal` (default) | `savio4_htc` | 8 | 8 | No (shared) |
-| `co_carleton` | `savio_lowprio` | `savio4_htc` | 8 | 8 | No (shared) |
+| Account       | QoS                      | Partition    | `--cpus-per-task` | `SLURM_CPUS_ON_NODE` | Whole-node? |
+|---------------|--------------------------|--------------|-------------------|----------------------|-------------|
+| `fc_jevons`   | `savio_normal` (default) | `savio4_htc` | 8                 | 8                    | No (shared) |
+| `co_carleton` | `savio_lowprio`          | `savio4_htc` | 8                 | 8                    | No (shared) |
 
 The earlier conventional wisdom that "fc_jevons gives you the whole
 node on HTC" turned out not to be true on `savio4_htc` under the
@@ -419,12 +418,12 @@ locks and deadlock.  Mitigations:
 
 These are complementary, not interchangeable:
 
-| Use agents when... | Use Slurm when... |
-|---|---|
+| Use agents when...                             | Use Slurm when...                   |
+|------------------------------------------------|-------------------------------------|
 | You need a language-model decision on the work | The work is a pure compute pipeline |
-| You want a report back with interpretation | You want raw output artifacts |
-| The task is small (seconds to a few minutes) | The task is long (minutes to hours) |
-| The task benefits from context / judgment | The task is a deterministic script |
+| You want a report back with interpretation     | You want raw output artifacts       |
+| The task is small (seconds to a few minutes)   | The task is long (minutes to hours) |
+| The task benefits from context / judgment      | The task is a deterministic script  |
 
 You can combine them: dispatch a coordinator agent that `sbatch`es
 Slurm jobs and monitors them via the `squeue` CLI.  That agent stays
