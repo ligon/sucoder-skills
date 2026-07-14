@@ -4,6 +4,9 @@
 * Math
 - Inline math must use `\( ... \)` instead of `$...$`.
 - Display math must use `\[ ... \]` instead of `$$...$$`.
+- After display math do *not* add additional \n unless you intend to start a new paragraph.
+- Use \(\overline{x}\), not \(\overline x\), and similarly for other commands that add diacriticals.
+- Use \(\geq 0\), not \(\geq0\) (and similarly for other binary operators).
 
 * Block Directives
 - Prefer lowercase keywords: `#+begin_src`, `#+end_src`, `#+results`, `#+name:` (Org treats them case-insensitive, but lowercase keeps diffs tidy).
