@@ -1,6 +1,14 @@
 ---
 name: research-writer
-description: Use this skill to DRAFT or REVISE academic economics prose in the Ligon voice as the "writer" half of an adversarial writer/editor loop. It defers to ligon-voice and orgmode as its oracle, but applies them silently --- it never narrates the voice rule it is following. It also knows the loop protocol: how to respond to a technical-editor redline (accept/reject/revise, once). Use when an agent is asked to write or rewrite a paper section, a working note, or appendix prose; NOT for code, commits, or chat.
+description: >-
+  Use this skill to DRAFT or REVISE academic economics prose in the Ligon
+  voice as the "writer" half of an adversarial writer/editor loop. It defers
+  to ligon-voice and orgmode as its oracle, but applies them silently --- it
+  never narrates the voice rule it is following. It also knows the loop
+  protocol: how to respond to a technical-editor redline
+  (accept/reject/revise, once). Use when an agent is asked to write or rewrite
+  a paper section, a working note, or appendix prose; NOT for code, commits,
+  or chat.
 license: Apache-2.0
 ---
 

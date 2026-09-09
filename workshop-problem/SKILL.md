@@ -1,6 +1,16 @@
 ---
 name: workshop-problem
-description: Use this skill when handed a non-trivial technical problem open-endedly — "here's a hard problem, see what you can do with it." Runs a gated lifecycle: scope and red-team the question (the human's framing included), agree a written charter with a checkable definition-of-done, ground in prior art, implement, adversarially red-team, loop until green on the charter, then review. Phases 0–1 are a human handshake; phases 2–6 can run autonomously via the bundled workflow. Delegates to prior-art-ledger (grounding), code-reviewer / technical-editor (review), and test-generator (tests) rather than duplicating them. Right-size the ceremony — skip it for trivia.
+description: >-
+  Use this skill when handed a non-trivial technical problem open-endedly —
+  "here's a hard problem, see what you can do with it." Runs a gated
+  lifecycle: scope and red-team the question (the human's framing included),
+  agree a written charter with a checkable definition-of-done, ground in prior
+  art, implement, adversarially red-team, loop until green on the charter,
+  then review. Phases 0–1 are a human handshake; phases 2–6 can run
+  autonomously via the bundled workflow. Delegates to prior-art-ledger
+  (grounding), code-reviewer / technical-editor (review), and test-generator
+  (tests) rather than duplicating them. Right-size the ceremony — skip it for
+  trivia.
 license: Apache-2.0
 ---
 
