@@ -60,14 +60,31 @@ ADVISORY_MIN_WORDS = 300
 # ask about one paragraph is money spent on words you were not asking about.
 USD_PER_WORD = 0.05 / 100
 
-# The check log accumulates excerpts of whatever gets checked, and its value
-# comes from being ONE file across every project.  A path relative to the
-# working directory would give a separate log per repo, and would drop prose
-# excerpts inside research repos whose .gitignore knows nothing about it.
-# Absolute, outside any git tree, overridable per invocation.
-DEFAULT_LOG = Path(
-    os.environ.get("PANGRAM_CHECK_LOG")
-    or Path.home() / ".sucoder" / "pangram" / "check_log.jsonl")
+def _default_log() -> Path:
+    """Where the running check log lives.
+
+    Its value comes from being ONE file --- across every project, and across
+    every account that runs a check.  A path relative to the working directory
+    would give a separate log per repo, and would drop prose excerpts inside
+    research repos whose .gitignore knows nothing about it.  Keying it to
+    Path.home() would instead fragment it by whoever happens to be running:
+    sessions run under the shared agent account, but a human may run the same
+    check directly.  So prefer the agent account's home when that account
+    exists, and fall back to the caller's home when it does not.
+    """
+    override = os.environ.get("PANGRAM_CHECK_LOG")
+    if override:
+        return Path(override)
+    home = Path.home()
+    try:
+        import pwd
+        home = Path(pwd.getpwnam("coder").pw_dir)
+    except (ImportError, KeyError):
+        pass                      # no such account, or not a POSIX system
+    return home / ".sucoder" / "pangram" / "check_log.jsonl"
+
+
+DEFAULT_LOG = _default_log()
 DEFAULT_MODEL = "pangram-4"
 DEFAULT_KEY_FILE = Path.home() / "Downloads" / "pangram_api_key"
 
@@ -440,8 +457,13 @@ def main() -> int:
     if args.check:
         import datetime
         key = load_key(args.key_file)
-        args.log.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-        logged = 0
+        logged, log_ok = 0, True
+        try:
+            args.log.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        except OSError as exc:
+            log_ok = False
+            print(f"(log unavailable: {exc}. Scores below are printed but not "
+                  "recorded; set $PANGRAM_CHECK_LOG or pass --log.)")
         for name in args.check:
             path = Path(name)
             if not path.exists():
@@ -486,8 +508,10 @@ def main() -> int:
                     excerpt = " ".join((w.get("text") or "").split())[:90]
                     print(f"    {w.get('ai_assistance_score', 0):.3f} "
                           f"{str(w.get('label','?')):<16}{mark}{excerpt}")
-            with args.log.open("a", encoding="utf-8") as fh:
-                fh.write(json.dumps({
+            if not log_ok:
+                continue
+            try:
+                entry = json.dumps({
                     "when": datetime.datetime.now().isoformat(timespec="seconds"),
                     "path": str(path), "words": len(words), "words_sent": sent,
                     "usd": round(sent * USD_PER_WORD, 4), "fraction_ai": frac,
@@ -495,8 +519,13 @@ def main() -> int:
                     "windows": [{"score": w.get("ai_assistance_score"),
                                  "label": w.get("label"),
                                  "excerpt": " ".join((w.get("text") or "").split())[:160]}
-                                for w in windows]}) + "\n")
-            logged += 1
+                                for w in windows]})
+                with args.log.open("a", encoding="utf-8") as fh:
+                    fh.write(entry + "\n")
+                logged += 1
+            except OSError as exc:
+                print(f"  (not logged: {args.log} is not writable --- {exc}. "
+                      "Set $PANGRAM_CHECK_LOG or pass --log.)")
         if logged:
             print(f"\nlogged to {args.log}")
         return 0

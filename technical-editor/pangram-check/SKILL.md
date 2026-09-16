@@ -88,9 +88,8 @@ test, and the third structural rather than empirical:
 - LOCALIZING.  The per-window output shows which passage fired.  That is the
   part you can learn from --- read the flagged window and ask what is wrong
   with it in prose terms.
-- ACCUMULATING.  Every check appends to `~/.sucoder/pangram/check_log.jsonl`
-  with the score, the verdict, the words sent, the cost and the flagged
-  excerpts.  One score tells you little; twenty checks showing the same
+- ACCUMULATING.  Every check appends to the running log (see below) with the
+  score, the verdict, the words sent, the cost and the flagged excerpts.  One score tells you little; twenty checks showing the same
   construction firing repeatedly is a pattern worth naming.
 - FEEDING THE CATALOG.  When a construction recurs across several checks,
   name it and add it as a new id in
@@ -127,10 +126,10 @@ python3 SKILLS/scripts/pangram_calibrate.py --check draft.org
 # several at once, including a control of your own older prose
 python3 SKILLS/scripts/pangram_calibrate.py --check draft.org known_human.org
 
-# review what has fired over time
-python3 -c "import json,os;[print(f\"{r['fraction_ai']:.2f} {r['path']}\") \
-  for r in map(json.loads, open(os.path.expanduser( \
-  '~/.sucoder/pangram/check_log.jsonl')))]"
+# review what has fired over time (--help prints the resolved log path)
+LOG=~coder/.sucoder/pangram/check_log.jsonl
+python3 -c "import json,sys;[print(f\"{r['fraction_ai']:.2f} {r['path']}\") \
+  for r in map(json.loads, open(sys.argv[1]))]" \"$LOG"
 #+end_src
 
 The API key comes from `$PANGRAM_API_KEY`, else `--key-file` (default
@@ -139,16 +138,24 @@ Emacs before submission, so the detector scores prose rather than markup.
 
 ## Where the log lives, and why there
 
-`~/.sucoder/pangram/check_log.jsonl`, absolute, outside every git tree, in a
-directory created mode 0700.  `$PANGRAM_CHECK_LOG` overrides it and `--log`
-overrides that.
+`<agent-account-home>/.sucoder/pangram/check_log.jsonl` --- in practice
+`/home/coder/.sucoder/pangram/check_log.jsonl` --- absolute, outside every git
+tree, in a directory created mode 0700.  The default resolves to the `coder`
+account's home when that account exists, and to the caller's home when it does
+not.  `--help` prints the resolved path.  `$PANGRAM_CHECK_LOG` overrides it and
+`--log` overrides that.
 
-The location is deliberate on two counts.  The log is only useful as ONE file
-spanning every project, so a path relative to the working directory would
-fragment it into a separate log per repo.  And it accumulates excerpts of
-whatever you check, including unpublished drafts --- written under a research
-mirror it would sooner or later be committed into a paper repo whose
+The location is deliberate on three counts.  The log is only useful as ONE
+file, so a path relative to the working directory would fragment it per repo,
+and keying it to the caller's home would fragment it per account --- sessions
+run under the shared agent account, but a human may run the same check
+directly, and those observations belong in the same file.  And it accumulates
+excerpts of whatever is checked, including unpublished drafts: written under a
+research mirror it would sooner or later be committed into a paper repo whose
 `.gitignore` knows nothing about it.
+
+If the log is not writable the check still runs and prints its score, with a
+notice that the result was not recorded.
 
 ## How much text to send
 
