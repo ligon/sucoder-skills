@@ -1,0 +1,32 @@
+{
+  "_comment": [
+    "Every file submitted to the Pangram API must be listed here by path.",
+    "That is the consent control: nothing is sent that was not deliberately",
+    "named. Copy to calibration/manifest.json (gitignored) and edit.",
+    "",
+    "arm 'human' must be prose that is confidently pre-LLM (added to git",
+    "before ~2022) or confidently hand-written. Recent drafts may have had",
+    "AI assistance and would contaminate the baseline.",
+    "",
+    "NEVER list: referee reports, unpublished coauthored work without the",
+    "coauthors' agreement, anything embargoed or confidential."
+  ],
+  "arms": {
+    "human": {
+      "note": "pre-2022 single-authored Ligon prose",
+      "files": [
+        {"path": "/home/coder/mirrors/EXAMPLE/paper.org",
+         "added": "2018-04-11", "genre": "paper draft",
+         "authorship": "single"}
+      ]
+    },
+    "raw": {
+      "note": "model output, no skills loaded, same topics",
+      "files": []
+    },
+    "skill": {
+      "note": "output drafted with research-writer + ligon-voice",
+      "files": []
+    }
+  }
+}

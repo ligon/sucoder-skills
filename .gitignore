@@ -8,3 +8,7 @@ dist/
 
 # SuCoder per-mirror session state
 .coder-session/
+
+# Pangram calibration: scores and excerpts of unpublished prose
+calibration/out/
+calibration/manifest.json
