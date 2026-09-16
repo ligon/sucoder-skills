@@ -1,0 +1,164 @@
+---
+name: pangram-check
+description: >-
+  Use this skill to score a draft with the Pangram AI-text detector, see which
+  passage reads as machine-written, and log the result so patterns accumulate
+  across checks. It trips on user cues like "check this for AI", "does this
+  read as AI-generated?", "run pangram on this", "is this detectable?", "score
+  this draft", or "what has been firing in the check log". It is a diagnostic,
+  NOT a quality measure and NOT a gate to rewrite against: a nonzero score
+  localizes a passage worth reading, a zero means little, and neither rate is
+  well estimated yet. Do NOT use on confidential material --- referee reports,
+  editorial correspondence, personnel or student files, or coauthored and
+  unpublished work that is not yours alone to send.
+license: Apache-2.0
+---
+
+# Pangram Check
+
+Score a draft with an external AI-text detector, localize the passage that
+triggered it, and log the result so that patterns accumulate across many
+checks.
+
+## How much confidence the numbers support: very little so far
+
+Two observed rates, both from small samples, neither one an established
+property of the detector:
+
+- 26 of 26 passages of pre-LLM single-authored prose scored 0.000.  That is
+  consistent with a true false-positive rate anywhere up to about 11 percent
+  at 95 percent confidence, and the sample is one author, one genre, one era,
+  all passages 300--480 words.
+- 4 of 12 machine-written passages also scored 0.000, so the miss rate is
+  estimated from twelve observations and could plausibly be anywhere from
+  roughly 15 to 65 percent.
+
+Pangram reports a false-positive rate around 1 in 10,000 and a 2025
+University of Chicago Booth audit found near-zero false positives on longer
+passages.  That is real external evidence and a reason to expect the rate to
+be low --- but it was measured on other corpora, not on this genre, and it
+does not license treating our 26 observations as a settled distribution.
+
+The working posture, held provisionally: a nonzero score is more likely to be
+worth reading than a zero is to be reassuring, because the observed
+false-positive rate is lower than the observed miss rate.  How much more
+likely, nobody here knows.  Do not convert that into a rule that a hit proves
+something and a pass proves nothing.
+
+This is exactly what the running log is for.  Every check, including
+deliberate controls on prose you know you wrote unaided, adds an observation.
+After enough of them the two rates stop being guesses, and only then is it
+worth asking what a given score actually implies.
+
+## Do not iterate against the score
+
+Do not rewrite a draft to lower its number, and do not resubmit in a loop
+until it passes.  Three reasons --- the first two observed once, in a small
+test, and the third structural rather than empirical:
+
+1. The detector measures whether a machine wrote the text, not whether the
+   text is good.  Those objectives come apart.  In a blinded test, the
+   author rated one undetected machine passage the best prose in the set,
+   and rated one of his own passages below it.
+2. In that same test the author and the detector disagreed on four of six
+   machine-written passages, each catching things the other missed.  Six
+   pairs cannot establish a rate, but they do show the two judgments are not
+   measuring one thing.
+3. Optimizing prose against a classifier optimizes for evading the
+   classifier.  The goal is better prose; evasion is a different goal that
+   happens to be easier to measure.
+
+## What it is actually good for
+
+- LOCALIZING.  The per-window output shows which passage fired.  That is the
+  part you can learn from --- read the flagged window and ask what is wrong
+  with it in prose terms.
+- ACCUMULATING.  Every check appends to `~/.sucoder/pangram/check_log.jsonl`
+  with the score, the verdict, the words sent, the cost and the flagged
+  excerpts.  One score tells you little; twenty checks showing the same
+  construction firing repeatedly is a pattern worth naming.
+- FEEDING THE CATALOG.  When a construction recurs across several checks,
+  name it and add it as a new id in
+  `file:../../ligon-voice/references/agent-residue.org`, then propagate it to
+  both `research-writer/SKILL.md` and `technical-editor/SKILL.md`.
+  `make check` enforces that all three stay in sync.  The named rule is the
+  durable artifact; the score is not.
+
+## Confidentiality (non-negotiable)
+
+This sends text to a third party.  Never submit referee reports on other
+people's papers, editorial correspondence reproducing a journal's decision
+letter or referee reports, unpublished coauthored work without the
+coauthors' agreement, recommendation or tenure letters, or student records.
+
+The tool refuses these by path (`Referee/`, `Letters/`, `Adhoc/`,
+`Editorial/`, `Students/`, `Employment/Review/`, and others) and by content
+markers, and the refusal names a single-file override rather than a blanket
+one.  If a refusal fires, the default answer is to not send the text.
+
+## Usage
+
+#+begin_src bash
+# score one or more drafts
+python3 scripts/pangram_calibrate.py --check draft.org
+
+# several at once, including a control of your own older prose
+python3 scripts/pangram_calibrate.py --check draft.org known_human.org
+
+# review what has fired over time
+python3 -c "import json,os;[print(f\"{r['fraction_ai']:.2f} {r['path']}\") \
+  for r in map(json.loads, open(os.path.expanduser( \
+  '~/.sucoder/pangram/check_log.jsonl')))]"
+#+end_src
+
+The API key comes from `$PANGRAM_API_KEY`, else `--key-file` (default
+`~/Downloads/pangram_api_key`).  Org files are exported to plain text with
+Emacs before submission, so the detector scores prose rather than markup.
+
+## Where the log lives, and why there
+
+`~/.sucoder/pangram/check_log.jsonl`, absolute, outside every git tree, in a
+directory created mode 0700.  `$PANGRAM_CHECK_LOG` overrides it and `--log`
+overrides that.
+
+The location is deliberate on two counts.  The log is only useful as ONE file
+spanning every project, so a path relative to the working directory would
+fragment it into a separate log per repo.  And it accumulates excerpts of
+whatever you check, including unpublished drafts --- written under a research
+mirror it would sooner or later be committed into a paper repo whose
+`.gitignore` knows nothing about it.
+
+## How much text to send
+
+Billing is per word, at $0.05 per 100 words, and the detector needs context
+to predict at all.  Both bounds matter.
+
+- FLOOR :: 50 words is Pangram's documented minimum and the tool refuses
+  below it.  Below roughly 300 words the result is weak rather than merely
+  noisy, and the tool says so; weigh it accordingly rather than acting on it.
+- CEILING :: the default cap is 1000 words per check, about $0.50.  Longer
+  input is truncated with a warning; `--check-max-words` raises it.
+- IN PRACTICE :: send the passage you are actually unsure about, roughly
+  300--800 words.  Submitting a whole draft to ask about one paragraph pays
+  for every other paragraph and buries the window you cared about among
+  windows you did not.  A 5,000-word section costs about $2.50 per check, and
+  checking it repeatedly during revision multiplies that.
+
+Each check prints the words sent and the estimated cost, and both are
+recorded in the log.
+
+## Mechanics that affect validity
+
+- Markup: never submit raw LaTeX or Org.  Markup is not prose and the
+  comparison to human text stops being like-for-like.  The tool normalizes
+  automatically; if you paste text in by hand, strip it yourself.
+- Control: score a passage of your own older writing every so often.  These
+  controls are not ceremony --- they are what turns the two guessed rates
+  above into estimates, and a nonzero result on known-unaided prose would be
+  the single most informative observation the log could record.
+
+## Related Skills
+
+- `file:../SKILL.md` --- the editor this diagnostic serves.
+- `file:../../ligon-voice/references/agent-residue.org` --- where a pattern
+  goes once it has recurred often enough to name.

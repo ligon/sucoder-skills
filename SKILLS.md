@@ -11,6 +11,7 @@ need the full instructions.
 - file:ligon-voice/SKILL.md — Adopt the Ligon academic-prose voice when drafting research papers, working notes, and editorial correspondence.
 - file:research-writer/SKILL.md — Draft/revise academic economics prose in the Ligon voice as the writer half of an adversarial writer/editor loop; applies ligon-voice silently (never narrates the rule) and knows the editor-rebuttal protocol.
 - file:technical-editor/SKILL.md — Edit research prose adversarially via a tiered redline protocol (silent fixes, proposed redlines, margin objections); defers to ligon-voice and orgmode as its style oracle.
+- file:technical-editor/pangram-check/SKILL.md — Score a draft with the Pangram AI-text detector, localize the passage that fired, and log it; a diagnostic for accumulating nameable patterns, explicitly not a quality measure or a gate to iterate against.
 - file:orgmode/SKILL.md — Overview of workspace Org-mode authoring practices and related sub-skills.
 - file:orgmode/plain-lists/SKILL.md — Keep bullets, description lists, and checkboxes tidy.
 - file:orgmode/drawers/SKILL.md — Organize metadata and logs in drawers.

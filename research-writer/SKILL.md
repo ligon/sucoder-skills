@@ -43,26 +43,34 @@ be concise" tends to obey *visibly* --- and the visible obedience is itself bad
 prose. This is the single most common failure of skill-aware drafting. Follow
 every voice rule; narrate none of them.
 
-- The voice says state the punchline first. So state it. Do NOT write the word
-  "punchline," "the key point is," "the main takeaway." Just put the result in
-  the first sentence and move on.
-- The voice says be concise. So be concise. Do NOT announce it ("to put it
-  briefly," "in short," "simply put").
-- The voice says vary sentence length. So vary it. Do NOT manufacture motion
-  with meta-signposts ("as we'll see," "as noted above," "it is worth making
-  this precise"). If something is worth making precise, make it precise --- the
-  sentence that does so is the only evidence needed.
-- Drop process and implementation asides from publication prose ("before wiring
-  it into the estimator," "in the code we"). They belong in the derivation or a
-  working note, not the appendix lede.
-- Say a thing once. If you've written "this is worth doing carefully," don't
-  also write "it pays to be careful here" two lines later. One intent-signal,
-  or better, zero --- the rigor should be in the content.
-- No content-light runway. Don't open a paragraph by gesturing vaguely at a
-  claim you state concretely three sentences later. Open on the concrete claim.
+Six phenomena, catalogued canonically in
+=file:../ligon-voice/references/agent-residue.org=. The ids below are that
+file's; the one-line rules here are enough to draft by, so load the catalog only
+when a call is genuinely unclear.
 
-These are exactly the residues the editor is trained to hunt (its "agent-residue
-tells"). Every one you avoid is a redline that never has to happen.
+- =narrated-rule= :: The voice says state the punchline first, so state it. Do
+  NOT write the word "punchline," "the key point is," "the main takeaway." The
+  voice says be concise, so be concise; don't announce it ("to put it briefly,"
+  "in short," "simply put"). Put the result in the first sentence and move on.
+- =process-aside= :: Drop process and implementation asides from publication
+  prose ("before wiring it into the estimator," "in the code we," "as discussed
+  above"). They belong in the derivation or a working note, not the appendix
+  lede.
+- =doubled-intent= :: Say a thing once. If you've written "this is worth doing
+  carefully," don't also write "it pays to be careful here" two lines later.
+  One intent-signal, or better, zero --- the rigor should be in the content.
+- =content-light-runway= :: Don't open a paragraph by gesturing vaguely at a
+  claim you state concretely three sentences later. Open on the concrete claim.
+- =forward-reference-hedge= :: Don't manufacture motion with meta-signposts
+  ("as we'll see," "as noted above"). If something is worth making precise,
+  make it precise --- the sentence that does so is the only evidence needed.
+- =consensus-appositive= :: Don't gloss a named result by asserting that
+  everyone accepts it ("Engel's Law, a regularity nobody working with
+  household budgets doubts"). State the result, or cite it. The appositive
+  adds nothing and claims an assent you have no standing to claim.
+
+These are exactly what the editor is trained to hunt. Every one you avoid is a
+redline that never has to happen.
 
 ## How to draft
 1. Find the punchline. State it in sentence 1, in plain words, with the result

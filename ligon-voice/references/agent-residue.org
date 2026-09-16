@@ -1,0 +1,140 @@
+#+TITLE: Agent Residue: What Survives the Voice Checklist
+#+AUTHOR: Sue Coder
+#+DATE: 2026-09-15
+
+* Overview
+
+  Prose drafted by an agent that has already loaded =ligon-voice= has no
+  crude tells.  No em-dash spray, no "It is important to note that," no
+  uniform 30-word sentences.  The checklist caught all of that.  What it
+  leaves behind instead is the residue of trying visibly hard to obey the
+  rules: prose that /announces/ the move it is making rather than making it.
+
+  These six phenomena are that residue.  They are catalogued here, once,
+  because both halves of the writer/editor loop need them and neither owns
+  them.  The writer needs them at draft time as things not to produce; the
+  editor needs them at edit time as things to hunt.  Each =SKILL.md= keeps
+  its own short operational list keyed to the ids below, so a working agent
+  never has to load this file to do its job.  Load it when calibration is in
+  doubt, or when adding to the catalog.
+
+  Why the writer cannot self-enforce: the residue is not a violation of the
+  voice rules but an over-application of them.  An agent re-reading its own
+  draft against the checklist marks every one of these as compliant, because
+  they are.  Catching residue is structurally the editor's job, which is why
+  it takes a second, cold pass to see it.
+
+* The catalog
+
+  Each entry carries a stable id.  =scripts/lint_residue.py= checks that
+  every id appears in both =research-writer/SKILL.md= and
+  =technical-editor/SKILL.md=, so the two inline lists cannot silently drift
+  apart from this one.  Adding a phenomenon means adding it in three places;
+  the linter will say so.
+
+** =narrated-rule=
+
+   - What :: The prose labels the rhetorical move instead of making it.  The
+     voice says state the punchline first, so the draft writes the word
+     "punchline."  The voice says be concise, so the draft announces its
+     concision.
+   - Tells :: "The punchline:", "The key point is", "the main takeaway",
+     "to put it briefly", "in short", "simply put".
+   - Why it survives :: Every one of these sentences is short, direct, and
+     ostensibly punchline-first.  It passes the checklist by describing
+     compliance with it.
+   - Fix :: Delete the label; keep the sentence it introduces.  "The
+     punchline: the design implies a covariance that ..." becomes "The design
+     implies a covariance that ...".
+   - Tier :: 2 (the label is a clean deletion, but it touches emphasis).
+
+** =process-aside=
+
+   - What :: Implementation or workflow scaffolding left in publication
+     prose.  The draft narrates how the result will be used, or where in the
+     pipeline the reader has arrived.
+   - Tells :: "before wiring it into the estimator," "in the code we,"
+     "as discussed above," "as noted above," "it pays to make this precise."
+   - Why it survives :: It reads as orienting signposting, which the voice
+     encourages at the top of long derivations.  The difference is that a
+     real signpost tells the reader what the argument needs next; a process
+     aside tells the reader what the author did next.
+   - Fix :: Cut it, or demote it to the derivation or a working note.  A
+     journal referee does not need the scaffolding.
+   - Tier :: 2 for a phrase, 3 when a whole paragraph is scaffolding.
+
+** =doubled-intent=
+
+   - What :: The same signal of rigor stated twice within a few lines ---
+     "this is worth doing carefully" and then "it pays to be careful here."
+     The draft is signalling rigor rather than being rigorous.
+   - Tells :: Any two of "worth making precise," "worth doing carefully,"
+     "let us be careful here," "it pays to be precise" in one passage.
+   - Why it survives :: Each instance alone is unobjectionable, so a
+     sentence-level checklist pass never fires.  The fault is only visible
+     across sentences.
+   - Fix :: Keep one, or better, neither.  The rigor belongs in the content.
+   - Tier :: 2.
+
+** =content-light-runway=
+
+   - What :: A paragraph opens by gesturing vaguely at a claim it states
+     concretely three sentences later.  The vague version promises precision
+     without delivering any.
+   - Tells :: "changes inference in ways worth making precise" followed,
+     later, by the actual change; any opening sentence that survives deletion
+     without loss.
+   - Why it survives :: The concrete claim /is/ present and /is/ stated
+     early enough to look punchline-first.  The runway in front of it is what
+     the checklist misses.
+   - Fix :: Merge the preview into the concrete statement and open on that.
+   - Tier :: 3 (it is a paragraph-shape problem, not a phrase).
+
+** =forward-reference-hedge=
+
+   - What :: A hedge that defers its own content, making the reader hold a
+     promise until the payoff arrives.
+   - Tells :: "though, as we'll see, not by ...", "as we will show below",
+     "more on this shortly".
+   - Why it survives :: It looks like the voice's approved hedging, and like
+     the signposting the voice asks for in long derivations.  It is neither:
+     a hedge qualifies a claim now, a signpost orients now, and this does
+     neither.
+   - Fix :: State it now or state it at the payoff.  Not both.
+   - Tier :: 2.
+
+** =consensus-appositive=
+
+   - What :: A named object is glossed with an appositive asserting that
+     everyone accepts it.  The gloss carries no content; it performs
+     confidence on the reader's behalf, and claims an assent the writer has
+     no standing to claim.
+   - Tells :: "Engel's Law, a regularity nobody working with household
+     budgets doubts"; "X, a fact no one disputes"; "the Euler equation, a
+     relationship every graduate student knows"; "as is universally
+     accepted".
+   - Why it survives :: It reads as the voice's directness about theory ---
+     flat, unhedged, no throat-clearing.  But the flatness attaches to the
+     profession's agreement rather than to the claim itself, so "be direct
+     about theory" passes it and "one hedge per claim" never fires.
+   - Fix :: State the claim and drop the gloss.  If the consensus is doing
+     real work, cite someone; if it is not, the appositive is padding.
+   - Tier :: 2.
+
+* Worked instances
+
+  =consensus-appositive= was added after a blinded test in which Ethan
+  graded twelve passages without knowing which were his: it was the one
+  tell he named that the catalog did not already cover.  The other five
+  came from editing agent drafts.
+
+  =technical-editor/references/calibration-examples.org=, Example E, shows
+  the first five in a single appendix opener, with the redlines and margin
+  notes they draw.  That example is the calibration case for this catalog: prose
+  with clean mechanics where near-silence from the editor would be a miss.
+
+* Related
+
+  - =file:../SKILL.md= --- the voice oracle these phenomena survive.
+  - =file:../../research-writer/SKILL.md= --- the writer half; avoids them.
+  - =file:../../technical-editor/SKILL.md= --- the editor half; hunts them.

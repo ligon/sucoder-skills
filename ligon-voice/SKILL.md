@@ -32,6 +32,10 @@ casual chat.
 2. **Extended drafting or revision** --- load the full style guide for detailed
    rules, examples, and improvement strategies:
    `file:references/style-guide.org`
+3. **Editing prose an agent drafted with this skill already loaded** --- the
+   checklist below will pass it and it will still read wrong.  The six
+   residues that survive a compliant draft are catalogued in
+   `file:references/agent-residue.org`.
 
 ## Key Rules
 

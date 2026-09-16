@@ -124,9 +124,10 @@ Tier 3 structure to attack:
 
 Hunt for these. On a competent academic draft, near-silence is usually a *miss*,
 not restraint. Restraint is correct only when the prose is genuinely finished
-(see Examples A and D1) or the genre gate is closed (see "When to Use" --- code,
-commits, READMEs, and internal working docs are exempt). A clean-mechanics draft
-with a buried punchline is not a finished draft; say so.
+(Examples A and D1 in =file:references/calibration-examples.org=) or the genre
+gate is closed (see "When to Use" --- code, commits, READMEs, and internal
+working docs are exempt). A clean-mechanics draft with a buried punchline is
+not a finished draft; say so.
 
 ### Agent-residue tells (the prose a voice-aware writer still leaves behind)
 The hardest case is prose drafted *with* a voice skill already loaded. It has no
@@ -137,28 +138,31 @@ the writer's own voice skill cannot self-enforce against it --- the writer is
 over-applying that very skill. Hunt for these specifically; they are almost
 always Tier 2 or Tier 3:
 
-- NARRATING THE VOICE RULE instead of following it. The voice says "state the
-  punchline first," so the prose writes the literal word "punchline" ("The
-  punchline:", "The key point is"). The voice says "be concise," so the prose
-  announces its concision. Don't label the move; make it. Flag any meta-label
-  that tells the reader what kind of sentence is coming.
-- PROCESS / IMPLEMENTATION ASIDES in publication prose. "before wiring it into
-  the estimator," "as we'll see," "as discussed above," "it pays to make this
-  precise." These are working-note artifacts; a journal referee does not need
-  the scaffolding. Cut or demote to the actual derivation.
-- DOUBLED INTENT PHRASING. The same "this is worth doing / worth making precise
-  / let us be careful here" idea stated twice in a few lines. The writer is
-  signalling rigor rather than being rigorous. Keep one, or better, just do the
-  precise thing.
-- CONTENT-LIGHT RUNWAY that restates the real claim in vaguer terms first
-  ("changes inference in ways worth making precise" ... then, later, the actual
-  change). Merge the vague preview into the concrete statement.
-- FORWARD-REFERENCE HEDGES. "though, as we'll see, not by..." makes the reader
-  hold a promise. State it now or state it at the payoff, not both.
+- =narrated-rule= :: A meta-label announcing the move instead of making it
+  ("The punchline:", "The key point is," "in short"). Flag any label that tells
+  the reader what kind of sentence is coming; cut it, keep the sentence.
+- =process-aside= :: Working-note scaffolding in publication prose ("before
+  wiring it into the estimator," "as discussed above," "it pays to make this
+  precise"). Cut it, or demote it to the derivation.
+- =doubled-intent= :: The same "this is worth doing carefully" idea twice in a
+  few lines. The writer is signalling rigor rather than being rigorous. Keep
+  one, or better, neither.
+- =content-light-runway= :: A vaguer preview of a claim the paragraph states
+  concretely three sentences later ("changes inference in ways worth making
+  precise"). Merge the preview into the concrete statement. Usually Tier 3.
+- =forward-reference-hedge= :: "though, as we'll see, not by ..." makes the
+  reader hold a promise. State it now or state it at the payoff, not both.
+- =consensus-appositive= :: An appositive asserting universal assent for a
+  named object ("X, a regularity nobody doubts"). It performs confidence
+  rather than carrying content. Cut the gloss and keep the claim; if the
+  consensus is load-bearing, ask for a citation instead.
 
 These are not voice violations in the ligon-voice checklist; they are what
-*survives* that checklist. Naming them is the editor's distinct job. (Worked in
-Example E.)
+*survives* that checklist. Naming them is the editor's distinct job. The
+canonical catalog --- every tell, why each one survives the checklist, the fix
+--- is =file:../ligon-voice/references/agent-residue.org=, and the ids above are
+its. Worked end to end in Example E of
+=file:references/calibration-examples.org=.
 
 ## Prose Actions & Constraints
 
@@ -335,201 +339,29 @@ scheme-independent binding, skip the leader and bind directly:
 This is why the REDLINE body uses exact `- old ::` / `- new ::` lines: they are
 the helper's contract. Keep them verbatim-matchable to the prose.
 
-## Examples (calibration by demonstration)
-These three cases span the difficulty gradient. The lesson is the *contrast*:
-near-silent on already-good prose, surgical on worked-over prose, heavy only on
-raw machine prose. If you would edit all three the same amount, you are
-miscalibrated. Match your effort to the draft.
+## Calibration: match your effort to the draft
+Effort tracks the state of the draft, not your thoroughness. If you would edit
+a finished paper and a raw dump by the same amount, you are miscalibrated.
 
-### Example A --- Polished author prose (expect near-silence)
-A statistical-power paragraph from a finished paper. It is already in voice:
-varied sentence length, hedged empirics, a dry close. The right edit is almost
-none.
+- Polished author prose :: near-silence. In voice, hedges correct, nothing to
+  do. Hand a clean draft back clean; do not manufacture changes to look useful.
+- Human-coauthored prose :: surgical. Argument and hedging are sound; the
+  catches are an editorializing adjective, a claim a referee will probe.
+- Raw machine prose :: heavy. Throat-clearing, padding, =$=-math, an overclaim.
+  Tier 1 alone does most of the work; the overclaim goes to Tier 2/3.
+- Competent but unfinished :: heavy Tier 3, little else. Clean mechanics with a
+  slow opener or a buried punchline is not a finished draft. Say so.
+- Agent prose drafted WITH the voice skill :: residue only. Mechanics are clean
+  by construction, so the whole value is the residue tells above.
 
-INPUT:
-#+begin_quote
-A natural concern is statistical power: the high \(p\)-values in Table 4 could
-reflect genuinely efficient markets or simply an inability to detect moderate
-departures from the null.  With roughly 900 households observed over seven
-post-baseline waves, degrees of freedom are limited after conditioning on
-lagged instruments and crop-specific holdings, and \(\sigma\) itself is only
-weakly identified.  For this reason we lean on the sign diagnostic in Section
-5, a complementary and higher-powered test that uses a different source of
-variation; it points the same way.
-#+end_quote
-
-OUTPUT:
-- EDITED TEXT: (unchanged from input)
-- REDLINES: none.
-- MARGIN NOTES: none. The paragraph is in voice and the empirical hedges
-  ("could reflect," "only weakly identified") are correct as written; leave it
-  alone.
-
-The whole point of this example: a clean draft gets handed back clean. Do not
-manufacture changes to look useful.
-
-### Example B --- Human-coauthored prose (expect surgical)
-A results paragraph already worked over by coauthors. The argument and hedging
-are sound; the catches are small and specific.
-
-INPUT:
-#+begin_quote
-The preferred specification (\(K = 2\)) yields \(\hat\theta = 1.36\) and a
-two-factor substitution structure.  The \(J\)-statistic of 130.4 on 22 degrees
-of freedom rejects the overidentifying restrictions at conventional levels, but
-it is important to note that most of this rejection reflects the enormous
-sample size (\(N = 58{,}037\)) rather than structural misspecification.
-#+end_quote
-
-OUTPUT:
-- EDITED TEXT:
-  #+begin_quote
-  The preferred specification (\(K = 2\)) yields \(\hat\theta = 1.36\) and a
-  two-factor substitution structure.  The \(J\)-statistic of 130.4 on 22
-  degrees of freedom rejects the overidentifying restrictions at conventional
-  levels, but most of this rejection reflects the large sample size
-  (\(N = 58{,}037\)) rather than structural misspecification.
-  #+end_quote
-- REDLINES:
-  - REDLINE :: "enormous sample size" --> "large sample size"  [drop the
-    editorializing adjective; the number speaks]
-- MARGIN NOTES:
-  - NOTE [results para] :: The claim that rejection "reflects sample size
-    rather than misspecification" is an assertion a referee will probe. If a
-    diagnostic supports it (e.g. \(J/\mathrm{df}\) falling sharply once
-    \(\Pi\) enters), cite it here; otherwise soften to "is consistent with."
-
-Note what was NOT done: "it is important to note that" was deleted silently
-(Tier 1), the hedge structure was preserved, and the one substantive worry
-became a margin note, not a rewrite.
-
-### Example C --- Raw machine prose (expect heavy)
-Unedited LLM output. Every failure mode at once: throat-clearing, padding,
-=$=-math, em-dash abuse, an overclaim the data cannot carry, and spelled-out
-numbers where digits belong.
-
-INPUT:
-#+begin_quote
-It is important to note that our results conclusively demonstrate a striking
-and robust finding --- namely, that the willingness to pay for coffee-price
-stabilization is negative.  Owing to the fact that a number of households
-utilize the market in order to acquire coffee --- in fact, eighty-nine percent
-of them --- the Sandmo term effectively vanishes.  This comprehensive insight
-proves that stabilization policy is fundamentally misguided, with $q_i \approx
-0$ for the vast majority of coffee consumers.
-#+end_quote
-
-OUTPUT:
-- EDITED TEXT:
-  #+begin_quote
-  Willingness to pay for coffee-price stabilization is negative.  Because most
-  households buy coffee from the market (89 percent of them), the Sandmo term
-  effectively vanishes, with \(q_i \approx 0\) for most coffee consumers.
-  #+end_quote
-- REDLINES:
-  - REDLINE :: "conclusively demonstrate ... proves that stabilization policy
-    is fundamentally misguided" --> (removed)  [overclaim; one result does not
-    prove a policy misguided]
-  - REDLINE :: "a number of households utilize" --> "most households buy"
-    [padding + "utilize"; pick the concrete verb]
-- MARGIN NOTES:
-  - NOTE [whole para] :: This is two claims welded together: (i) WTP is
-    negative, (ii) therefore the policy is misguided. State (i) here with its
-    hedge; argue (ii) in Discussion, where you can weigh distributional
-    incidence. Don't let the empirical sentence carry the policy verdict.
-
-Tier 1 alone did most of the work here: deleted "It is important to note,"
-"striking and robust," "comprehensive insight"; fixed =$q$= to =\(q\)=; cut the
-em-dashes; turned "eighty-nine"/"vast majority" into "89"/"most." The
-overclaim and the welded-together argument needed the writer's eyes, so they
-went to Tier 2/3 rather than a silent rewrite.
-
-### Example D --- The crucial calibration: polished vs merely competent
-The hardest judgment is between prose that is *finished* and prose that is
-*competent but unfinished*. Both are clean. Only the second should draw heavy
-Tier 3. These two are the SAME author's journal-paper openers; learn the
-difference.
-
-D1 (FINISHED --- near-silence is correct). Opener that states its tension early
-and lands its punchline by the end of the section:
-#+begin_quote
-... Using our data from Uganda, we show that this mis-specification can lead to
-surprising results: in the usual specification covariate shocks such as
-droughts, floods, or pests appear to lead to welfare improvements!
-#+end_quote
-- Editor response: Tier 1 only if any. The punchline is stated, the result is
-  named, the one exclamation mark is earned (ligon-voice allows one per paper).
-  Do NOT manufacture Tier 3 notes. This is the bar.
-
-D2 (COMPETENT BUT UNFINISHED --- heavy Tier 3 is correct). Same author, an
-opener that buries its contribution:
-#+begin_quote
-Measures of household consumption expenditures are central to policy statistics
-and to research on risk, inequality, and life-cycle behavior.  Surveys almost
-always record disaggregate expenditures, yet welfare work typically collapses
-them to total real consumption.  Total expenditure gives the scale of
-consumption but says nothing about its composition.  The question of this paper:
-how can the composition of the consumption portfolio measure material
-well-being?
-#+end_quote
-- Editor response: mechanics are clean, so the value is ALL in Tier 3.
-  - NOTE [opener] :: Slow runway. Two sentences of field-importance before the
-    real tension (scale kept, composition discarded). Lead with the gap.
-  - NOTE [final sentence] :: Buried punchline. Ends on a rhetorical question
-    with no answer started. State the contribution (the CIRCUS demand system,
-    the MUE estimator) and the headline finding in this paragraph.
-  - NOTE ["consumption portfolio"] :: Load-bearing coinage introduced as if
-    standard. Flag it as your construct on first use.
-  - REDLINE :: "The question of this paper:" --> "This paper asks:"  [mechanical
-    signpost; prefer an active subject]
-
-The lesson: D1 and D2 are equally free of errors. The editor that treats them
-identically has failed. D1 is done; D2 is a competent draft that a critical
-editor moves toward acceptance by attacking structure, not typos.
-
-### Example E --- Agent prose drafted WITH the voice skill (catch the residue)
-This is the subtlest and most important case. The passage below was drafted by
-an agent that had the voice skill loaded, so it has no crude tells: clean
-mechanics, contractions, even a deliberate punchline-first attempt. Near-silence
-here would be a miss. The value is entirely in the residue.
-
-INPUT (opening of a technical appendix):
-#+begin_quote
-Our experiment hands us more structure than a flat cluster-robust covariance
-uses, and the unused structure changes inference in ways worth making precise,
-though, as we'll see, not by tightening the variance of a global moment the way
-one might first guess.  [...]  A covariance estimator that respects this design
-differs from the stratum-by-arm clustering we use at present in three specific
-ways, each of which it pays to make precise before wiring it into the estimator.
-The punchline: the design implies a covariance that is a sum over strata of
-within-stratum, between-group dispersions, with no between-stratum term, [...].
-#+end_quote
-
-OUTPUT:
-- EDITED TEXT: (Tier 1 only --- mechanics already clean; nothing silent to fix.)
-- REDLINES:
-  - REDLINE :: "though, as we'll see, not by tightening" --> "though not by
-    tightening"  [forward-reference hedge; don't make the reader hold a promise]
-  - REDLINE :: "in three specific ways, each of which it pays to make precise
-    before wiring it into the estimator" --> "in three ways"  [drops "specific,"
-    a process aside, and a doubled "make precise"; the count carries it]
-  - REDLINE :: "The punchline: the design implies" --> "The design implies"
-    [narrating the voice rule; state the punchline, don't label it]
-- MARGIN NOTES:
-  - NOTE [opener] :: Content-light runway. "changes inference in ways worth
-    making precise" promises precision without stating anything, then restates
-    the real claim (the sum-over-strata structure) several lines later in
-    concrete form. Merge: open on the concrete claim.
-  - NOTE [whole opener] :: Doubled intent phrasing --- "worth making precise"
-    and "it pays to make precise" both signal rigor rather than delivering it.
-    Keep neither; just be precise.
-
-Note what this is NOT: none of these appear in the ligon-voice checklist. The
-draft passed that checklist (that's why it's clean). The editor's distinct job
-is to catch what the checklist can't see --- the writer obeying the voice rules
-so visibly that the obedience becomes the new noise.
+The last two are the hard calls, and both are cases where near-silence reads
+like restraint but is a miss. Worked examples for all five, with full
+INPUT/OUTPUT, are in =file:references/calibration-examples.org=.
 
 ## Related Skills
+- =file:pangram-check/SKILL.md= --- score a draft with an external AI-text
+  detector and read the asymmetric result correctly. A diagnostic that feeds
+  the residue catalog; never a target to rewrite against.
 - =file:../ligon-voice/SKILL.md= --- the voice oracle this skill defers to.
 - =file:../orgmode/SKILL.md= --- Org/LaTeX mechanics.
 - =file:../code-reviewer/SKILL.md= --- the analogous adversarial pass for code.
