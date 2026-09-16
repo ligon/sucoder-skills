@@ -108,11 +108,20 @@ def _default_key_file() -> Path:
     except Exception:
         pass
     bases.append(home)
-    for base in bases:
-        candidate = base / "Downloads" / "pangram_api_key"
-        if candidate.exists():
-            return candidate
-    return bases[0] / "Downloads" / "pangram_api_key"
+    # Preferred locations first.  A credential belongs in a restricted dotdir,
+    # not in Downloads --- on this workspace Downloads is a 9p mount shared
+    # with the host OS, where Unix modes are not reliably enforced and the key
+    # is readable by every local account.  The Downloads paths stay in the list
+    # so an existing setup keeps working, but moving the key to
+    # <home>/.sucoder/pangram/api_key requires no flag and no config change.
+    relative = (Path(".sucoder") / "pangram" / "api_key",
+                Path("Downloads") / "pangram_api_key")
+    for rel in relative:
+        for base in bases:
+            candidate = base / rel
+            if candidate.exists():
+                return candidate
+    return bases[0] / relative[0]
 
 
 DEFAULT_KEY_FILE = _default_key_file()

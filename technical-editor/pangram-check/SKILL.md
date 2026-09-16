@@ -144,6 +144,34 @@ be wrong --- on an agent session `~` is the one account the key is not in.
 Org files are exported to plain text with Emacs before submission, so the
 detector scores prose rather than markup.
 
+## Where the key lives
+
+Never in the repository.  The key is read at run time from a path outside
+every git tree, and no committed file, cache or log has ever contained the
+value.
+
+Resolution order, first hit wins:
+
+1. `$PANGRAM_API_KEY`
+2. `--key-file`
+3. `<human-account-home>/.sucoder/pangram/api_key`  (preferred)
+4. `<caller-home>/.sucoder/pangram/api_key`
+5. `<human-account-home>/Downloads/pangram_api_key`  (current, legacy)
+6. `<caller-home>/Downloads/pangram_api_key`
+
+The Downloads entries keep an existing setup working, but a credential does
+not belong there.  On this workspace `~/Downloads` is a 9p mount shared with
+the host OS, where Unix modes are not reliably enforced, and the file is
+world-readable --- which is in fact the only reason the agent account can
+read it at all, since that account is not in the human's group.  Tightening
+the mode to 0600 would therefore break agent sessions rather than secure
+anything.
+
+The fix is to move the key rather than re-permission it.  Placing it at
+`/home/coder/.sucoder/pangram/api_key`, owned by the agent account and mode
+0600, means only that account and root can read it, and requires no flag or
+config change because of the resolution order above.
+
 ## Where the log lives, and why there
 
 `<agent-account-home>/.sucoder/pangram/check_log.jsonl` --- in practice
