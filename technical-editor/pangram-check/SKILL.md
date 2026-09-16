@@ -126,15 +126,23 @@ python3 SKILLS/scripts/pangram_calibrate.py --check draft.org
 # several at once, including a control of your own older prose
 python3 SKILLS/scripts/pangram_calibrate.py --check draft.org known_human.org
 
-# review what has fired over time (--help prints the resolved log path)
-LOG=~coder/.sucoder/pangram/check_log.jsonl
-python3 -c "import json,sys;[print(f\"{r['fraction_ai']:.2f} {r['path']}\") \
-  for r in map(json.loads, open(sys.argv[1]))]" \"$LOG"
+# review what has fired over time; --help prints the resolved log path
+LOG=$(getent passwd coder >/dev/null && echo ~coder || echo ~)/.sucoder/pangram/check_log.jsonl
+python3 -c 'import json,sys
+for r in map(json.loads, open(sys.argv[1])):
+    print(round(r["fraction_ai"], 3), r["path"])' "$LOG"
 #+end_src
 
-The API key comes from `$PANGRAM_API_KEY`, else `--key-file` (default
-`~/Downloads/pangram_api_key`).  Org files are exported to plain text with
-Emacs before submission, so the detector scores prose rather than markup.
+The API key comes from `$PANGRAM_API_KEY`, else `--key-file`.  Its default
+resolves the OPPOSITE way from the log: the key is a credential the human
+downloaded, so it looks in the home of the account named by `human_user` in
+`~/.sucoder/config.yaml` (in practice `/home/ligon/Downloads/pangram_api_key`)
+before falling back to the caller's home.  Writing it as `~/Downloads` would
+be wrong --- on an agent session `~` is the one account the key is not in.
+`--help` prints the resolved path.
+
+Org files are exported to plain text with Emacs before submission, so the
+detector scores prose rather than markup.
 
 ## Where the log lives, and why there
 

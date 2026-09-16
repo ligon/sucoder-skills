@@ -86,7 +86,36 @@ def _default_log() -> Path:
 
 DEFAULT_LOG = _default_log()
 DEFAULT_MODEL = "pangram-4"
-DEFAULT_KEY_FILE = Path.home() / "Downloads" / "pangram_api_key"
+
+
+def _default_key_file() -> Path:
+    """Where the API key sits --- the opposite resolution from the log.
+
+    The key is a credential the HUMAN obtained, and it lands in the human
+    account's Downloads.  Path.home() resolves to whichever account is
+    running, which on an agent session is the one account the key is NOT in.
+    So read human_user from the sucoder config and prefer that account's
+    home, falling back to the caller's.  Best-effort: any failure to read the
+    config just means falling back.
+    """
+    bases, home = [], Path.home()
+    try:
+        import pwd
+        import yaml
+        cfg = yaml.safe_load((home / ".sucoder" / "config.yaml").read_text())
+        if isinstance(cfg, dict) and cfg.get("human_user"):
+            bases.append(Path(pwd.getpwnam(cfg["human_user"]).pw_dir))
+    except Exception:
+        pass
+    bases.append(home)
+    for base in bases:
+        candidate = base / "Downloads" / "pangram_api_key"
+        if candidate.exists():
+            return candidate
+    return bases[0] / "Downloads" / "pangram_api_key"
+
+
+DEFAULT_KEY_FILE = _default_key_file()
 
 # Refused by default.  Content markers, matched against the first 4k.
 SENSITIVE = re.compile(
@@ -433,7 +462,8 @@ def main() -> int:
     ap.add_argument("--probe", action="store_true",
                     help="submit one sentinel text and dump the raw schema")
     ap.add_argument("--report", action="store_true", help="summarize the cache only")
-    ap.add_argument("--key-file", type=Path, default=DEFAULT_KEY_FILE)
+    ap.add_argument("--key-file", type=Path, default=DEFAULT_KEY_FILE,
+                    help=f"API key file (default: {DEFAULT_KEY_FILE})")
     ap.add_argument("--model", default=DEFAULT_MODEL)
     ap.add_argument("--out", type=Path, default=Path("calibration/out"))
     ap.add_argument("--whole-file", action="store_true",
