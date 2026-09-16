@@ -20,6 +20,21 @@ Score a draft with an external AI-text detector, localize the passage that
 triggered it, and log the result so that patterns accumulate across many
 checks.
 
+## When to Use (and when NOT to)
+
+Apply this skill when:
+- A draft needs checking for whether it reads as machine-written.
+- A flagged passage needs localizing, so the prose fault can be named.
+- The accumulated check log needs reviewing for patterns worth promoting
+  into the residue catalog.
+
+Do NOT apply this skill:
+- To decide whether prose is any GOOD.  The detector does not measure that,
+  and in testing its verdict and the author's quality judgement diverged.
+- As a gate in a drafting loop, or to rewrite against until a draft passes.
+- To anything confidential --- see the section below, which is the one
+  constraint here with no judgement calls in it.
+
 ## How much confidence the numbers support: very little so far
 
 Two observed rates, both from small samples, neither one an established
@@ -98,12 +113,19 @@ one.  If a refusal fires, the default answer is to not send the text.
 
 ## Usage
 
+The script lives at the skills-repo root, not beside this file, because the
+calibration workflow uses it too.  Invoke it by absolute path --- a draft
+being checked is rarely in the skills repo, and a relative path silently
+resolves against wherever the draft happens to live.  Substitute the local
+mirror root for SKILLS (`/home/ligon/.sucoder/skills` on the human's
+account, `$(sucoder path skills)` or the mirror checkout otherwise).
+
 #+begin_src bash
 # score one or more drafts
-python3 scripts/pangram_calibrate.py --check draft.org
+python3 SKILLS/scripts/pangram_calibrate.py --check draft.org
 
 # several at once, including a control of your own older prose
-python3 scripts/pangram_calibrate.py --check draft.org known_human.org
+python3 SKILLS/scripts/pangram_calibrate.py --check draft.org known_human.org
 
 # review what has fired over time
 python3 -c "import json,os;[print(f\"{r['fraction_ai']:.2f} {r['path']}\") \

@@ -28,30 +28,48 @@ def validate_skill(skill_path):
         return False, "Invalid frontmatter format"
     
     frontmatter = match.group(1)
-    
-    # Check required fields
-    if 'name:' not in frontmatter:
-        return False, "Missing 'name' in frontmatter"
-    if 'description:' not in frontmatter:
-        return False, "Missing 'description' in frontmatter"
-    
-    # Extract name for validation
-    name_match = re.search(r'name:\s*(.+)', frontmatter)
-    if name_match:
-        name = name_match.group(1).strip()
+
+    # Parse the frontmatter as YAML rather than by regex.  A regex for
+    # `description:\s*(.+)` captures the block-scalar marker on a folded
+    # description (`description: >-`) and then rejects it for containing '>',
+    # which failed three valid skills in this repo.
+    try:
+        import yaml
+        meta = yaml.safe_load(frontmatter)
+        if not isinstance(meta, dict):
+            return False, "Frontmatter is not a mapping"
+        name = meta.get('name')
+        description = meta.get('description')
+        if not isinstance(name, str) or not name.strip():
+            return False, "Missing 'name' in frontmatter"
+        if not isinstance(description, str) or not description.strip():
+            return False, "Missing 'description' in frontmatter"
+    except ImportError:
+        # No PyYAML: fall back to the original single-line extraction, and
+        # skip fields whose value is a block scalar rather than guess at it.
+        if 'name:' not in frontmatter:
+            return False, "Missing 'name' in frontmatter"
+        if 'description:' not in frontmatter:
+            return False, "Missing 'description' in frontmatter"
+        name_match = re.search(r'name:\s*(.+)', frontmatter)
+        name = name_match.group(1).strip() if name_match else ''
+        desc_match = re.search(r'description:\s*(.+)', frontmatter)
+        description = desc_match.group(1).strip() if desc_match else ''
+        if description in ('>-', '>', '|', '|-'):
+            description = ''          # block scalar; unparseable without yaml
+    except yaml.YAMLError as exc:
+        return False, f"Frontmatter does not parse: {str(exc).splitlines()[0]}"
+
+    if name:
         # Check naming convention (hyphen-case: lowercase with hyphens)
         if not re.match(r'^[a-z0-9-]+$', name):
             return False, f"Name '{name}' should be hyphen-case (lowercase letters, digits, and hyphens only)"
         if name.startswith('-') or name.endswith('-') or '--' in name:
             return False, f"Name '{name}' cannot start/end with hyphen or contain consecutive hyphens"
 
-    # Extract and validate description
-    desc_match = re.search(r'description:\s*(.+)', frontmatter)
-    if desc_match:
-        description = desc_match.group(1).strip()
-        # Check for angle brackets
-        if '<' in description or '>' in description:
-            return False, "Description cannot contain angle brackets (< or >)"
+    # Check for angle brackets in the actual description text
+    if description and ('<' in description or '>' in description):
+        return False, "Description cannot contain angle brackets (< or >)"
 
     return True, "Skill is valid!"
 
