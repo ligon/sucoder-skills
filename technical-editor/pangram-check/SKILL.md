@@ -150,27 +150,38 @@ Never in the repository.  The key is read at run time from a path outside
 every git tree, and no committed file, cache or log has ever contained the
 value.
 
+It lives in a per-account config file:
+
+#+begin_src yaml
+# /home/coder/.sucoder/pangram/config.yaml   (mode 0600, dir 0700)
+api_key: sk-...
+#+end_src
+
 Resolution order, first hit wins:
 
 1. `$PANGRAM_API_KEY`
 2. `--key-file`
-3. `<human-account-home>/.sucoder/pangram/api_key`  (preferred)
-4. `<caller-home>/.sucoder/pangram/api_key`
-5. `<human-account-home>/Downloads/pangram_api_key`  (current, legacy)
-6. `<caller-home>/Downloads/pangram_api_key`
+3. `<human-account-home>/.sucoder/pangram/config.yaml`
+4. `<caller-home>/.sucoder/pangram/config.yaml`
+5. the same two paths with a bare `api_key` file instead of `config.yaml`
+6. `<home>/Downloads/pangram_api_key`  (legacy, see below)
 
-The Downloads entries keep an existing setup working, but a credential does
-not belong there.  On this workspace `~/Downloads` is a 9p mount shared with
-the host OS, where Unix modes are not reliably enforced, and the file is
-world-readable --- which is in fact the only reason the agent account can
-read it at all, since that account is not in the human's group.  Tightening
-the mode to 0600 would therefore break agent sessions rather than secure
-anything.
+A `.yaml`/`.yml` source is parsed and the key read from `api_key`, so the
+file can carry further settings later; any other path is read as a bare key.
+`--help` prints whichever path resolved.
 
-The fix is to move the key rather than re-permission it.  Placing it at
-`/home/coder/.sucoder/pangram/api_key`, owned by the agent account and mode
-0600, means only that account and root can read it, and requires no flag or
-config change because of the resolution order above.
+The Downloads entries remain only so an older setup keeps working, and a
+credential does not belong there.  On this workspace `~/Downloads` is a 9p
+mount shared with the host OS, where Unix modes are not reliably enforced,
+and the file is world-readable --- which is the only reason the agent
+account can read it at all, since that account is not in the human's group.
+Tightening that file to 0600 would break agent sessions rather than secure
+anything, so the fix is to move the key, not to re-permission it.
+
+Note that the config file sits in the AGENT account's home, because that is
+the account sessions run under.  A human invoking the tool directly under
+their own login will not read it, and needs `$PANGRAM_API_KEY`, `--key-file`,
+or a copy under their own `~/.sucoder/pangram/`.
 
 ## Where the log lives, and why there
 

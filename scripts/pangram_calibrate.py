@@ -114,7 +114,8 @@ def _default_key_file() -> Path:
     # is readable by every local account.  The Downloads paths stay in the list
     # so an existing setup keeps working, but moving the key to
     # <home>/.sucoder/pangram/api_key requires no flag and no config change.
-    relative = (Path(".sucoder") / "pangram" / "api_key",
+    relative = (Path(".sucoder") / "pangram" / "config.yaml",
+                Path(".sucoder") / "pangram" / "api_key",
                 Path("Downloads") / "pangram_api_key")
     for rel in relative:
         for base in bases:
@@ -323,11 +324,27 @@ def chunk(prose: str, min_words: int, max_words: int) -> list[str]:
 # API
 # --------------------------------------------------------------------------
 def load_key(key_file: Path) -> str:
+    """Read the key from the environment, a YAML config, or a bare key file.
+
+    A .yaml/.yml source is a config file with the key under `api_key`, so the
+    file can carry other settings later; anything else is read as the bare
+    key.  The key is never echoed, and never passed on a command line.
+    """
     key = os.environ.get("PANGRAM_API_KEY", "").strip()
     if key:
         return key
     if key_file.exists():
-        return key_file.read_text(encoding="utf-8").strip()
+        raw = key_file.read_text(encoding="utf-8")
+        if key_file.suffix in (".yaml", ".yml"):
+            try:
+                import yaml
+                cfg = yaml.safe_load(raw)
+            except ImportError:
+                sys.exit(f"{key_file} needs PyYAML to read (pip install pyyaml)")
+            if not isinstance(cfg, dict) or not cfg.get("api_key"):
+                sys.exit(f"{key_file} has no 'api_key' entry")
+            return str(cfg["api_key"]).strip()
+        return raw.strip()
     sys.exit(f"no API key: set $PANGRAM_API_KEY or provide {key_file}")
 
 
