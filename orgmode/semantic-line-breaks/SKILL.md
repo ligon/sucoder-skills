@@ -69,3 +69,5 @@ Three things to notice. The sentence interrupted by the equation resumes on the 
 
 ## Additional Resources
 - file:references/examples.org — Worked before/after conversions and the appendable abbreviation register. The file is itself written one sentence per line.
+- file:../../ligon-voice/references/agent-residue.org — A whole document in this layout, and the cheaper of the two specimens at 105 lines. Shows description-list items whose later sentences align at the text column, and body prose carrying a heading's indent.
+- file:../../ligon-voice/references/style-guide.org — The same layout sustained across 386 lines, with quotations reflowed inside `#+begin_quote` and tables left atomic. Load it only when the shorter specimens leave a question open; the rules themselves are all above.
