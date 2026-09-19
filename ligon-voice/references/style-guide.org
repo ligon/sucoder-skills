@@ -343,14 +343,14 @@
    vs.
 
    #+begin_quote
-   "It is common in this community to store non-perishable food as a form of savings---maize, cassava, or millet, dried or fresh.
+   "It is common in this community to store non-perishable food as a form of savings: maize, cassava, or millet, dried or fresh.
    Most communities in the region do the same."
    #+end_quote
 
    The second version delivers the same information without forcing the reader to maintain a stack of open parentheses.
 
    *Revision strategy:* At most one parenthetical per sentence.
-   When a second is needed, promote one to its own clause, an em-dash aside, or a footnote.
+   When a second is needed, promote one to its own clause, a colonic aside, or a footnote.
 
 ** 9.4 Guard Against Hedge Accumulation
 

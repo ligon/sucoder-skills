@@ -6,7 +6,6 @@
 
   Prose drafted by an agent that has already loaded =ligon-voice= has no crude tells.
   No em-dash spray, no "It is important to note that," no uniform 30-word sentences.
-  The checklist caught all of that.
   What it leaves behind instead is the residue of trying visibly hard to obey the rules: prose that /announces/ the move it is making rather than making it.
 
   These six phenomena are that residue.
@@ -89,14 +88,6 @@
    - Fix :: State the claim and drop the gloss.
      If the consensus is doing real work, cite someone; if it is not, the appositive is padding.
    - Tier :: 2.
-
-* Worked instances
-
-  =consensus-appositive= was added after a blinded test in which Ethan graded twelve passages without knowing which were his: it was the one tell he named that the catalog did not already cover.
-  The other five came from editing agent drafts.
-
-  =technical-editor/references/calibration-examples.org=, Example E, shows the first five in a single appendix opener, with the redlines and margin notes they draw.
-  That example is the calibration case for this catalog: prose with clean mechanics where near-silence from the editor would be a miss.
 
 * Related
 
