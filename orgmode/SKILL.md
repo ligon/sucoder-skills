@@ -17,7 +17,8 @@ license: Apache-2.0
 3. **Description Lists** — Prefer `- Label :: Details` over bold-with-colon patterns so LaTeX export stays clean.
 4. **TODO Workflow** — Promote TODO entries to actual headings (e.g., `* TODO Review appendix`). Do not mimic TODOs with inline bold text.
 5. **Character Set** — Stick to ASCII. Replace Unicode symbols with LaTeX macros (write `\alpha`, not `α`).
-6. **Exceptions** — If you must violate a rule, leave a nearby comment explaining why so the next edit stays intentional.
+6. **Semantic Line Breaks** — Write prose one sentence per line: break after a sentence-ending `.`, `?`, or `!`, and after nothing else (not commas, not semicolons, and not the period in `e.g.` or `Fig. 2`). Org joins consecutive non-blank lines into one paragraph, so the export is unchanged while diffs and redlines land on a single sentence. Convert existing paragraphs when you edit them, never wholesale in a commit that also changes content. See `orgmode/semantic-line-breaks` for lists, math, citations, and the structures that stay atomic.
+7. **Exceptions** — If you must violate a rule, leave a nearby comment explaining why so the next edit stays intentional.
 
 ## Tips
 - Run a quick scan for stray Unicode by setting your editor to highlight non-ASCII characters.
@@ -29,6 +30,7 @@ license: Apache-2.0
 - file:references/rules_for_orgmode_markup.org — Full guidance with examples and rationale.
 
 ## Related Skills
+- `orgmode/semantic-line-breaks` — Lay out prose one sentence per line without breaking math, citations, or lists.
 - `orgmode/plain-lists` — Format bullets, description lists, and checkboxes cleanly.
 - `orgmode/drawers` — Manage LOGBOOK, PROPERTIES, and custom drawers.
 - `orgmode/blocks` — Insert example/quote/export blocks with house-style directives.

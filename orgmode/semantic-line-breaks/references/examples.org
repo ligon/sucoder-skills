@@ -1,0 +1,98 @@
+#+TITLE: Semantic Line Breaks: Worked Examples and Abbreviation Register
+#+DESCRIPTION: Before/after conversions, plus the growing list of periods that do not end a sentence.
+
+This file is written one sentence per line, so it doubles as a specimen.
+Append to the register in section 2 whenever a new false terminator turns up in real prose.
+
+* 1. Before and after
+
+** 1.1 A plain paragraph
+
+Before, wrapped at a fill column:
+
+#+begin_example
+  Households smooth consumption imperfectly, and the residual variance is
+  informative about the market structure they face.  We estimate that
+  residual on panel data from three countries, then ask whether the
+  implied insurance coefficient is stable across them.
+#+end_example
+
+After:
+
+#+begin_example
+  Households smooth consumption imperfectly, and the residual variance is informative about the market structure they face.
+  We estimate that residual on panel data from three countries, then ask whether the implied insurance coefficient is stable across them.
+#+end_example
+
+Note that the comma in the first sentence is not a break point.
+Long lines are the expected outcome, not a defect to be wrapped away.
+
+** 1.2 A sentence interrupted by display math
+
+#+begin_example
+  Let the planner maximize the weighted sum
+  \begin{equation}
+    \sum_{i} \lambda_i u_i(c_i),
+  \end{equation}
+  subject to the aggregate resource constraint.
+  The weights \(\lambda_i\) are the objects we recover.
+#+end_example
+
+The sentence resumes immediately below =\end{equation}= with no blank line, so Org still reads one paragraph.
+A blank line there would split the sentence into two paragraphs and put vertical space in the exported document.
+
+** 1.3 A multi-sentence list item
+
+#+begin_example
+  - The instrument is rainfall at the village level.
+    It is plausibly exogenous to household effort, though not to village-level investment.
+  - Selection :: Attrition is nonrandom in wave three.
+    We reweight using the inverse propensity of remaining in the panel.
+#+end_example
+
+Continuation sentences align under the item's text, not under the bullet.
+For a description list, the tag and the first sentence share the =::= line.
+
+** 1.4 A conversion that should not have happened
+
+#+begin_example
+  We follow the argument of Deaton (1992, Ch.
+  6), who shows that the permanent-income benchmark fails here.
+#+end_example
+
+=Ch.= is not a sentence terminator, and the break has severed a citation.
+The correct layout keeps the whole sentence on one line.
+
+* 2. Abbreviation register
+
+Periods that do not end a sentence.
+Extend this list rather than rederiving it.
+
+- Latin and reference :: =e.g.=, =i.e.=, =cf.=, =et al.=, =viz.=, =ibid.=, =op. cit.=, =vs.=, =approx.=, =resp.=
+- Structural pointers :: =Fig.=, =Tab.=, =Sec.=, =App.=, =Ch.=, =p.=, =pp.=, =no.=, =vol.=, =eq.=, =Prop.=, =Thm.=, =Lem.=, =Cor.=, =Def.=, =Assum.=
+- Titles and names :: =Dr.=, =Prof.=, =Mr.=, =Ms.=, =Mrs.=, =St.=, and single-letter initials such as =E. A. Ligon=
+- Initialisms :: =U.S.=, =U.K.=, =U.N.=, =D.C.=, =Ph.D.=, =M.A.=
+- Organizations and units :: =Inc.=, =Ltd.=, =Dept.=, =Univ.=, =kg.=, =approx.=
+- Numerals :: any decimal (=0.5=, =1.96=), version strings (=Python 3.11=), and dotted section numbers (=2.3.1=)
+- Punctuation :: an ellipsis (=...=), which terminates nothing on its own
+
+Two cases resist any list.
+A sentence ending in an abbreviation takes a single period and does end there, as in "the estimates are reported in levels, not logs, etc."
+A capitalized word following an abbreviation is ambiguous, as in "see Sec. Three below"; read the sentence rather than the pattern.
+
+* 3. Checking a file
+
+Lines holding more than one sentence are worth a look, though every hit needs a human read:
+
+#+begin_src sh
+  grep -n '[a-z][.!?] \+[A-Z]' paper.org
+#+end_src
+
+Breaks that landed after a known abbreviation are the more damaging error, and are easier to find:
+
+#+begin_src sh
+  grep -nE '\b(e\.g|i\.e|cf|et al|vs|Fig|Tab|Sec|Ch|p|pp|no|eq|Prop|Thm|Dr|Prof)\.$' paper.org
+#+end_src
+
+Neither command is a linter, and neither should be run over a file wholesale without reading what it reports.
+Remember that untouched paragraphs stay untouched.

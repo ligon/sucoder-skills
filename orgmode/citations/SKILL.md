@@ -33,6 +33,7 @@ license: Apache-2.0
 
 ## Related Skills
 - `orgmode/rich-markup` — For surrounding LaTeX/math contexts in academic text.
+- `orgmode/semantic-line-breaks` — Citation tokens stay atomic; never break a line on punctuation inside `[cite:@key]`.
 - `orgmode/source-blocks` — Useful when generating bibliography statistics or cite lists via code blocks.
 - `orgmode/properties-and-columns` — When storing metadata about references in property drawers.
 
