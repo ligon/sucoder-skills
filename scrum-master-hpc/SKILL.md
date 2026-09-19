@@ -58,24 +58,12 @@ At the start of a scrum-master session, run this checklist:
    node-local and goes stale when you land on a different compute
    node; other clusters / login nodes / laptops may have entirely
    different conventions — don't generalise the Savio recipe.
-   Note: when a project's venv-recovery README offers an "Option 0"
-   that probes prior `/local/job*/venv` directories owned by you,
-   expect it to fail often ("no reusable venv on this node")
-   because Slurm scheduling spreads sessions across many nodes;
-   falling through to the project's documented Option A (typically
-   a tar-pipe from `.venv.lustre/` to node-local SSD) is the normal
-   path and runs in ~2 min for a ~1 GB venv.
-   Faster still: some projects ship the venv as a **single-file
-   image** (e.g. a squashfs `.venv.<n>.sqfs`) with a mount helper
-   (`bin/*venv*` or similar) that FUSE-mounts it to node-local
-   storage in one step — one shared-filesystem inode instead of
-   tens of thousands, so it sidesteps the metadata-server load the
-   tar-pipe still incurs.  When the project provides such a helper
-   (check its `CLAUDE.md` and any venv-dir docs), prefer
-   `<helper> mount` over the tar-pipe; the helper verifies the
-   import itself and fails loudly rather than leaving a broken
-   `.venv`.  Fall back to the tar-pipe only when no image/helper
-   exists.
+   Prefer a project's single-file-image helper (e.g.
+   `LSMS_Library/bin/savio_venv.sh mount`) over a tar-pipe when one
+   exists.  See
+   [references/node_local_staging.md](references/node_local_staging.md)
+   for the recovery ladder, why an image beats a tar-pipe, and when
+   staging is not worth doing at all.
 7. **Confirm today's date**: `date`, since handoff notes use it.
 
 Do not start dispatching until the above is clear.
@@ -1265,6 +1253,12 @@ one tomorrow).
   Worked examples of common scrum-master dispatches: parallel sweeps,
   worktree experiments, batch edits, investigation agents, second
   opinions.
+- **[references/node_local_staging.md](references/node_local_staging.md)** —
+  using a compute node's local SSD: which filesystem is bad at what
+  (measured), when staging pays and when it does not, why a single-file
+  image beats a tar-pipe (metadata-server load, not speed), the
+  implementations that already exist, and the traps.
+
 - **[references/recovery_playbook.md](references/recovery_playbook.md)** —
   Decision tree for diagnosing and recovering from common broken
   states: wrong branch, stale worktree, DVC lock contention, agent
