@@ -237,6 +237,11 @@ Non-negotiable, never change meaning, so apply silently. (Full detail in the
    prefix with ={}=, or use a =\begin{equation}= environment.
 7. No vertical whitespace around display math unless a new paragraph is
    genuinely intended.
+8. Prose layout: one sentence per line (=orgmode/semantic-line-breaks=). Fix the
+   layout of a line you are already editing; leave every other line's layout
+   alone. Do not break after =e.g.=, =cf.=, =et al.=, =Fig. 2=, or a decimal,
+   and never break inside =[cite:@key]=. A line break is never a Tier 2
+   redline: it carries no meaning and it buries the redlines that do.
 If respecting a guardrail would require a real judgment call, drop to Tier 2.
 
 ## Output Format
@@ -364,4 +369,6 @@ INPUT/OUTPUT, are in =file:references/calibration-examples.org=.
   the residue catalog; never a target to rewrite against.
 - =file:../ligon-voice/SKILL.md= --- the voice oracle this skill defers to.
 - =file:../orgmode/SKILL.md= --- Org/LaTeX mechanics.
+- =file:../orgmode/semantic-line-breaks/SKILL.md= --- one sentence per line, and
+  the periods that do not end one.
 - =file:../code-reviewer/SKILL.md= --- the analogous adversarial pass for code.

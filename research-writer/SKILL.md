@@ -90,7 +90,11 @@ redline that never has to happen.
 6. Mechanics per orgmode: =\(...\)= / =\[...\]= never =$=; ASCII only (no curly
    quotes, no Unicode dashes; real =---= for em dash, used rarely); =verbatim=
    not =\texttt{}=; description lists =- Label :: detail=; never begin a
-   wrapped display-math line with =+=/=-=/=*=.
+   wrapped display-math line with =+=/=-=/=*=. Lay the prose out one sentence
+   per line (=orgmode/semantic-line-breaks=): break after a sentence-ending
+   =.=, =?=, or =!= and after nothing else, not after a comma and not after the
+   period in =e.g.= or =Fig. 2=. When revising, reflow the sentences you change
+   and leave the rest of the file's layout untouched.
 7. Read it once as a hostile referee before handing off. If a sentence only
    tells the reader what's coming, cut it.
 
@@ -162,3 +166,5 @@ with the residual (REJECTED / human-call) tasks still present for Ethan.
   your output cold and returns the tiered redline you rebut.
 - =file:../ligon-voice/SKILL.md= --- the voice oracle.
 - =file:../orgmode/SKILL.md= --- Org/LaTeX mechanics.
+- =file:../orgmode/semantic-line-breaks/SKILL.md= --- one sentence per line, and
+  the periods that do not end one.
