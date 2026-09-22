@@ -13,6 +13,7 @@
 
 * Manual Entities
 - Use Org’s entity completion (`\alpha`, `\to`, etc.) when inserting symbols; do not copy Unicode arrows or Greek letters.
+- Targets other than LaTeX invert this for non-math symbols: a markdown cell renders =§= and =→= natively and shows =\S= and =\to= verbatim. See file:../../references/rules_for_orgmode_markup.org, "Character set discipline".
 
 Update this file if new markup preferences emerge.
 * Strikeout & plus markers =+=

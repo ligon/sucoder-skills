@@ -16,7 +16,7 @@ license: Apache-2.0
 2. **Math** — Inline math must use `\( … \)` and display math uses `\[ … \]`. Never use `$...$` / `$$...$$`; exporters and diff tooling stay happier with the LaTeX-style delimiters.
 3. **Directives** — Keep structural keywords lowercase (`#+name:`, `#+begin_src`, `#+results:`). It reads better in diffs and matches our house style; Org treats keywords case-insensitively so this is safe.
 4. **Special Blocks** — Choose `#+begin_example` for literal text, `#+begin_src lang` for executable code, `#+begin_quote` for quotations, etc. Leave a blank line before and after blocks unless inside list/table contexts that forbid it.
-5. **Entities & ASCII** — Use LaTeX commands (`\alpha`, `\ndash`) or Org entities (`\nbsp{}`) instead of raw Unicode. Keeps exports working with our pdflatex pipeline.
+5. **Entities & ASCII** — Use LaTeX commands (`\alpha`, `\ndash`) or Org entities (`\nbsp{}`) instead of raw Unicode. Keeps exports working with our pdflatex pipeline. This assumes a LaTeX-only target. If the document also exports to a notebook, HTML, or Markdown, the rule inverts for non-math symbols -- see `orgmode/SKILL.md` checklist rule 5 and `orgmode/references/rules_for_orgmode_markup.org`.
 6. **Tables of Contents & Links** — When exporting, insert `#+toc: headlines <n>` explicitly instead of relying on defaults; keep link descriptions concise and meaningful.
 
 ## House Rules

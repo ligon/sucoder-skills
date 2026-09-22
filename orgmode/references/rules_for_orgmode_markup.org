@@ -24,7 +24,23 @@ Orgmode is outline-focused, and organized under headlines.
 - Other tags can also function syntactically as TODO tags, E.g., DONE, WAITING, NEXT.
 
 * Character set discipline
+
+The right answer depends on where the text is exported, so establish the targets before changing any characters.
+
+** LaTeX-only documents
 - Stick to ASCII. The build pipeline depends on =pdflatex=, which rejects arbitrary Unicode glyphs.
 - Use LaTeX macros instead of literal symbols: e.g., write =\alpha= instead of the unicode character =α=.
+
+** Documents that also reach a non-LaTeX target
+Markdown cells in a Jupyter notebook (=ox-ipynb=), HTML, and plain Markdown are the usual cases, and there the rule inverts for non-math symbols.
+- Literal =§=, =→=, =é= render natively in a markdown cell, while a bare =\S=, =\to=, or =H\'ajek= reaches the reader as verbatim backslash soup.
+- Outside math delimiters a markdown cell does not interpret LaTeX macros at all; inside =\( … \)= or =\[ … \]= it does. Math therefore keeps its macros on every target, and only the surrounding prose is in question.
+- Prefer the Unicode character for non-math symbols in any headline that can reach such a target.
+
+** Mixed routing
+One file often sends different headlines to different targets, and the routing is usually invisible in the text.
+In HHSurveys' =lectures.org= it lives in tags (=:slide:=, =:code:=, =:aside:=) plus per-target exclude lists bound in an external =build.el=, so a =§= under an untagged headline reaches the participants' notebooks while one under a =:slide:= headline does not.
+- Read the build configuration before applying either rule mechanically. A cleanup pass on that file replaced =§= with =\S= and =Hájek= with =H\'ajek= throughout the reading lists, broke every one of them in the notebook export, and had to be reverted.
+- If the routing cannot be established, leave the characters alone. Unchanged text is already correct for whatever target it was written for; a mechanical conversion is correct for at most one.
 
 Stay consistent with these patterns whenever you create or update org-mode files. If a document requires an exception, call it out explicitly in a nearby comment so future edits stay intentional.
