@@ -14,6 +14,34 @@ ln -s ~/Projects/sucoder-skills ~/.sucoder/skills
 
 Skills are loaded automatically when `sucoder collaborate` launches an agent.
 
+## Updating a Deployed Checkout
+
+A deployed checkout can fall behind without anyone noticing, and the usual
+cause is a remote that does not point at GitHub. In the mirrors `sucoder`
+creates, `origin` is replaced by a local-path remote, so a plain `git pull`
+there fetches a clone that may itself be stale (sucoder-skills #3).
+
+Update without discarding local work:
+
+```bash
+cd <checkout>
+git status --short                                   # expect a clean tree
+git fetch https://github.com/ligon/sucoder-skills.git main
+git merge-base --is-ancestor HEAD FETCH_HEAD          # fast-forward possible?
+git merge --ff-only FETCH_HEAD
+git rev-parse --short HEAD                            # record the revision
+make check                                            # frontmatter + residue lints
+```
+
+The `merge-base` test is the safety. It exits non-zero when the checkout holds
+commits GitHub does not, and `--ff-only` then refuses rather than rewriting
+anything. Do not reach for `reset --hard` or `clean` to fix a stale checkout:
+they discard exactly the local work this procedure protects.
+
+Run it per host. A change on one host does not propagate to another, and the
+revision printed above is what identifies the code a given host is actually
+running -- quote it when a skill behaves unexpectedly.
+
 ## Repository Structure
 
 ```

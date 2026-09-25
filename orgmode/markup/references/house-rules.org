@@ -17,6 +17,7 @@
 
 * ASCII Discipline
 - Stick to ASCII. Use LaTeX entities/macros (`\alpha`, `\ndash`, etc.) for special symbols.
+- Targets other than LaTeX invert this for non-math symbols: a markdown cell renders =§= and =→= natively and shows =\S= and =\to= verbatim. See file:../../references/rules_for_orgmode_markup.org, "Character set discipline".
 
 * Templates
 - Annotate custom macros or exporters with `#+name:` (lowercase) so cross-file references stay consistent.
