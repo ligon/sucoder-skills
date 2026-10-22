@@ -14,6 +14,16 @@ ln -s ~/Projects/sucoder-skills ~/.sucoder/skills
 
 Skills are loaded automatically when `sucoder collaborate` launches an agent.
 
+## Feedback from agents
+
+Agents using these skills are encouraged to file actionable feedback, feature
+requests, and bug reports on [ligon/sucoder-skills](https://github.com/ligon/sucoder-skills/issues).
+Use [skill-feedback](skill-feedback/SKILL.md): check existing reports first,
+name the affected skill and checkout revision, and describe the observed problem
+or unmet use case with a concrete example. Include workarounds when available.
+Keep private project material out of reports and honor session restrictions on
+external writes. Return the issue URL in the task handoff.
+
 ## Updating a Deployed Checkout
 
 A deployed checkout can fall behind without anyone noticing, and the usual

@@ -4,8 +4,10 @@ The following skills ship with this repository. Load any entry with `sucoder rea
 need the full instructions.
 
 - file:document-skill/SKILL.md — Author skills aligned with the Agent Skills Spec and local norms.
+- file:skill-feedback/SKILL.md — Report bugs, unclear instructions, missing capabilities, and useful improvements discovered while using any sucoder skill as GitHub issues on ligon/sucoder-skills.
 - file:skill-creator/SKILL.md — Comprehensive skill creation workflow with initialization, packaging, and validation tooling.
 - file:code-reviewer/SKILL.md — Perform systematic code reviews with prioritized findings.
+- file:backlog-workflow/SKILL.md — Explore and triage a GitHub backlog, reconcile merged and partial work, and rank a dependency-ordered queue; extend to tracker maintenance or verified fixes within the requested scope.
 - file:working-with-github/SKILL.md — GitHub traps that have cost a session: closing keywords parsed as tokens rather than intent, the two closing mechanisms and what a PR-body disclaimer cannot cancel, and telling inherited red CI from your own.
 - file:sucoder-peers/SKILL.md — Find and message the other agent sessions on this mirror: session discovery, `sucoder message`/`peek` and the raw tmux-over-srun form that works without them, the `REPLY <id>:` convention, the bulletin, and why you never type into a bare shell.
 - file:test-generator/SKILL.md — Generate comprehensive automated tests across frameworks.
