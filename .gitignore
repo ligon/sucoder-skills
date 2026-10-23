@@ -12,3 +12,6 @@ dist/
 # Pangram calibration: scores and excerpts of unpublished prose
 calibration/out/
 calibration/manifest.json
+
+# Local helper scripts (not shared)
+scripts/fetch-agent-branches.sh
