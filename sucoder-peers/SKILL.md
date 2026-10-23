@@ -28,31 +28,50 @@ except the ones this skill describes.
 - When a `[message <id> from ...]` line appears in your input and you want to
   know how the reply gets back.
 
-## First: check what your CLI actually has
+## First: check the installed interface
 
-`sucoder message` and `sucoder peek` came out of the work tracked by
-ligon/sucoder#26, and an installed build can lag its source by weeks.
+Run `sucoder --version` and `sucoder --help`; check `sucoder sessions --help`
+for `--json` before selecting a discovery route. Installed builds can lag source.
+Use [sucoder-session](../sucoder-session/SKILL.md) to establish the local clone.
+
+When supported, prefer bounded noninteractive discovery:
 
 ```sh
-sucoder --version
-sucoder message --help    # "No such command 'message'" => use the raw form
+sucoder sessions --json --fast --timeout 30
+sucoder -T TARGET sessions --json --timeout 30
 ```
 
-Observed on 2026-09-22: build `2026.7.1.dev36+g258accb` on the `coder` account
-had neither command, while the source tree at `ligon/sucoder` commit `c3bd7ed`
-had both.
+Fast mode skips both login and pane probes. Drop `--fast` when those observations
+are needed; use `--no-login-nodes` only when deliberately narrowing that scope.
+Discovery covers configured remote targets, not every local process or cluster.
 
-| Task | CLI form | Raw form |
-|---|---|---|
-| Discover | `sucoder sessions` | `squeue --me --name=sucoder-<token>` |
-| Send | `sucoder message MIRROR "text"` | `srun ... tmux send-keys` |
-| Read | `sucoder peek MIRROR -n 40` | `srun ... tmux capture-pane -p` |
-| Needs | the CLI, its config, a route to the target | nothing beyond Slurm and tmux |
+Accept exactly schema version `1.0`. Preserve JSON on exit 3 (partial or
+unavailable), read `sources`, `coverage` and `errors`, and keep source IDs attached
+to job IDs. Exit 0 and complete source coverage with count zero establish empty
+only for that source. An unreachable source is unknown. A record with mixed
+replacement-holder evidence is unknown; do not suggest clearing it.
+If `truncated` is true, narrow and rerun. Empty aggregate target attribution does
+not mean that no targets were omitted.
 
-Installing the CLI cluster-side is the cleaner long-term answer, but it wants a
-second config naming the targets by their cluster-side view — no gateway hop,
-`mirror_root` as seen from there — and that config has to be kept in step with
-the laptop's. Until it is, prefer the raw form from inside a job.
+`recognized_agent_command`, `shell_command` and `service_marker` are observations,
+not readiness guarantees. A service marker may be stale. Session keys are scoped
+to one observation and do not authorize mutation; IDs and tmux names can be reused.
+
+A configured relay is negotiated by the JSON command with `sudo -n` and a bounded
+capability check. `RELAY_UNSUPPORTED`, failed authentication or missing routes
+mean unavailable; do not repair tunnels, install a relay or alter sudo rules as
+part of discovery. Context remains local even when session discovery is relayed.
+
+If JSON is absent, use the older human `sucoder sessions` only when its possible
+interactive authentication is acceptable for the task. Otherwise report discovery
+unknown or use an already-authorized, local scheduler query. Do not translate a
+human table into a fabricated structured response. No SuCoder MCP tools ship here.
+See the [scenario matrix](../sucoder-session/references/scenarios.md).
+
+For authorized communication, check `sucoder message --help` and
+`sucoder peek --help` separately. Prefer supported CLI commands. The raw forms
+below are legacy fallbacks for environments where those commands are absent and
+the user has authorized the corresponding send/read operation.
 
 ## The names everything keys on
 
@@ -75,6 +94,11 @@ The tmux server of a confined job lives inside the allocation's cgroup, so every
 operation on its pane goes through `srun --jobid=J --overlap`.
 
 ## Sending
+
+Send only within the user's explicit messaging instruction or an explicitly
+invoked skill's communication scope. Loading this skill for discovery does not
+itself authorize sending or pane reads. Select the intended recipient; do not
+broadcast merely because discovery returned several sessions.
 
 ```sh
 sucoder message MIRROR "text"               # one session
@@ -119,8 +143,10 @@ command**. A live tmux session is not evidence of a live agent.
 
 `sucoder message` refuses a pane it probed as a shell, always, and refuses a
 pane it could not probe unless `--force`, because unknown is not evidence of an
-agent either. With the raw form, you own that check yourself: probe the pane
-before typing into it.
+agent either. With the raw form, require current process evidence immediately before typing.
+Captured pane text alone cannot establish the active process. If process state
+is unknown, or changes between inspection and sending, stop the send; never use
+`--force` to turn uncertainty into permission.
 
 ```sh
 TMPDIR=/tmp srun --jobid=J --overlap --quiet --chdir=/tmp bash -c \
@@ -171,7 +197,8 @@ conclusion.
 
 ## Pitfalls
 
-- **Assuming the CLI has `message`.** Check the version first; fall back to raw.
+- **Assuming the CLI has `message`.** Check help first; use a raw fallback only
+  within authorized communication scope.
 - **Putting `-T` after the subcommand.** It is a global option and must precede
   it: `sucoder -T savio message ...`, not `sucoder message -T savio ...`.
 - **Passing `-L` when listing login-node sessions.** Those use the default tmux
@@ -188,6 +215,8 @@ conclusion.
   sessions and recovering a broken working tree, once you know who is there.
 
 ## Changelog
+- **2026-10-22**: Prefer capability-checked JSON discovery; document source
+  provenance, unknown coverage, relay failures and communication scope.
 - **<2026-09-22 Tue>** — Initial draft, from sucoder-skills #7. Commands and
   mechanics verified against `ligon/sucoder` at commit `c3bd7ed`
   (`sucoder/messaging.py`, `sucoder/mirror.py`, `sucoder/cli.py`) rather than

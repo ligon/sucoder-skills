@@ -9,6 +9,7 @@ need the full instructions.
 - file:code-reviewer/SKILL.md — Perform systematic code reviews with prioritized findings.
 - file:backlog-workflow/SKILL.md — Explore and triage a GitHub backlog, reconcile merged and partial work, and rank a dependency-ordered queue; extend to tracker maintenance or verified fixes within the requested scope.
 - file:working-with-github/SKILL.md — GitHub traps that have cost a session: closing keywords parsed as tokens rather than intent, the two closing mechanisms and what a PR-body disclaimer cannot cancel, and telling inherited red CI from your own.
+- file:sucoder-session/SKILL.md — Establish local workspace identity, interpret context facts and configured durability, and fall back safely on older CLIs without requiring MCP.
 - file:sucoder-peers/SKILL.md — Find and message the other agent sessions on this mirror: session discovery, `sucoder message`/`peek` and the raw tmux-over-srun form that works without them, the `REPLY <id>:` convention, the bulletin, and why you never type into a bare shell.
 - file:test-generator/SKILL.md — Generate comprehensive automated tests across frameworks.
 - file:jax-pandas-bridge/SKILL.md — Wrap pandas-labelled tensors for JAX autodiff/JIT: PyTree registration, hashable label aux representations, abstract-tracer-safe validation, and strict-by-default labelled operators with bool-safe equality.
