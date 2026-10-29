@@ -428,3 +428,8 @@ These are complementary, not interchangeable:
 You can combine them: dispatch a coordinator agent that `sbatch`es
 Slurm jobs and monitors them via the `squeue` CLI.  That agent stays
 lightweight while the heavy compute runs on another node.
+
+When the task needs judgment *and* is long, `sucoder dispatch` runs a
+headless agent in its own allocation on another node, with a private
+result repository for review; see
+[sucoder_dispatch.md](sucoder_dispatch.md).

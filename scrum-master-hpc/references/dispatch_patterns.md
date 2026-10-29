@@ -202,7 +202,9 @@ scrum master might need to redirect it mid-flight, or the agent
 might hit a question that needs human judgment.
 
 **Approach**: Provision two files **before dispatching** and tell
-the agent about them in the prompt.
+the agent about them in the prompt.  (For a `sucoder dispatch` worker
+the files already exist in its dispatch directory; use those instead.
+See [sucoder_dispatch.md](sucoder_dispatch.md).)
 
 **Setup** (before dispatch — **do this, don't ask the agent to do it**):
 

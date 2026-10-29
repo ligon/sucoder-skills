@@ -1,7 +1,7 @@
 # Workspace Skills Catalog
 
-The following skills ship with this repository. Load any entry with `sucoder read <path>` if you
-need the full instructions.
+The following skills ship with this repository. To use one, read its `SKILL.md` with your
+file-read tool; entry paths are relative to this catalog (installed as `~/.sucoder/skills/`).
 
 - file:document-skill/SKILL.md — Author skills aligned with the Agent Skills Spec and local norms.
 - file:skill-feedback/SKILL.md — Report bugs, unclear instructions, missing capabilities, and useful improvements discovered while using any sucoder skill as GitHub issues on ligon/sucoder-skills.
@@ -42,15 +42,16 @@ need the full instructions.
 - file:prior-art-ledger/SKILL.md — Ground a task in an existing repo before adding an estimator/function: build a git-tracked "ledger" of existing tested machinery, definitions, and conventions, act with it in context, then verify reuse/consistency against it. Catches reinvented methods and contradicted definitions; tools (gitnexus/cq) optional over a git+ripgrep floor.
 - file:workshop-problem/SKILL.md — Conductor for open-ended "here's a hard problem, see what you can do with it" asks: a gated 0–6 lifecycle (scope & red-team the question, agree a checkable charter, ground, implement, red-team, converge until green, review). Human handshake for 0–1; bundled Claude Code workflow runs 2–6 autonomously. Delegates to prior-art-ledger, code-reviewer/technical-editor, and test-generator; right-size guard skips the ceremony for trivia.
 
-Project-specific skills now live with their projects rather than here:
-
-- LSMS_Library: `add-wave`, `add-feature` (and its sub-skills) live in `LSMS_Library/.claude/skills/`.
-- ligon.github.io: `add-paper` lives in `ligon.github.io/.claude/skills/`.
+Project-specific skills now live with their projects rather than here: LSMS_Library keeps
+`add-wave` and `add-feature` (with its sub-skills) in `LSMS_Library/.claude/skills/`, and
+ligon.github.io keeps `add-paper` in `ligon.github.io/.claude/skills/`.  (Not bullets: the catalog
+parser reads any line starting with a dash as an entry.)
 
 This keeps `sucoder-skills` agent-agnostic; project-local skills are
 picked up by the per-project skill mechanism (e.g., Claude Code's
 `Skill` tool when a session is in that project).
 
-Add new skills by creating a subdirectory under `skills/` with a `SKILL.md` file (plus optional
-resources) and list it here using either a `file:` link or relative path so the catalog stays in
-sync.
+Add a new skill as a top-level directory (or a subdirectory such as `orgmode/<name>/`) holding a
+`SKILL.md` and optional resources, and list it above in the same form as the existing entries so
+the catalog stays in sync.  Only entry lines may put a path directly after the file: prefix; the
+catalog parser reads every such occurrence, even in prose, as an entry.

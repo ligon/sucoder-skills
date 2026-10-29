@@ -355,7 +355,7 @@ context.
 
 ## Dispatch Modes
 
-Four ways to dispatch work, in increasing order of isolation:
+Five ways to dispatch work, in increasing order of isolation:
 
 ### 1. Foreground agent (in-process)
 
@@ -518,6 +518,22 @@ Three standing rules when dispatching to Slurm:
 
 All three rules are expanded in
 [references/slurm_dispatch.md](references/slurm_dispatch.md).
+
+### 5. Headless agent on another node (`sucoder dispatch`)
+
+Submit an independent Codex or Claude worker to its own Slurm
+allocation with `sucoder dispatch submit`.  Appropriate when the task
+needs model judgment *and* more time, cores or isolation than an
+in-process agent should take from this node, or when several
+assignments (an implementer and a reviewer, a sweep) should run
+concurrently on different nodes.  The worker starts from one pinned
+commit, keeps its state on the receiving node's local disk, and commits
+to a private `results.git`; you review and integrate.  The mode 4
+account rules apply.  Read
+[references/sucoder_dispatch.md](references/sucoder_dispatch.md) before
+the first submission: it covers the source and task-file contract, the
+exit-3 `submission_unknown` case that must never be resubmitted
+blindly, the built-in message channel, and how to get the work back.
 
 ## Parallel Orchestration (Scatter-Gather)
 
@@ -1096,6 +1112,11 @@ Keep the files in a session-specific directory (e.g.,
 `slurm_logs/build_2026-04-10/`) so old channels don't contaminate
 new sessions.
 
+A `sucoder dispatch` worker (mode 5) is the exception: its dispatch
+directory already contains both files and its prelude names them, so
+use those rather than creating your own (see
+[references/sucoder_dispatch.md](references/sucoder_dispatch.md)).
+
 ### Slurm jobs: one-way filtered Monitor
 
 A Slurm job is a deterministic process — pytest, make, a Python
@@ -1249,6 +1270,10 @@ one tomorrow).
 - **[references/slurm_dispatch.md](references/slurm_dispatch.md)** —
   Partition selection, job submission template, monitoring, and
   preemption handling for compute-heavy dispatch.
+- **[references/sucoder_dispatch.md](references/sucoder_dispatch.md)** —
+  Headless Codex/Claude workers on another node with `sucoder dispatch`:
+  source and task contract, submission exit codes, the built-in message
+  channel, observing, and reviewing the private result repository.
 - **[references/dispatch_patterns.md](references/dispatch_patterns.md)** —
   Worked examples of common scrum-master dispatches: parallel sweeps,
   worktree experiments, batch edits, investigation agents, second
