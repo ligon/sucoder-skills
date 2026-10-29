@@ -145,138 +145,12 @@ behind yours, don't dispatch it that way.
 
 ### Knowing the numbers
 
-Savio-specific (generalize to your cluster):
-
-```bash
-# Account balance: how much of the priority allocation is left?
-check_usage.sh -a <priority_account>           # e.g. fc_jevons
-
-# Your personal usage this allocation year
-check_usage.sh -u $USER
-
-# Fair-share position (useful for diagnosing queue waits)
-sshare -A <priority_account> --all
-
-# Period utilization with per-user breakdown
-sreport -t hours cluster accountutilizationbyuser \
-    start=$(date -d '1 month ago' +%Y-%m-%d) end=now account=<priority_account>
-```
-
-`check_usage.sh` lives at `/global/home/groups/allhands/bin/` on
-Savio and is on `$PATH` by default.  The key number is SUs consumed
-vs. SUs allocated; treat >80% as a warning threshold worth
-surfacing to the human.
-
-**`check_usage.sh` is broken on Savio compute nodes.**  The script
-(Python 2.7, last touched Sep 2025) chooses its config file by
-checking `'brc' in socket.gethostname()`.  Compute node hostnames
-are `n####.savio2` — no "brc" substring — so the script falls into
-MyLRC mode and tries to read `check_usage_mylrc.conf`, which does
-not exist in the `allhands/bin` directory.  You get
-`config file /global/home/groups/allhands/bin/check_usage_mylrc.conf missing...`
-and no data.  The login node hostname *does* contain "brc", so the
-script works there.
-
-**Recommended fix (one-time): drop a patched copy into
-`~/.local/bin`** (which is typically ahead of
-`/global/home/groups/allhands/bin` in `$PATH`, so your copy
-shadows the broken one):
-
-```bash
-mkdir -p ~/.local/bin
-cp /global/home/groups/allhands/bin/check_usage.sh       ~/.local/bin/
-cp /global/home/groups/allhands/bin/check_usage_mybrc.conf ~/.local/bin/
-chmod +x ~/.local/bin/check_usage.sh
-
-# Replace the one-line MODE detection with env-var-first,
-# savio-aware logic.  The CONFIG_FILE lookup keys on
-# os.path.dirname(__file__), so the config file must live next to
-# the script — hence copying it alongside.
-python3 - <<'PY'
-import pathlib, re
-p = pathlib.Path.home() / ".local/bin/check_usage.sh"
-src = p.read_text()
-old = "MODE = MODE_MYBRC if 'brc' in socket.gethostname() else MODE_MYLRC"
-new = '''# PATCHED: respect CHECK_USAGE_MODE env var, then detect "savio"
-# in the hostname as a fallback so Savio compute nodes (whose
-# hostnames do not contain "brc") are classified as mybrc.
-_cu_hostname = socket.gethostname()
-if os.environ.get('CHECK_USAGE_MODE') in (MODE_MYBRC, MODE_MYLRC):
-    MODE = os.environ['CHECK_USAGE_MODE']
-elif 'brc' in _cu_hostname or 'savio' in _cu_hostname:
-    MODE = MODE_MYBRC
-else:
-    MODE = MODE_MYLRC'''
-assert old in src, "upstream script has changed; re-audit"
-p.write_text(src.replace(old, new))
-PY
-
-hash -r
-check_usage.sh -a <priority_account>  # should now return data
-```
-
-The patch is two surgical changes: (1) the MODE-detection block
-in `check_usage.sh`, (2) a copied `check_usage_mybrc.conf` next to
-it so the config-file lookup (`os.path.dirname(__file__)`)
-resolves.  The upstream Python-2.7 shebang and all other logic are
-left intact.  The `assert old in src` line is a guard: if LBL
-updates the upstream script, the patch will refuse to apply rather
-than corrupt a newer version.
-
-If you cannot or will not patch the script (e.g., brief session,
-read-only home), the Slurm-native fallbacks below cover the
-operational need:
-
-```bash
-# Cumulative usage this allocation period for the priority account,
-# broken down by user.  Gives CPU-hours — convert to SUs by
-# multiplying by the partition multiplier if you need the bill.
-sreport -t hours cluster accountutilizationbyuser \
-    start=$(date -d '1 month ago' +%Y-%m-%d) end=now \
-    account=<priority_account>
-
-# Fair-share weights and raw usage — useful for diagnosing queue
-# position and checking your personal recent load.
-sshare -A <priority_account> --all
-
-# Your currently-running and queued jobs against the account
-squeue -u $USER -A <priority_account>
-```
-
-What `check_usage.sh` adds on top of these is a single "SUs remaining
-of allocation" number, which `sreport` alone does not give you —
-you'd need to subtract cumulative usage from the allocation ceiling,
-and the ceiling is not queryable via Slurm.  In practice, if the
-login-node `check_usage.sh` run at session start gave you a ceiling
-number, the session-end delta from `sreport` is the right thing to
-diff against it.  If you never had a ceiling number (compute-node-
-only session), record the session's `sreport` delta as raw CPU-hours
-and let the human map it to their allocation themselves.
-
-### Sanity-check the tool before relying on it
-
-At the start of each session, verify that your usage tool is
-actually returning data before you record a baseline:
-
-```bash
-check_usage.sh -a <priority_account> 2>&1 | head -5
-```
-
-If the output is a config-missing error, a token error, a network
-timeout, or empty, **do not record an incorrect "session start
-balance"** in the handoff — that will poison the end-of-session
-delta.  Either move to a node where the tool works, switch to the
-`sreport`-based fallback and mark the handoff with "CPU-hours
-only, no SU ceiling", or ask the human for the current balance.
-
-**Empirical update (2026-04-28).**  `check_usage.sh -a <account>`
-returned valid usage data on at least one Savio compute node
-(`n0291.savio2`) without needing the patch documented above.  The
-patch may still be necessary on other nodes — the cluster
-admin's deployment may not be uniform — so the recommended order
-is: try the unpatched script first, fall through to the patch
-recipe (or the `sreport`-based fallback) only if it fails.  Don't
-preemptively apply the patch.
+The usage commands (`check_usage.sh`, `sreport`, `sshare`), the
+`check_usage.sh` breakage on Savio compute nodes and its patch, and the
+start-of-session sanity check live in
+[references/cost_accounting.md](references/cost_accounting.md).  Read it
+before recording a session-start balance: an unchecked tool poisons the
+end-of-session delta.
 
 ### Protocol for the scrum master
 
@@ -286,9 +160,10 @@ preemptively apply the patch.
    immediately: switch all non-urgent work to the free account and
    flag the situation to the human.  If the usage tool returns an
    error (config-missing, token-expired, node-unsupported), fall back
-   to the `sreport`-based commands above and record the session delta
-   in CPU-hours instead of SUs — do not record a speculative ceiling
-   number.
+   to the `sreport`-based commands in
+   [references/cost_accounting.md](references/cost_accounting.md)
+   and record the session delta in CPU-hours instead of SUs — do not
+   record a speculative ceiling number.
 
 2. **Before submitting any large job** (wall ≥ 2h, or whole-node
    allocation) on a billed account, estimate SU cost and report it
@@ -555,82 +430,17 @@ data_scheme.yml files"), a **single script** (written and run directly
 by the scrum master) is often better than 30 agents.  Agents add
 latency and context-load; a for-loop is instant.
 
-## Running JAX/XLA suites on a shared many-core node
+## Heavy compute on the coordinator's node
 
-JAX/XLA is a special case of oversubscription that bites *harder* than the
-`pytest -n auto` rule above — and the fix is different.
+Two rules, detailed in
+[references/shared_node_compute.md](references/shared_node_compute.md):
 
-**The hazard.**  XLA sizes its JIT thread pool to the number of *visible*
-CPUs and `mmap`s executable pages per worker.  So two or more *uncapped*
-JAX processes on, say, a 64-core node spin up `2 × 64` threads plus double
-the executable-page mmaps and **segfault** — a hard kill mid-run, often
-with no pytest summary line, not the graceful slowdown ordinary
-oversubscription gives.  This is the most likely cause of a mid-session
-"the suite just died" on a fat node, and it strikes any multi-agent setup
-where several agents each run a JAX `pytest`.
-
-**The fix: pin to disjoint core sets with `taskset`, don't serialize.**
-XLA sizes its pool to the *affinity-limited* CPU count
-(`len(os.sched_getaffinity(0))`), so `taskset -c 0-31` makes a JAX process
-behave as a 32-core process — fewer threads, fewer mmaps, confined cores.
-Pin concurrent suites to disjoint halves and they coexist at full speed:
-
-```bash
-# two JIT-heavy suites, concurrently, on one 64-core node:
-XLA_FLAGS=--xla_force_host_platform_device_count=1 taskset -c 0-31  pytest <A> &
-XLA_FLAGS=--xla_force_host_platform_device_count=1 taskset -c 32-63 pytest <B> &
-```
-
-Validated: two JIT-heavy suites pinned to `0-31` / `32-63` both pass
-concurrently with no segfault — and each is ~20× faster than the
-ultra-safe `OMP_NUM_THREADS=1` single-thread fallback (which forces one
-thread).  Even a *single* run benefits from `taskset -c 0-31`: a fast
-32-core run that leaves the other half free.  **Multi-agent rule:** give
-each agent a distinct core range, not an instruction to serialize.
-
-(This is local-node discipline.  Under a cgroup-limited Slurm job the
-affinity is already restricted — read `$SLURM_CPUS_ON_NODE` per the
-dispatch rules above; you rarely need `taskset` there.)
-
-**Pitfall — the self-matching wait loop.**  Do *not* gate a "wait for the
-other suite to finish" loop on `pgrep -f "pytest"`: the loop's own command
-line contains the string `pytest`, so `pgrep` matches *itself* and the loop
-never exits.  This silently hangs an agent forever.  Match the concrete
-process (`pgrep -f "bin/python -m pytest"`, excluding your own PID) — or,
-better, just pin with `taskset` and skip the wait entirely.
-
-## Keep the interactive session responsive: `nice` shared-node jobs
-
-When the heavy background compute runs on the **same node** as your
-interactive session (a parallel build sweep, a cross-country scan,
-`pytest -n`, a `make -j`), it competes with the very session the user is
-typing into.  A saturating `--jobs N` run at normal priority makes the
-scrum master's own tool calls lag — defeating the "stay interactive"
-principle above.  Cheap fix: **`nice` (and `ionice`) the job** so the
-kernel preempts it in favour of interactive work.
-
-```bash
-# nice is inherited by children, so nicing the parent covers the whole
-# worker pool; ionice -c 3 (idle) yields the disk too (DVC reads / parquet
-# writes).  Both are unprivileged.
-nice -n 19 ionice -c 3 .venv/bin/python scan.py --jobs 28 ...
-```
-
-- **Nice the launch, not after the fact.**  Re-nicing a running 30-worker
-  pool means chasing every child PID.  Set it at `run_in_background` time.
-- **Still leave headroom.**  `nice` makes the job *yield*, but a few free
-  cores (`--jobs $((nproc-4))`) keep latency low even under contention.
-- **Reaping orphans: do NOT `pkill -f "scan.py"`.**  Its own command line
-  contains `scan.py`, so `pkill` SIGTERMs the shell running it (observed:
-  the launching bash dies with exit 144) — the same self-match trap as the
-  wait loop above.  Stop the *harness-tracked* background task instead
-  (clean, reaps the worker pool); if you must `pgrep`/`kill` by hand, use
-  the bracket trick (`pgrep -f '[s]can.py'`, which doesn't match its own
-  argv) and exclude your own PID.
-- **Or get off the node entirely.**  If the run is big enough that even a
-  niced sweep churns the session, dispatch it to Slurm (separate node) per
-  the [dispatch rules](#4-slurm-job-separate-node) — niceness is a
-  same-node palliative, Slurm is the real isolation.
+- **JAX/XLA: pin, don't serialize.**  Uncapped concurrent JAX processes
+  on a many-core node can segfault; give each suite (and each agent) a
+  disjoint `taskset -c` core range.
+- **`nice -n 19 ionice -c 3` background jobs** that share the interactive
+  session's node, and never wait on or reap them with `pgrep -f`/`pkill -f`
+  patterns that match the caller's own command line.
 
 ## Branch Hygiene
 
@@ -1274,6 +1084,12 @@ one tomorrow).
   Headless Codex/Claude workers on another node with `sucoder dispatch`:
   source and task contract, submission exit codes, the built-in message
   channel, observing, and reviewing the private result repository.
+- **[references/cost_accounting.md](references/cost_accounting.md)** —
+  Savio usage commands, the `check_usage.sh` compute-node patch, `sreport`
+  fallbacks, and the session-start sanity check.
+- **[references/shared_node_compute.md](references/shared_node_compute.md)** —
+  Pinning JAX/XLA suites with `taskset`, and `nice`/`ionice` for jobs that
+  share the interactive node.
 - **[references/dispatch_patterns.md](references/dispatch_patterns.md)** —
   Worked examples of common scrum-master dispatches: parallel sweeps,
   worktree experiments, batch edits, investigation agents, second
