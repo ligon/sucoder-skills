@@ -39,6 +39,7 @@ git merge-base --is-ancestor HEAD FETCH_HEAD          # fast-forward possible?
 git merge --ff-only FETCH_HEAD
 git rev-parse --short HEAD                            # record the revision
 make check                                            # frontmatter + residue lints
+make check PYTHON=/path/to/python                     # if python3 lacks PyYAML
 #+end_src
 
 The =merge-base= test is the safety.  It exits non-zero when the checkout holds
